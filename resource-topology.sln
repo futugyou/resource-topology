@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E9DE0C8C-D270-4C30-9CD7-16E8C740E8A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsAgent", "src\AwsAgent\AwsAgent.csproj", "{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceManager", "src\ResourceManager\ResourceManager.csproj", "{7EA7E434-5B9A-44A4-BAF5-6F80086B9512}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA7E434-5B9A-44A4-BAF5-6F80086B9512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA7E434-5B9A-44A4-BAF5-6F80086B9512}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA7E434-5B9A-44A4-BAF5-6F80086B9512}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA7E434-5B9A-44A4-BAF5-6F80086B9512}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D5EDEC92-014C-4B53-87C5-91E9A3BD6A05} = {E9DE0C8C-D270-4C30-9CD7-16E8C740E8A8}
+		{7EA7E434-5B9A-44A4-BAF5-6F80086B9512} = {E9DE0C8C-D270-4C30-9CD7-16E8C740E8A8}
+	EndGlobalSection
+EndGlobal
