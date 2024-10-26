@@ -1,0 +1,15 @@
+services:
+  resource-manager:
+    image: resource-manager
+    container_name: resource-manager
+    build:
+      context: .
+      dockerfile: src/ResourceManager/Dockerfile
+    ports:
+      - 5000:5000 
+  aws-agent:
+    image: aws-agent
+    container_name: aws-agent
+    build:
+      context: .
+      dockerfile: src/AwsAgent/Dockerfile
