@@ -1,4 +1,5 @@
 using Domain;
+using ResourceAdapter;
 
 namespace AwsAgent;
 
@@ -19,8 +20,10 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var scope = _service.CreateScope();
-            var repo = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
-            var resources = await repo.ListResources(stoppingToken);
+            // var repo = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
+            // var resources = await repo.ListResources(stoppingToken);
+            var repo = scope.ServiceProvider.GetRequiredService<IAMResourceAdapter>();
+            var resources = await repo.ConvertIAMToResource(stoppingToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 foreach (var resource in resources)
