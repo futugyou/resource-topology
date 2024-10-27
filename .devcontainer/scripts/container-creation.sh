@@ -2,7 +2,7 @@
 
 set -e
 
-dotnet workload update
+# dotnet workload update
 dotnet dev-certs https
 
 npm install -g @angular/cli@latest
