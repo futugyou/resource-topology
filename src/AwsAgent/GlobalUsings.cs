@@ -1,3 +1,6 @@
-global using global::AwsAgent;
-global using global::MongoDB.Driver;
-global using global::Microsoft.Extensions.Options;
+global using AwsAgent;
+global using MongoDB.Driver;
+global using Microsoft.Extensions.Options;
+global using MongoDB.Bson;
+global using MongoDB.Bson.Serialization.Attributes;
+global using MongoDB.Bson.Serialization.Conventions;

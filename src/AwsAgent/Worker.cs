@@ -25,7 +25,7 @@ public class Worker : BackgroundService
             {
                 foreach (var resource in resources)
                 {
-                    _logger.LogInformation("Resource: {acc} {zone} {region} {id} {label}", resource.AccountID, resource.AvailabilityZone, resource.AwsRegion, resource.Id, resource.Label);
+                    _logger.LogInformation("Resource: {name} {tags} {time}  {id} ", resource.ResourceName, resource.Tags, resource.ConfigurationItemCaptureTime, resource.Id);
                 }
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             }
