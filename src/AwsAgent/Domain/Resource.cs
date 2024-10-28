@@ -66,9 +66,6 @@ public class Resource
     [BsonElement("securityGroups")]
     public required string[] SecurityGroups { get; set; }
 
-    [BsonElement("loginURL")]
-    public required string LoginURL { get; set; }
-
-    [BsonElement("loggedInURL")]
-    public required string LoggedInURL { get; set; }
+    [BsonElement("resource_url")]
+    public required string ResourceUrl { get; set; } 
 }

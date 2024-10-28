@@ -13,3 +13,4 @@ global using AwsAgent.Domain;
 global using AwsAgent.Infrastructure;
 global using AwsAgent.ResourceAdapter;
 global using AwsAgent.Option;
+global using System.Text.RegularExpressions;

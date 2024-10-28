@@ -18,6 +18,6 @@ public class ResourceRepository : IResourceRepository
     public async Task<List<Resource>> ListResources(CancellationToken cancellation)
     {
         var filter = Builders<Resource>.Filter.Empty;
-        return await _collection.Find(filter).ToListAsync();
+        return await _collection.Find(filter).ToListAsync(cancellation);
     }
 }
