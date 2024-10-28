@@ -2,7 +2,7 @@ namespace AwsAgent.ResourceAdapter;
 
 public class AMResourceAdapter : IAMResourceAdapter
 {
-    static readonly string pattern = @"arn:aws:[^:]*:(\d{12}):";
+    static readonly string pattern = @"^(?:[^:]*:){4}([^:]*):";
     private readonly AmazonIdentityManagementServiceClient _iamClient;
 
     public AMResourceAdapter(AmazonIdentityManagementServiceClient iamClient)
@@ -28,9 +28,9 @@ public class AMResourceAdapter : IAMResourceAdapter
                 AccountID = ConvertArnToAccountId(user.Arn),
                 Arn = user.Arn,
                 AvailabilityZone = "Not Applicable",
-                AwsRegion = "Not Applicable",
+                AwsRegion = "global",
                 ResourceCreationTime = user.CreateDate,
-                ResourceID = user.Arn,
+                ResourceID = user.UserId,
                 ResourceName = user.UserName,
                 ResourceType = "AWS::IAM::User",
                 Tags = ConvertTag(user.Tags),

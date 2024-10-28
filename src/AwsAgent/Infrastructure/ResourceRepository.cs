@@ -18,6 +18,7 @@ public class ResourceRepository : IResourceRepository
     public async Task<bool> CreateResources(List<Resource> Resources, CancellationToken cancellation)
     {
         // Creates an option object to bypass documentation validation on the documents
+        // NEED admin role
         var options = new InsertManyOptions() { BypassDocumentValidation = true };
         await _collection.InsertManyAsync(Resources, options, cancellation);
         return true;
