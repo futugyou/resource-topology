@@ -15,6 +15,14 @@ public class ResourceRepository : IResourceRepository
         _collection = _database.GetCollection<Resource>(_option.ResourceCollectionName);
     }
 
+    public async Task<bool> CreateResources(List<Resource> Resources, CancellationToken cancellation)
+    {
+        // Creates an option object to bypass documentation validation on the documents
+        var options = new InsertManyOptions() { BypassDocumentValidation = true };
+        await _collection.InsertManyAsync(Resources, options, cancellation);
+        return true;
+    }
+
     public async Task<List<Resource>> ListResources(CancellationToken cancellation)
     {
         var filter = Builders<Resource>.Filter.Empty;
