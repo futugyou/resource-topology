@@ -1,6 +1,3 @@
-using Amazon.IdentityManagement;
-using Domain;
-
 namespace ResourceAdapter;
 
 public class AMResourceAdapter : IAMResourceAdapter

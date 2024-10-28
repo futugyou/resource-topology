@@ -1,5 +1,3 @@
-using Domain;
-
 namespace Infrastructure;
 
 public class ResourceRepository : IResourceRepository

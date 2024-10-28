@@ -1,5 +1,3 @@
-using Domain;
-
 namespace ResourceAdapter;
 
 public interface IAMResourceAdapter

@@ -1,6 +1,3 @@
-using Domain;
-using ResourceAdapter;
-
 namespace AwsAgent;
 
 public class Worker : BackgroundService

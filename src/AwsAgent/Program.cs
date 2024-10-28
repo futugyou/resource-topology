@@ -1,11 +1,7 @@
-using Infrastructure;
-using ResourceAdapter;
-
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.ServiceRegistration();
-builder.Services.ResourceAdapterRegistration();
-builder.Services.AddHostedService<Worker>();
+builder.AddApplicationServices();
 
 var host = builder.Build();
-host.Run();
+
+await host.RunAsync();
