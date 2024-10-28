@@ -1,4 +1,4 @@
-global using AwsAgent;
+global using AwsAgent.Services;
 global using MongoDB.Driver;
 global using Microsoft.Extensions.Options;
 global using MongoDB.Bson;
@@ -8,7 +8,8 @@ global using System.Text.Json;
 global using Amazon;
 global using Amazon.IdentityManagement;
 global using Amazon.Runtime;
-global using Extensions;
-global using Domain;
-global using Infrastructure;
-global using ResourceAdapter;
+global using AwsAgent.Extensions;
+global using AwsAgent.Domain;
+global using AwsAgent.Infrastructure;
+global using AwsAgent.ResourceAdapter;
+global using AwsAgent.Option;

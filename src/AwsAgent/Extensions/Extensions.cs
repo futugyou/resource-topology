@@ -1,4 +1,4 @@
-namespace Extensions;
+namespace AwsAgent.Extensions;
 
 public static class Extensions
 {

@@ -1,4 +1,4 @@
-namespace Domain;
+namespace AwsAgent.Domain;
 
 public interface IResourceRepository
 {

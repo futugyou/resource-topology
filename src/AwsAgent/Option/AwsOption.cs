@@ -1,4 +1,4 @@
-namespace ResourceAdapter;
+namespace AwsAgent.Option;
 
 public class AwsOption
 {    

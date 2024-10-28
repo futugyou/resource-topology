@@ -1,4 +1,4 @@
-namespace ResourceAdapter;
+namespace AwsAgent.ResourceAdapter;
 
 public interface IAMResourceAdapter
 {

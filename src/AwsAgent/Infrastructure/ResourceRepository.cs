@@ -1,4 +1,4 @@
-namespace Infrastructure;
+namespace AwsAgent.Infrastructure;
 
 public class ResourceRepository : IResourceRepository
 {
