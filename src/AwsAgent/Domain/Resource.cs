@@ -67,5 +67,10 @@ public class Resource
     public required string[] SecurityGroups { get; set; }
 
     [BsonElement("resource_url")]
-    public required string ResourceUrl { get; set; } 
+    public required string ResourceUrl { get; set; }
+
+    public static string GetCollectionName()
+    {
+        return "resources";
+    }
 }

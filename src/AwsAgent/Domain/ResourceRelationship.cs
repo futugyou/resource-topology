@@ -20,4 +20,9 @@ public class ResourceRelationship
 
     [BsonElement("targetLabel")]
     public required string TargetLabel { get; set; }
+
+    public static string GetCollectionName()
+    {
+        return "resource_ships";
+    }
 }

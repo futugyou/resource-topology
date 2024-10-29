@@ -12,15 +12,15 @@ public class ResourceRepository : IResourceRepository
         _client = client;
         _option = optionsMonitor.CurrentValue;
         _database = client.GetDatabase(_option.DBName);
-        _collection = _database.GetCollection<Resource>(_option.ResourceCollectionName);
+        _collection = _database.GetCollection<Resource>(Resource.GetCollectionName());
     }
 
-    public async Task<bool> CreateResources(List<Resource> Resources, CancellationToken cancellation)
+    public async Task<bool> CreateResources(List<Resource> resources, CancellationToken cancellation)
     {
         // Creates an option object to bypass documentation validation on the documents
         // NEED admin role
         var options = new InsertManyOptions() { BypassDocumentValidation = true };
-        await _collection.InsertManyAsync(Resources, options, cancellation);
+        await _collection.InsertManyAsync(resources, options, cancellation);
         return true;
     }
 
