@@ -14,3 +14,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      aws:
+        patterns:
+          - "AWSSDK*"
