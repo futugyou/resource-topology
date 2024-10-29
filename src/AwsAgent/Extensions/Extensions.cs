@@ -19,6 +19,7 @@ public static class Extensions
             return mongoClient;
         });
         builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
+        builder.Services.AddScoped<IResourceRelationshipRepository, ResourceRelationshipRepository>();
 
         var iamClient = new AmazonIdentityManagementServiceClient();
         builder.Services.AddScoped(sp =>
