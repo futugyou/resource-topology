@@ -5,7 +5,8 @@ public static class Extensions
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-
+        
+        var configuration = builder.Configuration;
         builder.Services.AddOptions<DBOption>().BindConfiguration(nameof(DBOption));
         builder.Services.AddOptions<AwsOption>().BindConfiguration(nameof(AwsOption));
 
@@ -38,6 +39,10 @@ public static class Extensions
 
         builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
         builder.Services.AddHostedService<Worker>();
+        
+        string connectionString = configuration.GetConnectionString("Mongodb")!;
+        string dbName = configuration["DBOption:DBName"]!;
+        builder.Services.AddMongoDB<AwsContext>(connectionString, dbName);
 
         return builder;
     }

@@ -14,3 +14,5 @@ global using AwsAgent.Infrastructure;
 global using AwsAgent.ResourceAdapter;
 global using AwsAgent.Option;
 global using System.Text.RegularExpressions;
+global using Microsoft.EntityFrameworkCore;
+global using MongoDB.EntityFrameworkCore.Extensions;
