@@ -5,9 +5,9 @@ public static class Extensions
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        
+
         var configuration = builder.Configuration;
-        builder.Services.AddOptions<ServiceOption>().BindConfiguration(nameof(ServiceOption)); 
+        builder.Services.AddOptions<ServiceOption>().BindConfiguration(nameof(ServiceOption));
 
         builder.Services.AddScoped(sp =>
         {
@@ -37,8 +37,10 @@ public static class Extensions
         });
 
         builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
+        builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
+
         builder.Services.AddHostedService<Worker>();
-        
+
         string connectionString = configuration.GetConnectionString("Mongodb")!;
         string dbName = configuration["DBOption:DBName"]!;
         builder.Services.AddMongoDB<AwsContext>(connectionString, dbName);
