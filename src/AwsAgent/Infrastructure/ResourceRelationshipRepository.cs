@@ -3,11 +3,11 @@ namespace AwsAgent.Infrastructure;
 public class ResourceRelationshipRepository : IResourceRelationshipRepository
 {
     private readonly MongoClient _client;
-    private readonly DBOption _option;
+    private readonly ServiceOption _option;
     private readonly IMongoDatabase _database;
     private readonly IMongoCollection<ResourceRelationship> _collection;
 
-    public ResourceRelationshipRepository(MongoClient client, IOptionsMonitor<DBOption> optionsMonitor)
+    public ResourceRelationshipRepository(MongoClient client, IOptionsMonitor<ServiceOption> optionsMonitor)
     {
         _client = client;
         _option = optionsMonitor.CurrentValue;

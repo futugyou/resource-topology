@@ -7,8 +7,7 @@ public static class Extensions
         ArgumentNullException.ThrowIfNull(builder);
         
         var configuration = builder.Configuration;
-        builder.Services.AddOptions<DBOption>().BindConfiguration(nameof(DBOption));
-        builder.Services.AddOptions<AwsOption>().BindConfiguration(nameof(AwsOption));
+        builder.Services.AddOptions<ServiceOption>().BindConfiguration(nameof(ServiceOption)); 
 
         builder.Services.AddScoped(sp =>
         {
@@ -25,9 +24,9 @@ public static class Extensions
         var iamClient = new AmazonIdentityManagementServiceClient();
         builder.Services.AddScoped(sp =>
         {
-            var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<AwsOption>>();
+            var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<ServiceOption>>();
             var op = optionsMonitor.CurrentValue;
-            var _credentials = new BasicAWSCredentials(op.AwsAccessKeyId, op.AwsSecretAccessKey);
+            var _credentials = new BasicAWSCredentials(op.AccessKeyId, op.SecretAccessKey);
             var region = RegionEndpoint.USEast1;
             if (op.Region.Length > 0)
             {
