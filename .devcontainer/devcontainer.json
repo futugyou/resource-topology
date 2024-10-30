@@ -5,7 +5,8 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"features": {
-		"ghcr.io/elanhasson/devcontainer-features/dotnet-aspire-daily:1": {}
+		"ghcr.io/elanhasson/devcontainer-features/dotnet-aspire-daily:1": {},
+		"docker-in-docker": "latest"
 	},
 	"customizations": {
 		"vscode": {
@@ -16,9 +17,14 @@
 				"dbaeumer.vscode-eslint",
 				"ms-azuretools.vscode-docker"
 			]
+		},
+		"settings": {
+			"docker.host": "tcp://localhost:2375"
 		}
 	},
-	"onCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/scripts/container-creation.sh"
+	"onCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/scripts/container-creation.sh",
+	"postCreateCommand": "bash -i ${containerWorkspaceFolder}/.devcontainer/scripts/post-create.sh",
+	"remoteUser": "root"
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
