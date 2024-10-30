@@ -8,6 +8,15 @@ public static class Extensions
 
         var configuration = builder.Configuration;
         builder.Services.AddOptions<ServiceOption>().BindConfiguration(nameof(ServiceOption));
+        builder.Services.PostConfigure<ServiceOption>(op =>
+        {
+            // when app running in github action, it will do worker once.
+            var githubAction = Environment.GetEnvironmentVariable("GITHUB_ACTIONS");
+            if (githubAction == "true")
+            {
+                op.RunSingle = true;
+            }
+        });
 
         builder.Services.AddScoped(sp =>
         {
