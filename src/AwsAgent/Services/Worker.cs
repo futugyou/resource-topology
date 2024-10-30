@@ -20,17 +20,19 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : B
             {
                 logger.LogError("Worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
             }
-            
+
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             }
-            
+
             if (serviceOption.RunSingle)
             {
+                var host = servicerovider.GetRequiredService<IHost>();
+                await host.StopAsync(stoppingToken);
                 break;
             }
-            
+
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
