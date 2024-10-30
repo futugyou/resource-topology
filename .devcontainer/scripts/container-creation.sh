@@ -4,7 +4,7 @@ set -e
 
 # curl -sfL https://get.k3s.io | sh -
 
-curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+# curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash -s 1.14.1
 

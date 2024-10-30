@@ -6,7 +6,8 @@
 	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"features": {
 		"ghcr.io/elanhasson/devcontainer-features/dotnet-aspire-daily:1": {},
-		"docker-in-docker": "latest"
+		"docker-in-docker": "latest",
+		"ghcr.io/rio/features/k3d:1": {}
 	},
 	"customizations": {
 		"vscode": {
