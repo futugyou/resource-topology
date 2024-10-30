@@ -1,8 +1,7 @@
 namespace AwsAgent.Services;
 
-public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : BackgroundService
+public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHostApplicationLifetime hostApplicationLifetime) : BackgroundService
 {
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -28,8 +27,9 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : B
 
             if (serviceOption.RunSingle)
             {
-                var host = servicerovider.GetRequiredService<IHost>();
-                await host.StopAsync(stoppingToken);
+                // var host = servicerovider.GetRequiredService<IHost>();
+                // await host.StopAsync(stoppingToken);
+                hostApplicationLifetime.StopApplication();
                 break;
             }
 
