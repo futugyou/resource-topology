@@ -109,20 +109,21 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                             and resourceType <> 'AWS::RDS::DBSnapshot'
                     """,
                 NextToken = nextToken,
+                Limit = 100,
             };
             var response = await configService.SelectResourceConfigAsync(request, cancellation);
             nextToken = response.NextToken;
-            if (response.Results != null && response.Results.Count > 0)
+            if (response?.Results?.Count > 0)
             {
                 result.AddRange(response.Results);
             }
 
-        } while (nextToken == null);
+        } while (nextToken != null);
 
-        return convertConfigStringArrayToResource(result);
+        return ConvertConfigStringArrayToResource(result);
     }
 
-    private static List<Resource> convertConfigStringArrayToResource(List<string> result)
+    private static List<Resource> ConvertConfigStringArrayToResource(List<string> result)
     {
         if (result.Count == 0)
         {
@@ -131,10 +132,10 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
 
         var rawdatastring = "[" + string.Join(",", result) + "]";
         var datas = JsonSerializer.Deserialize<AwsConfigRawData[]>(rawdatastring);
-        return convertConfigDatasToResource(datas);
+        return ConvertConfigDatasToResource(datas);
     }
 
-    private static List<Resource> convertConfigDatasToResource(AwsConfigRawData[]? datas)
+    private static List<Resource> ConvertConfigDatasToResource(AwsConfigRawData[]? datas)
     {
         if (datas == null || datas.Length == 0)
         {
