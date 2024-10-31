@@ -1,19 +1,29 @@
 namespace AwsAgent.Services;
 
-public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepository resourceRepository, IAMResourceAdapter iamAdapter) : IResourceProcessor
+public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonitor<ServiceOption> optionsMonitor, IResourceRepository resourceRepository, IAMResourceAdapter iamAdapter) : IResourceProcessor
 {
-    async Task IResourceProcessor.ProcessingData(CancellationToken cancellation)
+    public async Task ProcessingData(CancellationToken cancellation)
     {
+        var option = optionsMonitor.CurrentValue;
         // 1. get data from db 
         var dbResourcesTask = resourceRepository.ListResources(cancellation);
 
         // 2. get data from aws 
-        var awsResourcesTask = iamAdapter.ConvertIAMToResource(cancellation);
+        Task<List<Resource>> awsTask;
+        if (option.AwsconfigSupported)
+        {
+            awsTask = iamAdapter.ConvertConfigToResource(cancellation);
+        }
+        else
+        {
+            awsTask = iamAdapter.ConvertIAMToResource(cancellation);
+        }
 
         // 3. merge data to db
-        await Task.WhenAll(dbResourcesTask, awsResourcesTask);
+        await Task.WhenAll(dbResourcesTask, awsTask);
         var dbResources = dbResourcesTask.Result;
-        var awsResources = awsResourcesTask.Result;
+        var awsResources = awsTask.Result;
+        
         // TODO: 3.1 handler new data first, in the future, we will handle updates and deletions
         var insertDatas = GetInsertDatas(dbResources, awsResources);
         logger.LogInformation("{count} need to create", insertDatas.Count());
