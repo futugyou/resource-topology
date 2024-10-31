@@ -42,14 +42,24 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         return response;
     }
 
-    private static string[] ConvertTag(List<Amazon.IdentityManagement.Model.Tag> tags)
+    private static ResourceTag[] ConvertTag(dynamic tags)
     {
-        List<string> result = [];
-        foreach (var tag in tags)
+        List<ResourceTag> result = [];
+        try
         {
-            var t = string.Join("|", [tag.Key, tag.Value]);
-            result.Add(t);
+            foreach (var tag in tags)
+            {
+                result.Add(new ResourceTag()
+                {
+                    Key = tag.Key,
+                    Value = tag.Value,
+                });
+            }
         }
+        catch (Exception)
+        {
+        }
+
         return [.. result];
     }
 
@@ -146,7 +156,7 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 ResourceID = data.ResourceID,
                 ResourceName = data.ResourceName,
                 ResourceType = data.ResourceType,
-                Tags = [],//data.Tags,
+                Tags = ConvertTag(data.Tags),
                 VpcID = "",
                 SubnetID = "",
                 SubnetIds = [],

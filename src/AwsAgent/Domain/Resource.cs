@@ -46,7 +46,7 @@ public class Resource
     public required string ResourceType { get; set; }
 
     [BsonElement("tags")]
-    public required string[] Tags { get; set; }
+    public required ResourceTag[] Tags { get; set; }
 
     [BsonElement("version")]
     public required string Version { get; set; }
@@ -73,4 +73,13 @@ public class Resource
     {
         return "resources";
     }
+}
+
+[BsonIgnoreExtraElements]
+public class ResourceTag
+{
+    [BsonElement("key")]
+    public string Key { get; set; } = "";
+    [BsonElement("value")]
+    public string Value { get; set; } = "";
 }
