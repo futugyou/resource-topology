@@ -112,13 +112,54 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         return convertConfigStringArrayToResource(result);
     }
 
-    private List<Resource> convertConfigStringArrayToResource(List<string> result)
+    private static List<Resource> convertConfigStringArrayToResource(List<string> result)
     {
         if (result.Count == 0)
         {
             return [];
         }
-        // TODO: add datas convert
-        return [];
+
+        var rawdatastring = "[" + string.Join(",", result) + "]";
+        var datas = JsonSerializer.Deserialize<AwsConfigRawData[]>(rawdatastring);
+        return convertConfigDatasToResource(datas);
+    }
+
+    private static List<Resource> convertConfigDatasToResource(AwsConfigRawData[]? datas)
+    {
+        if (datas == null || datas.Length == 0)
+        {
+            return [];
+        }
+
+        var result = new List<Resource>(datas.Length);
+        foreach (var data in datas)
+        {
+            result.Add(new()
+            {
+                Id = data.ARN,
+                Label = data.ResourceName,
+                AccountID = data.AwsAccountID,
+                Arn = data.ARN,
+                AvailabilityZone = data.AvailabilityZone,
+                AwsRegion = data.AwsRegion,
+                ResourceCreationTime = data.ResourceCreationTime,
+                ResourceID = data.ResourceID,
+                ResourceName = data.ResourceName,
+                ResourceType = data.ResourceType,
+                Tags = [],//data.Tags,
+                VpcID = "",
+                SubnetID = "",
+                SubnetIds = [],
+                Title = data.ResourceName,
+                SecurityGroups = [],
+                ResourceUrl = "",
+                Configuration = JsonSerializer.Serialize(data.Configuration),
+                ConfigurationItemCaptureTime = data.ConfigurationItemCaptureTime,
+                ConfigurationItemStatus = data.ConfigurationItemStatus,
+                ConfigurationStateID = data.ConfigurationStateID,
+                Version = data.ConfigurationItemVersion,
+            });
+        }
+        return result;
     }
 }
