@@ -16,7 +16,6 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
             response.Add(new Resource()
             {
                 Id = user.Arn,
-                Label = user.UserName,
                 AccountID = ConvertArnToAccountId(user.Arn),
                 Arn = user.Arn,
                 AvailabilityZone = Util.AWS_Global_Zone,
@@ -29,7 +28,6 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 VpcID = "",
                 SubnetID = "",
                 SubnetIds = [],
-                Title = user.UserName,
                 SecurityGroups = [],
                 ResourceUrl = "",
                 Configuration = JsonSerializer.Serialize(user),
@@ -152,7 +150,6 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
             result.Add(new()
             {
                 Id = GenerateAwsResourceId(data),
-                Label = data.ResourceName,
                 AccountID = data.AwsAccountID,
                 Arn = GenerateAwsResourceId(data),
                 AvailabilityZone = data.AvailabilityZone,
@@ -165,7 +162,6 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 VpcID = "",
                 SubnetID = "",
                 SubnetIds = [],
-                Title = data.ResourceName,
                 SecurityGroups = [],
                 ResourceUrl = "",
                 Configuration = JsonSerializer.Serialize(data.Configuration),

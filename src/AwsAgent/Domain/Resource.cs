@@ -6,9 +6,6 @@ public class Resource
     [BsonElement("_id")]
     public required string Id { get; set; }
 
-    [BsonElement("label")]
-    public required string Label { get; set; }
-
     [BsonElement("accountId")]
     public required string AccountID { get; set; }
 
@@ -59,9 +56,6 @@ public class Resource
 
     [BsonElement("subnetIds")]
     public required string[] SubnetIds { get; set; }
-
-    [BsonElement("title")]
-    public required string Title { get; set; }
 
     [BsonElement("securityGroups")]
     public required string[] SecurityGroups { get; set; }
