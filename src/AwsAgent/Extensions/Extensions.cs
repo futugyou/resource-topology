@@ -1,3 +1,5 @@
+
+
 namespace AwsAgent.Extensions;
 
 public static class Extensions
@@ -11,7 +13,7 @@ public static class Extensions
         builder.Services.PostConfigure<ServiceOption>(op =>
         {
             // when app running in github action, it will do worker once.
-            var githubAction = Environment.GetEnvironmentVariable("GITHUB_ACTIONS");
+            var githubAction = Environment.GetEnvironmentVariable(Util.GITHUB_ACTIONS_ENV);
             if (githubAction == "true")
             {
                 op.RunSingle = true;
@@ -20,39 +22,44 @@ public static class Extensions
 
         builder.Services.AddScoped(sp =>
         {
-            var configuration = sp.GetRequiredService<IConfiguration>();
             var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };
             ConventionRegistry.Register("CamelCase", camelCaseConvention, type => true);
-            var mongoConnectionString = configuration.GetConnectionString("Mongodb");
+            var mongoConnectionString = configuration.GetConnectionString(Util.MONGODB_SECTION);
             var mongoClient = new MongoClient(mongoConnectionString);
             return mongoClient;
         });
         builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
         builder.Services.AddScoped<IResourceRelationshipRepository, ResourceRelationshipRepository>();
 
-        var iamClient = new AmazonIdentityManagementServiceClient();
-        builder.Services.AddScoped(sp =>
+        builder.Services.AddDefaultAWSOptions(sp =>
         {
             var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<ServiceOption>>();
-            var op = optionsMonitor.CurrentValue;
-            var _credentials = new BasicAWSCredentials(op.AccessKeyId, op.SecretAccessKey);
+            var options = optionsMonitor.CurrentValue;
+            var _credentials = new BasicAWSCredentials(options.AccessKeyId, options.SecretAccessKey);
             var region = RegionEndpoint.USEast1;
-            if (op.Region.Length > 0)
+            if (options.Region.Length > 0)
             {
-                region = RegionEndpoint.GetBySystemName(op.Region);
+                region = RegionEndpoint.GetBySystemName(options.Region);
             }
-            var iamClient = new AmazonIdentityManagementServiceClient(_credentials, region);
-            return iamClient;
+
+            return new AWSOptions()
+            {
+                Credentials = _credentials,
+                Region = region,
+            };
         });
+
+        builder.Services.AddAWSService<IAmazonIdentityManagementService>();
 
         builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
 
         builder.Services.AddHostedService<Worker>();
 
-        string connectionString = configuration.GetConnectionString("Mongodb")!;
-        string dbName = configuration["DBOption:DBName"]!;
-        builder.Services.AddMongoDB<AwsContext>(connectionString, dbName);
+        // We do not want use efcore for this project.
+        // string connectionString = configuration.GetConnectionString("Mongodb")!;
+        // string dbName = configuration["DBOption:DBName"]!;
+        // builder.Services.AddMongoDB<AwsContext>(connectionString, dbName);
 
         return builder;
     }

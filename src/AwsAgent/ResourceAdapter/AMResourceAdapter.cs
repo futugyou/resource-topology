@@ -3,9 +3,9 @@ namespace AwsAgent.ResourceAdapter;
 public class AMResourceAdapter : IAMResourceAdapter
 {
 
-    private readonly AmazonIdentityManagementServiceClient _iamClient;
+    private readonly IAmazonIdentityManagementService _iamClient;
 
-    public AMResourceAdapter(AmazonIdentityManagementServiceClient iamClient)
+    public AMResourceAdapter(IAmazonIdentityManagementService iamClient)
     {
         _iamClient = iamClient;
     }
