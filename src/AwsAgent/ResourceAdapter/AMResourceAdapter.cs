@@ -107,6 +107,10 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                             resourceType <> 'AWS::Backup::RecoveryPoint'
                             and resourceType <> 'AWS::CodeDeploy::DeploymentConfig'
                             and resourceType <> 'AWS::RDS::DBSnapshot'
+                            and resourceType <> 'AWS::Config::ConfigurationRecorder'
+                            and resourceType <> 'AWS::Backup::BackupSelection'
+                            and resourceType <> 'AWS::Route53Resolver::ResolverRuleAssociation'
+                            and resourceType <> 'AWS::EC2::SubnetRouteTableAssociation'
                     """,
                 NextToken = nextToken,
                 Limit = 100,
@@ -147,10 +151,10 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         {
             result.Add(new()
             {
-                Id = data.ARN,
+                Id = GenerateAwsResourceId(data),
                 Label = data.ResourceName,
                 AccountID = data.AwsAccountID,
-                Arn = data.ARN,
+                Arn = GenerateAwsResourceId(data),
                 AvailabilityZone = data.AvailabilityZone,
                 AwsRegion = data.AwsRegion,
                 ResourceCreationTime = data.ResourceCreationTime,
@@ -172,5 +176,14 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
             });
         }
         return result;
+    }
+
+    private static string GenerateAwsResourceId(AwsConfigRawData data)
+    {
+        if (data.ARN?.Length > 0)
+        {
+            return data.ARN;
+        }
+        return $"{data.ResourceType.Replace("::", "_").ToLower()}_{data.ResourceID}";
     }
 }
