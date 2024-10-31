@@ -1,19 +1,11 @@
 namespace AwsAgent.ResourceAdapter;
 
-public class AMResourceAdapter : IAMResourceAdapter
+public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmazonConfigService configService) : IAMResourceAdapter
 {
-
-    private readonly IAmazonIdentityManagementService _iamClient;
-
-    public AMResourceAdapter(IAmazonIdentityManagementService iamClient)
-    {
-        _iamClient = iamClient;
-    }
-
     public async Task<List<Resource>> ConvertIAMToResource(CancellationToken cancellation)
     {
         var response = new List<Resource>();
-        var iamResponse = await _iamClient.ListUsersAsync(cancellation);
+        var iamResponse = await iamClient.ListUsersAsync(cancellation);
         if (iamResponse == null)
         {
             return response;
@@ -71,5 +63,62 @@ public class AMResourceAdapter : IAMResourceAdapter
             return match.Groups[1].Value;
         }
         return "";
+    }
+
+    public async Task<List<Resource>> ConvertConfigToResource(CancellationToken cancellation)
+    {
+        List<string> result = [];
+        string? nextToken = null;
+        do
+        {
+            var request = new Amazon.ConfigService.Model.SelectResourceConfigRequest()
+            {
+                Expression = """
+                        SELECT
+                            version,
+                            accountId,
+                            configurationItemCaptureTime,
+                            configurationItemStatus,
+                            configurationStateId,
+                            arn,
+                            resourceType,
+                            resourceId,
+                            resourceName,
+                            awsRegion,
+                            availabilityZone,
+                            tags,
+                            relatedEvents,
+                            relationships,
+                            configuration,
+                            supplementaryConfiguration,
+                            resourceTransitionStatus,
+                            resourceCreationTime
+                        WHERE
+                            resourceType <> 'AWS::Backup::RecoveryPoint'
+                            and resourceType <> 'AWS::CodeDeploy::DeploymentConfig'
+                            and resourceType <> 'AWS::RDS::DBSnapshot'
+                    """,
+                NextToken = nextToken,
+            };
+            var response = await configService.SelectResourceConfigAsync(request, cancellation);
+            nextToken = response.NextToken;
+            if (response.Results != null && response.Results.Count > 0)
+            {
+                result.AddRange(response.Results);
+            }
+
+        } while (nextToken == null);
+
+        return convertConfigStringArrayToResource(result);
+    }
+
+    private List<Resource> convertConfigStringArrayToResource(List<string> result)
+    {
+        if (result.Count == 0)
+        {
+            return [];
+        }
+        // TODO: add datas convert
+        return [];
     }
 }

@@ -50,6 +50,7 @@ public static class Extensions
         });
 
         builder.Services.AddAWSService<IAmazonIdentityManagementService>();
+        builder.Services.AddAWSService<IAmazonConfigService>();
 
         builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
