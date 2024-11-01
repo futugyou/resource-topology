@@ -1,33 +1,15 @@
+
 namespace AwsAgent.Infrastructure;
 
-public class ResourceRelationshipRepository : IResourceRelationshipRepository
+public class ResourceRelationshipRepository(MongoClient client, IOptionsMonitor<ServiceOption> optionsMonitor) : BaseRepository<ResourceRelationship>(client, optionsMonitor), IResourceRelationshipRepository
 {
-    private readonly MongoClient _client;
-    private readonly ServiceOption _option;
-    private readonly IMongoDatabase _database;
-    private readonly IMongoCollection<ResourceRelationship> _collection;
-
-    public ResourceRelationshipRepository(MongoClient client, IOptionsMonitor<ServiceOption> optionsMonitor)
+    public Task<bool> CreateResourceRelationships(List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
-        _client = client;
-        _option = optionsMonitor.CurrentValue;
-        _database = client.GetDatabase(_option.DBName);
-        _collection = _database.GetCollection<ResourceRelationship>(ResourceRelationship.GetCollectionName());
+        return CreateEntities(relationships, cancellation);
     }
 
-    public async Task<bool> CreateResourceRelationships(List<ResourceRelationship> relationships, CancellationToken cancellation)
+    public Task<List<ResourceRelationship>> ListResourceRelationships(CancellationToken cancellation)
     {
-        // Creates an option object to bypass documentation validation on the documents
-        // NEED admin role
-        var options = new InsertManyOptions() { BypassDocumentValidation = true };
-        await _collection.InsertManyAsync(relationships, options, cancellation);
-        return true;
+        return ListEntities(cancellation);
     }
-
-    public async Task<List<ResourceRelationship>> ListResourceRelationships(CancellationToken cancellation)
-    {
-        var filter = Builders<ResourceRelationship>.Filter.Empty;
-        return await _collection.Find(filter).ToListAsync(cancellation);
-    }
-
 }
