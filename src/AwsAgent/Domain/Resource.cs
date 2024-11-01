@@ -1,7 +1,7 @@
 namespace AwsAgent.Domain;
 
 [BsonIgnoreExtraElements]
-public class Resource
+public class Resource : IEntity
 {
     [BsonElement("_id")]
     public required string Id { get; set; }
