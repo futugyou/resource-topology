@@ -23,35 +23,31 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         await Task.WhenAll(dbResourcesTask, awsTask);
         var dbResources = dbResourcesTask.Result;
         var awsResources = awsTask.Result;
-        
-        // TODO: 3.1 handler new data first, in the future, we will handle updates and deletions
-        var insertDatas = GetInsertDatas(dbResources, awsResources);
-        logger.LogInformation("{count} need to create", insertDatas.Count());
-        if (insertDatas.Count != 0)
+
+        var insertDatas = GetExceptDatas(awsResources, dbResources);
+        var deleteDatas = GetExceptDatas(dbResources, awsResources);
+        var updateDatas = GetIntersectDatas(dbResources, awsResources);
+
+        logger.LogInformation("{count} need to create, {count} need to delete, {count} need to update", insertDatas.Count, deleteDatas.Count, updateDatas.Count);
+
+        if (insertDatas.Count == 0 && deleteDatas.Count == 0 && updateDatas.Count == 0)
         {
-            await resourceRepository.CreateResources(insertDatas, cancellation);
+            return;
         }
+
+        await resourceRepository.BulkWriteAsync(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, cancellation);
     }
 
-    private static List<Resource> GetInsertDatas(List<Resource> dbDatas, List<Resource> awsDatas)
+    private static List<Resource> GetExceptDatas(List<Resource> first, List<Resource> second)
     {
-        return awsDatas.Except(dbDatas, new ResourceComparer()).ToList();
+        return first.ExceptBy(second.Select(d => d.Arn), d => d.Arn).ToList();
     }
 
-    public class ResourceComparer : IEqualityComparer<Resource>
+    private static List<Resource> GetIntersectDatas(List<Resource> first, List<Resource> second)
     {
-        public bool Equals(Resource? x, Resource? y)
-        {
-            if (x == null || y == null)
-            {
-                return false;
-            }
-            return x.Id == y.Id;
-        }
-
-        public int GetHashCode(Resource obj)
-        {
-            return obj.Id.GetHashCode();
-        }
+        return (from a in first
+                join b in second on a.Id equals b.Id
+                where a.ConfigurationItemCaptureTime != b.ConfigurationItemCaptureTime
+                select b).ToList();
     }
 }
