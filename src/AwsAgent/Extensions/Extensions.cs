@@ -54,7 +54,8 @@ public static class Extensions
 
         builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
-
+        builder.Services.AddDaprClient();
+        
         builder.Services.AddHostedService<Worker>();
 
         // We do not want use efcore for this project.

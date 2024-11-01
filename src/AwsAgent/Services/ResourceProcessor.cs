@@ -1,6 +1,7 @@
 namespace AwsAgent.Services;
 
-public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonitor<ServiceOption> optionsMonitor, IResourceRepository resourceRepository, IAMResourceAdapter iamAdapter) : IResourceProcessor
+public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonitor<ServiceOption> optionsMonitor,
+    IResourceRepository resourceRepository, IAMResourceAdapter iamAdapter, DaprClient dapr) : IResourceProcessor
 {
     public async Task ProcessingData(CancellationToken cancellation)
     {
@@ -36,6 +37,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         }
 
         await resourceRepository.BulkWriteAsync(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, cancellation);
+        await dapr.PublishEventAsync("resource-agent", "resources", new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas), cancellation);
     }
 
     private static List<Resource> GetExceptDatas(List<Resource> first, List<Resource> second)

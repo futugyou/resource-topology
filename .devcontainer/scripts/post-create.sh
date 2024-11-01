@@ -9,5 +9,6 @@ dotnet workload update
 # k3d cluster create mycluster
 
 dapr init
- 
+# dapr uninstall
+
 exit

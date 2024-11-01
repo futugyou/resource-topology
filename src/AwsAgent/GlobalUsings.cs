@@ -9,6 +9,7 @@ global using AwsAgent.Infrastructure;
 global using AwsAgent.Option;
 global using AwsAgent.ResourceAdapter;
 global using AwsAgent.Services;
+global using Dapr.Client;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Options;
 global using MongoDB.Driver;

@@ -17,4 +17,10 @@ A project for displaying resource topology
     docker-compose -f ./docker-compose.debug.yml up
     ```
 
+- dapr
+
+    ```ps
+    dapr run -f ./dapr
+    ```
+
 ## reference

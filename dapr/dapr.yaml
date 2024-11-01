@@ -1,0 +1,11 @@
+version: 1
+common:
+  resourcesPath: ./components
+apps:
+  - appID: aws-agent
+    appDirPath: ../src/AwsAgent/
+    command: ["dotnet", "run"]
+  - appID: resource-manager
+    appDirPath: ../src/ResourceManager/
+    appPort: 5000
+    command: ["dotnet", "run"]
