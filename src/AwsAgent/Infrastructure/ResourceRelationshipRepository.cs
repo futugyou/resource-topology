@@ -1,7 +1,7 @@
 
 namespace AwsAgent.Infrastructure;
 
-public class ResourceRelationshipRepository(MongoClient client, IOptionsMonitor<ServiceOption> optionsMonitor) : BaseRepository<ResourceRelationship>(client, optionsMonitor), IResourceRelationshipRepository
+public class ResourceRelationshipRepository(ILogger<ResourceRelationshipRepository> logger, MongoClient client, IOptionsMonitor<ServiceOption> optionsMonitor) : BaseRepository<ResourceRelationship>(logger, client, optionsMonitor), IResourceRelationshipRepository
 {
     public Task<bool> CreateResourceRelationships(List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
