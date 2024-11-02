@@ -12,14 +12,13 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationships(cancellation);
 
         // 2. get data from aws 
-        Task<(List<Resource>, List<ResourceRelationship>)> awsTask;
+        Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask;
         if (option.AwsconfigSupported)
         {
             awsTask = iamAdapter.ConvertConfigToResource(cancellation);
         }
         else
         {
-            //TODO: how to get relship
             awsTask = iamAdapter.ConvertIAMToResource(cancellation);
         }
 
@@ -27,8 +26,8 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         await Task.WhenAll(dbResourcesTask, dbResourceShiplTask, awsTask);
         var dbResources = dbResourcesTask.Result;
         var dbResourceShips = dbResourceShiplTask.Result;
-        var awsResources = awsTask.Result.Item1;
-        var awsResourceShips = awsTask.Result.Item2;
+        var awsResources = awsTask.Result.awsResources;
+        var awsResourceShips = awsTask.Result.awsResourceShips;
 
         var insertDatas = GetExceptDatas(awsResources, dbResources);
         var deleteDatas = GetExceptDatas(dbResources, awsResources);

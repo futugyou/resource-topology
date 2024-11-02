@@ -37,6 +37,8 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 Version = "",
             });
         }
+
+        //TODO: how to get relship
         return (response, []);
     }
 
