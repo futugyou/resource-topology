@@ -12,7 +12,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationships(cancellation);
 
         // 2. get data from aws 
-        Task<List<Resource>> awsTask;
+        Task<(List<Resource>, List<ResourceRelationship>)> awsTask;
         if (option.AwsconfigSupported)
         {
             awsTask = iamAdapter.ConvertConfigToResource(cancellation);
@@ -27,8 +27,8 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         await Task.WhenAll(dbResourcesTask, dbResourceShiplTask, awsTask);
         var dbResources = dbResourcesTask.Result;
         var dbResourceShips = dbResourceShiplTask.Result;
-        var awsResources = awsTask.Result;
-        var awsResourceShips = GeneratedAwsResourceShip(awsResources);
+        var awsResources = awsTask.Result.Item1;
+        var awsResourceShips = awsTask.Result.Item2;
 
         var insertDatas = GetExceptDatas(awsResources, dbResources);
         var deleteDatas = GetExceptDatas(dbResources, awsResources);
@@ -51,12 +51,6 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
 
         await dapr.PublishEventAsync("resource-agent", "resources",
         new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList()), cancellation);
-    }
-
-    private List<ResourceRelationship> GeneratedAwsResourceShip(List<Resource> awsResources)
-    {
-        // TODO: fill method
-        return [];
     }
 
     private static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity

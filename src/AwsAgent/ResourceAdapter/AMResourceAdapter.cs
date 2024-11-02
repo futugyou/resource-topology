@@ -2,13 +2,13 @@ namespace AwsAgent.ResourceAdapter;
 
 public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmazonConfigService configService) : IAMResourceAdapter
 {
-    public async Task<List<Resource>> ConvertIAMToResource(CancellationToken cancellation)
+    public async Task<(List<Resource>, List<ResourceRelationship>)> ConvertIAMToResource(CancellationToken cancellation)
     {
         var response = new List<Resource>();
         var iamResponse = await iamClient.ListUsersAsync(cancellation);
         if (iamResponse == null)
         {
-            return response;
+            return ([], []);
         }
 
         foreach (var user in iamResponse.Users)
@@ -37,7 +37,7 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 Version = "",
             });
         }
-        return response;
+        return (response, []);
     }
 
     private static ResourceTag[] ConvertTag(dynamic tags)
@@ -73,7 +73,7 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         return "";
     }
 
-    public async Task<List<Resource>> ConvertConfigToResource(CancellationToken cancellation)
+    public async Task<(List<Resource>, List<ResourceRelationship>)> ConvertConfigToResource(CancellationToken cancellation)
     {
         List<string> result = [];
         string? nextToken = null;
@@ -125,11 +125,11 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         return ConvertConfigStringArrayToResource(result);
     }
 
-    private static List<Resource> ConvertConfigStringArrayToResource(List<string> result)
+    private static (List<Resource>, List<ResourceRelationship>) ConvertConfigStringArrayToResource(List<string> result)
     {
         if (result.Count == 0)
         {
-            return [];
+            return ([], []);
         }
 
         var rawdatastring = "[" + string.Join(",", result) + "]";
@@ -137,14 +137,15 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
         return ConvertConfigDatasToResource(datas);
     }
 
-    private static List<Resource> ConvertConfigDatasToResource(AwsConfigRawData[]? datas)
+    private static (List<Resource>, List<ResourceRelationship>) ConvertConfigDatasToResource(AwsConfigRawData[]? datas)
     {
         if (datas == null || datas.Length == 0)
         {
-            return [];
+            return ([], []);
         }
 
         var result = new List<Resource>(datas.Length);
+        var ships = new List<ResourceRelationship>();
         foreach (var data in datas)
         {
             result.Add(new()
@@ -170,8 +171,17 @@ public class AMResourceAdapter(IAmazonIdentityManagementService iamClient, IAmaz
                 ConfigurationStateID = data.ConfigurationStateID,
                 Version = data.ConfigurationItemVersion,
             });
+            ships.AddRange(data.Relationships.Select(p => new ResourceRelationship()
+            {
+                Id = $"{data.ResourceID}-{p.ResourceID}",
+                Label = p.Name,
+                TargetLabel = p.ResourceName,
+                TargetId = p.ResourceID,
+                SourceLabel = data.ResourceName,
+                SourceId = data.ResourceID,
+            }));
         }
-        return result;
+        return (result, ships);
     }
 
     private static string GenerateAwsResourceId(AwsConfigRawData data)
