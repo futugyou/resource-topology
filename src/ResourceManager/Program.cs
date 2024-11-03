@@ -1,3 +1,5 @@
+using ResourceContracts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -55,9 +57,3 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
-
-public record ResourceProcessorEvent(
-    [property: JsonPropertyName("insert_resources")] dynamic InsertResources,
-    [property: JsonPropertyName("delete_resources")] dynamic DeleteResources,
-    [property: JsonPropertyName("update_resources")] dynamic UpdateResources
-);

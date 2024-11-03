@@ -1,3 +1,4 @@
+using ProcessorEvent = ResourceContracts.ResourceProcessorEvent;
 
 namespace AwsAgent.Services;
 
@@ -37,11 +38,54 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
             return;
         }
 
+        // TODO: Is it necessary to open a transaction for such a simple operation?
         await resourceRepository.BatchOperateAsync(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, cancellation);
         await resourceRelationshipRepository.BatchOperateAsync(insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList(), cancellation);
 
-        await dapr.PublishEventAsync("resource-agent", "resources",
-            new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList()), cancellation);
+        var processorEvent = ConvertResourceToEvent(insertDatas, deleteDatas, updateDatas, insertShipDatas, deleteShipDatas);
+        await dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
+    }
+
+    private static ProcessorEvent ConvertResourceToEvent(List<Resource> insertDatas, List<Resource> deleteDatas, List<Resource> updateDatas, List<ResourceRelationship> insertShipDatas, List<ResourceRelationship> deleteShipDatas)
+    {
+        return new ProcessorEvent
+        {
+            InsertResources = insertDatas.Select(p => ConvertResource(p)).ToList(),
+            DeleteResources = deleteDatas.Select(p => p.Id).ToList(),
+            UpdateResources = updateDatas.Select(p => ConvertResource(p)).ToList(),
+            InsertShips = insertShipDatas.Select(p => ConvertRelationship(p)).ToList(),
+            DeleteShips = deleteShipDatas.Select(p => p.Id).ToList(),
+        };
+    }
+
+    private static ResourceContracts.ResourceRelationship ConvertRelationship(ResourceRelationship ship)
+    {
+        return new()
+        {
+            Id = ship.Id,
+            Relation = ship.Label,
+            SourceId = ship.SourceId,
+            TargetId = ship.TargetId,
+        };
+    }
+
+    private static ResourceContracts.Resource ConvertResource(Resource res)
+    {
+        return new()
+        {
+            Id = res.Id,
+            ResourceHash = res.ConfigurationItemCaptureTime.ToString(),
+            ResourceCreationTime = res.ResourceCreationTime,
+            Configuration = res.Configuration,
+            AvailabilityZone = res.AvailabilityZone,
+            Region = res.AwsRegion,
+            AccountID = res.AccountID,
+            ResourceType = res.ResourceType,
+            ResourceName = res.ResourceName,
+            ResourceID = res.ResourceID,
+            ResourceUrl = res.ResourceUrl,
+            Tags = res.Tags.ToDictionary(tag => tag.Key, tag => tag.Value),
+        };
     }
 
     private static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity
