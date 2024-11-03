@@ -2,7 +2,7 @@
 namespace AwsAgent.Services;
 
 public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonitor<ServiceOption> optionsMonitor,
-    IResourceRepository resourceRepository, IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapter adapter, DaprClient dapr) : IResourceProcessor
+    IResourceRepository resourceRepository, IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr) : IResourceProcessor
 {
     public async Task ProcessingData(CancellationToken cancellation)
     {
@@ -12,7 +12,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationshipsAsync(cancellation);
 
         // 2. get data from aws 
-        Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask = adapter.GetResourcAndRelationFromAWS(cancellation);
+        Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask = wrapper.GetResourcAndRelationFromAWS(cancellation);
 
         // 3. merge data to db
         await Task.WhenAll(dbResourcesTask, dbResourceShiplTask, awsTask);
@@ -41,7 +41,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         await resourceRelationshipRepository.BatchOperateAsync(insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList(), cancellation);
 
         await dapr.PublishEventAsync("resource-agent", "resources",
-        new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList()), cancellation);
+            new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList()), cancellation);
     }
 
     private static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity

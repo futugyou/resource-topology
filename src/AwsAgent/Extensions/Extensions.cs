@@ -52,12 +52,31 @@ public static class Extensions
         builder.Services.AddAWSService<IAmazonIdentityManagementService>();
         builder.Services.AddAWSService<IAmazonConfigService>();
 
-        //TODO: handle multiple injection
-        builder.Services.AddScoped<IResourceAdapter, AwsIamAdapter>();
-        builder.Services.AddScoped<IResourceAdapter, AwsConfigAdapter>();
+        builder.Services.AddScoped<IResourceAdapterWrapper, ResourceAdapterWrapper>();
+ 
+        builder.Services.AddScoped(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<ServiceOption>>().Value;
+            var serviceCollection = new List<IResourceAdapter>();
+
+            if (options.AwsconfigSupported)
+            {
+                serviceCollection.Add(sp.GetRequiredService<AwsConfigAdapter>());
+            }
+            else
+            {
+                serviceCollection.Add(sp.GetRequiredService<AwsIamAdapter>());
+            }
+
+            return serviceCollection.AsEnumerable();
+        });
+
+        builder.Services.AddScoped<AwsIamAdapter>();
+        builder.Services.AddScoped<AwsConfigAdapter>();
+
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
         builder.Services.AddDaprClient();
-        
+
         builder.Services.AddHostedService<Worker>();
 
         // We do not want use efcore for this project.
