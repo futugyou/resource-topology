@@ -8,8 +8,8 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
     {
         var option = optionsMonitor.CurrentValue;
         // 1. get data from db 
-        var dbResourcesTask = resourceRepository.ListResources(cancellation);
-        var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationships(cancellation);
+        var dbResourcesTask = resourceRepository.ListResourcesAsync(cancellation);
+        var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationshipsAsync(cancellation);
 
         // 2. get data from aws 
         Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask;
@@ -45,8 +45,8 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
             return;
         }
 
-        await resourceRepository.BulkWriteAsync(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, cancellation);
-        await resourceRelationshipRepository.BulkWriteAsync(insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList(), cancellation);
+        await resourceRepository.BatchOperateAsync(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, cancellation);
+        await resourceRelationshipRepository.BatchOperateAsync(insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList(), cancellation);
 
         await dapr.PublishEventAsync("resource-agent", "resources",
         new ResourceProcessorEvent(insertDatas, deleteDatas.Select(p => p.Id).ToList(), updateDatas, insertShipDatas, deleteShipDatas.Select(p => p.Id).ToList()), cancellation);
