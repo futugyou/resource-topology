@@ -12,6 +12,7 @@ wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O 
 dotnet dev-certs https
 
 npm install -g @angular/cli@latest
+npm install -g markdownlint-cli
 
 # The container creation script is executed in a new Bash instance
 # so we exit at the end to avoid the creation process lingering.
