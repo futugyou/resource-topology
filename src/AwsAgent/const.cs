@@ -1,4 +1,4 @@
-public class Util
+public class Const
 {
     public static readonly string AWS_ARN_Pattern = @"^(?:[^:]*:){4}([^:]*):";
     public static readonly string AWS_Global_Zone = "Not Applicable";

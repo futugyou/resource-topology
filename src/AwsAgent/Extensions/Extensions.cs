@@ -13,7 +13,7 @@ public static class Extensions
         builder.Services.PostConfigure<ServiceOption>(op =>
         {
             // when app running in github action, it will do worker once.
-            var githubAction = Environment.GetEnvironmentVariable(Util.GITHUB_ACTIONS_ENV);
+            var githubAction = Environment.GetEnvironmentVariable(Const.GITHUB_ACTIONS_ENV);
             if (githubAction == "true")
             {
                 op.RunSingle = true;
@@ -24,7 +24,7 @@ public static class Extensions
         {
             var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };
             ConventionRegistry.Register("CamelCase", camelCaseConvention, type => true);
-            var mongoConnectionString = configuration.GetConnectionString(Util.MONGODB_SECTION);
+            var mongoConnectionString = configuration.GetConnectionString(Const.MONGODB_SECTION);
             var mongoClient = new MongoClient(mongoConnectionString);
             return mongoClient;
         });
@@ -52,7 +52,9 @@ public static class Extensions
         builder.Services.AddAWSService<IAmazonIdentityManagementService>();
         builder.Services.AddAWSService<IAmazonConfigService>();
 
-        builder.Services.AddScoped<IAMResourceAdapter, AMResourceAdapter>();
+        //TODO: handle multiple injection
+        builder.Services.AddScoped<IResourceAdapter, AwsIamAdapter>();
+        builder.Services.AddScoped<IResourceAdapter, AwsConfigAdapter>();
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
         builder.Services.AddDaprClient();
         

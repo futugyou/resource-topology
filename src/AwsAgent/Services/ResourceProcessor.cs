@@ -2,7 +2,7 @@
 namespace AwsAgent.Services;
 
 public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonitor<ServiceOption> optionsMonitor,
-    IResourceRepository resourceRepository, IResourceRelationshipRepository resourceRelationshipRepository, IAMResourceAdapter iamAdapter, DaprClient dapr) : IResourceProcessor
+    IResourceRepository resourceRepository, IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapter adapter, DaprClient dapr) : IResourceProcessor
 {
     public async Task ProcessingData(CancellationToken cancellation)
     {
@@ -12,15 +12,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationshipsAsync(cancellation);
 
         // 2. get data from aws 
-        Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask;
-        if (option.AwsconfigSupported)
-        {
-            awsTask = iamAdapter.ConvertConfigToResource(cancellation);
-        }
-        else
-        {
-            awsTask = iamAdapter.ConvertIAMToResource(cancellation);
-        }
+        Task<(List<Resource> awsResources, List<ResourceRelationship> awsResourceShips)> awsTask = adapter.GetResourcAndRelationFromAWS(cancellation);
 
         // 3. merge data to db
         await Task.WhenAll(dbResourcesTask, dbResourceShiplTask, awsTask);
