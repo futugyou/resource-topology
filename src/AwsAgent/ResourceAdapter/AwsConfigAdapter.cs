@@ -74,11 +74,11 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
             return ([], []);
         }
 
-        var result = new List<Resource>(datas.Length);
+        var resources = new List<Resource>(datas.Length);
         var ships = new List<ResourceRelationship>();
         foreach (var data in datas)
         {
-            result.Add(new()
+            resources.Add(new()
             {
                 Id = GenerateAwsResourceId(data),
                 AccountID = data.AwsAccountID,
@@ -103,16 +103,36 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
             });
             ships.AddRange(data.Relationships.Select(p => new ResourceRelationship()
             {
-                Id = $"{data.ResourceID}-{p.ResourceID}",
+                Id = "",
                 Label = p.Name,
-                TargetLabel = p.ResourceName,
+                TargetLabel = p.ResourceType,
                 TargetId = p.ResourceID,
-                SourceLabel = data.ResourceName,
+                SourceLabel = data.ResourceType,
                 SourceId = data.ResourceID,
             }));
         }
-        return (result, ships);
+        ConversionShipData(resources, ships);
+        return (resources, ships);
     }
+
+    private static void ConversionShipData(List<Resource> resources, List<ResourceRelationship> ships)
+    {
+        foreach (var ship in ships)
+        {
+            var source = resources.FirstOrDefault(p => p.ResourceID == ship.SourceId && p.ResourceType == ship.SourceLabel);
+            var target = resources.FirstOrDefault(p => p.ResourceID == ship.TargetId && p.ResourceType == ship.TargetLabel);
+
+            if (source != null && target != null)
+            {
+                ship.Id = $"{source.Id}##{target.Id}";
+                ship.TargetId = target.Id;
+                ship.SourceId = source.Id;
+            }
+        }
+
+        ships.RemoveAll(p => string.IsNullOrEmpty(p.Id));
+    }
+
 
     private static string GenerateAwsResourceId(AwsConfigRawData data)
     {

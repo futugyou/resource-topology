@@ -50,10 +50,10 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
     {
         return new ProcessorEvent
         {
-            InsertResources = insertDatas.Select(p => ConvertResource(p)).ToList(),
+            InsertResources = insertDatas.Select(ConvertResource).ToList(),
             DeleteResources = deleteDatas.Select(p => p.Id).ToList(),
-            UpdateResources = updateDatas.Select(p => ConvertResource(p)).ToList(),
-            InsertShips = insertShipDatas.Select(p => ConvertRelationship(p)).ToList(),
+            UpdateResources = updateDatas.Select(ConvertResource).ToList(),
+            InsertShips = insertShipDatas.Select(ConvertRelationship).ToList(),
             DeleteShips = deleteShipDatas.Select(p => p.Id).ToList(),
         };
     }
