@@ -31,10 +31,13 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
                 SecurityGroups = [],
                 ResourceUrl = "",
                 Configuration = JsonSerializer.Serialize(user),
-                ConfigurationItemCaptureTime = DateTime.MinValue,
+                ConfigurationItemCaptureTime = user.CreateDate,
                 ConfigurationItemStatus = "",
                 ConfigurationStateID = "",
                 Version = "",
+                // TODO: When using the XXXClient, there is currently no suitable method to make the hash consistent with the config service,
+                // So it is randomly generated for all operations.
+                ResourceHash = Guid.NewGuid().ToString(),
             });
         }
 

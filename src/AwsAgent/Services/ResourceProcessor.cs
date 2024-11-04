@@ -74,7 +74,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
         return new()
         {
             Id = res.Id,
-            ResourceHash = res.ConfigurationItemCaptureTime.ToString(),
+            ResourceHash = res.ResourceHash,
             ResourceCreationTime = res.ResourceCreationTime,
             Configuration = res.Configuration,
             AvailabilityZone = res.AvailabilityZone,
@@ -97,7 +97,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
     {
         return (from a in first
                 join b in second on a.Id equals b.Id
-                where a.ConfigurationItemCaptureTime != b.ConfigurationItemCaptureTime
+                where a.ResourceHash != b.ResourceHash
                 select b).ToList();
     }
 }

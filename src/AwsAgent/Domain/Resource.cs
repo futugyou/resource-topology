@@ -41,6 +41,9 @@ public class Resource : IEntity
 
     [BsonElement("resourceType")]
     public required string ResourceType { get; set; }
+    
+    [BsonElement("resourceHash")]
+    public required string ResourceHash { get; set; }
 
     [BsonElement("tags")]
     public required ResourceTag[] Tags { get; set; }

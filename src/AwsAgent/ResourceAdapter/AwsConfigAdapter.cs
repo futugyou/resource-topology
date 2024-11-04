@@ -1,4 +1,3 @@
-
 namespace AwsAgent.ResourceAdapter;
 
 public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAdapter
@@ -100,6 +99,7 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
                 ConfigurationItemStatus = data.ConfigurationItemStatus,
                 ConfigurationStateID = data.ConfigurationStateID,
                 Version = data.ConfigurationItemVersion,
+                ResourceHash = GenerateResourceHash(data),
             });
             ships.AddRange(data.Relationships.Select(p => new ResourceRelationship()
             {
@@ -113,6 +113,22 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
         }
         ConversionShipData(resources, ships);
         return (resources, ships);
+    }
+
+    private static string GenerateResourceHash(AwsConfigRawData data)
+    {
+        // TODO: use data.Configuration or data.ConfigurationItemCaptureTime
+        string jsonString = JsonSerializer.Serialize(data.Configuration);
+        byte[] bytes = Encoding.UTF8.GetBytes(jsonString);
+        byte[] hash = SHA256.HashData(bytes);
+        StringBuilder builder = new();
+        foreach (byte b in hash)
+        {
+            builder.Append(b.ToString("x2"));
+        }
+        return builder.ToString();
+
+        // return data.ConfigurationItemCaptureTime.ToString();
     }
 
     private static void ConversionShipData(List<Resource> resources, List<ResourceRelationship> ships)
