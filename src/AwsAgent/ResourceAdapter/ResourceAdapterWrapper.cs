@@ -1,24 +1,25 @@
 
 namespace AwsAgent.ResourceAdapter;
 
-public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters) : IResourceAdapterWrapper
+public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters, IOptions<ServiceOption> options) : IResourceAdapterWrapper
 {
     public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
-       var tasks = adapters.Select(adapter => adapter.GetResourcAndRelationFromAWS(cancellation)).ToList();
-        
-        // Await all tasks to complete
-        var results = await Task.WhenAll(tasks);
+        var resources = new ConcurrentBag<Resource>();
+        var ships = new ConcurrentBag<ResourceRelationship>();
+        var serviceOption = options.Value;
+        using var limiter = new ConcurrencyLimiter(serviceOption?.MaxConcurrentAdapters ?? 5);
+        var tasks = adapters.Select(adapter =>
+            limiter.ExecuteAsync(async () =>
+            {
+                var (resource, ship) = await adapter.GetResourcAndRelationFromAWS(cancellation);
+                resource.ForEach(r => resources.Add(r));
+                ship.ForEach(r => ships.Add(r));
+                return (resource, ship);
+            })).ToList();
 
-        var resources = new List<Resource>();
-        var ships = new List<ResourceRelationship>();
-        
-        foreach (var (resource, ship) in results)
-        {
-            resources.AddRange(resource);
-            ships.AddRange(ship);
-        }
+        await Task.WhenAll(tasks);
 
-        return (resources, ships);
+        return ([.. resources], [.. ships]);
     }
 }

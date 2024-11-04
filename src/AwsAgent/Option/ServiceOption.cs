@@ -12,4 +12,6 @@ public class ServiceOption
     // continuous exec like k8s deployment/k8s job ...
     public required bool RunSingle { get; set; } = false;
     public required bool AwsconfigSupported { get; set; } = true;
+    public required int MaxConcurrentAdapters { get; set; } = 5;
+    
 }

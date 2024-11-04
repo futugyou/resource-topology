@@ -17,7 +17,9 @@ global using MongoDB.Bson;
 global using MongoDB.Bson.Serialization.Attributes;
 global using MongoDB.Bson.Serialization.Conventions;
 global using MongoDB.EntityFrameworkCore.Extensions;
+global using System.Collections.Concurrent;
 global using System.Linq;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
+
