@@ -7,7 +7,7 @@ public class AwsConfigRawData
     [JsonPropertyName("relationships")]
     public Relationship[] Relationships { get; set; } = [];
     [JsonPropertyName("configuration")]
-    public object Configuration { get; set; } = new();
+    public required JsonNode Configuration { get; set; }
     [JsonPropertyName("tags")]
     public ConfigTag[] Tags { get; set; } = [];
     [JsonPropertyName("version")]
