@@ -17,7 +17,8 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
         foreach (var user in iamResponse.Users)
         {
             var groups = await GetUserGroup(user.UserName, cancellation);
-            // TODO: fill UserPolicyList and AttachedManagedPolicies
+            var attachedPolicies = await GetAttachedUserPolicy(user.UserName, cancellation);
+            // TODO: fill UserPolicyList 
             var config = new AwsIamConfig
             {
                 Path = user.Path,
@@ -27,6 +28,7 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
                 Arn = user.Arn,
                 CreateDate = user.CreateDate,
                 Tags = user.Tags.Select(p => new ConfigTag { Key = p.Key, Value = p.Value }).ToList(),
+                AttachedManagedPolicies = attachedPolicies.Select(p => new UserPolicy { PolicyArn = p.PolicyArn, PolicyName = p.PolicyName }).ToList(),
             };
 
             var configNode = Util.ConvertToJsonNode(config);
@@ -70,6 +72,20 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
 
         return response.Groups;
     }
+    private async Task<List<AttachedPolicyType>> GetAttachedUserPolicy(string userName, CancellationToken cancellation)
+    {
+        var request = new ListAttachedUserPoliciesRequest()
+        {
+            UserName = userName,
+        };
+        var response = await iamClient.ListAttachedUserPoliciesAsync(request, cancellation);
+        if (response == null)
+        {
+            return [];
+        }
+
+        return response.AttachedPolicies;
+    }
 }
 
 public record AwsIamConfig
@@ -109,4 +125,7 @@ public class UserPolicy
 
     [JsonPropertyName("policyName")]
     public string PolicyName { get; set; } = "";
+
+    [JsonPropertyName("policyArn")]
+    public string PolicyArn { get; set; } = "";
 }
