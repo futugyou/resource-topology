@@ -94,7 +94,7 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
                 SubnetIds = [],
                 SecurityGroups = [],
                 ResourceUrl = "",
-                Configuration = JsonSerializer.Serialize(data.Configuration),
+                Configuration = JsonSerializer.Serialize(data.Configuration, Util.DefaultJsonOptions),
                 ConfigurationItemCaptureTime = data.ConfigurationItemCaptureTime,
                 ConfigurationItemStatus = data.ConfigurationItemStatus,
                 ConfigurationStateID = data.ConfigurationStateID,

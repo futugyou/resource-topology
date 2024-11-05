@@ -2,7 +2,13 @@ namespace AwsAgent.ResourceAdapter;
 
 public class Util
 {
-   public static ResourceTag[] ConvertTag(dynamic tags)
+    public static JsonSerializerOptions DefaultJsonOptions = new JsonSerializerOptions
+    {
+        Converters = { new SortedJsonNodeConverter() },
+        WriteIndented = true
+    };
+    
+    public static ResourceTag[] ConvertTag(dynamic tags)
     {
         List<ResourceTag> result = [];
         try
@@ -33,5 +39,5 @@ public class Util
             return match.Groups[1].Value;
         }
         return "";
-    } 
+    }
 }
