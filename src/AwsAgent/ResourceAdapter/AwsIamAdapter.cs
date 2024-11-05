@@ -1,3 +1,6 @@
+using Amazon.IdentityManagement.Model;
+using Group = Amazon.IdentityManagement.Model.Group;
+
 namespace AwsAgent.ResourceAdapter;
 
 public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResourceAdapter
@@ -13,6 +16,14 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
 
         foreach (var user in iamResponse.Users)
         {
+            var groups = await GetUserGroup(user.UserName, cancellation);
+            // TODO: fill all fields
+            var config = new AwsIamConfig
+            {
+                GroupList = groups.Select(p => p.GroupName).ToList(),
+            };
+            
+            var configNode = Util.ConvertToJsonNode(config);
             response.Add(new Resource()
             {
                 Id = user.Arn,
@@ -30,19 +41,28 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
                 SubnetIds = [],
                 SecurityGroups = [],
                 ResourceUrl = "",
-                Configuration = JsonSerializer.Serialize(user),
+                Configuration = JsonSerializer.Serialize(config, Util.DefaultJsonOptions),
                 ConfigurationItemCaptureTime = user.CreateDate,
                 ConfigurationItemStatus = "",
                 ConfigurationStateID = "",
-                Version = "",
-                // TODO: When using the XXXClient, there is currently no suitable method to make the hash consistent with the config service,
-                // So it is randomly generated for all operations.
-                ResourceHash = Guid.NewGuid().ToString(),
+                ResourceHash = configNode.GetHash(),
             });
         }
 
         //TODO: how to get relship
         return (response, []);
+    }
+
+    private async Task<List<Group>> GetUserGroup(string userName, CancellationToken cancellation)
+    {
+        var request = new ListGroupsForUserRequest(userName);
+        var response = await iamClient.ListGroupsForUserAsync(request, cancellation);
+        if (response == null)
+        {
+            return [];
+        }
+
+        return response.Groups;
     }
 }
 
@@ -73,7 +93,7 @@ public record AwsIamConfig
     public DateTime CreateDate { get; set; }
 
     [JsonPropertyName("tags")]
-    public List<Tag> Tags { get; set; } = [];
+    public List<ConfigTag> Tags { get; set; } = [];
 }
 
 public class UserPolicy

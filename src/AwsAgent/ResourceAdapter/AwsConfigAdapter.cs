@@ -98,7 +98,6 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
                 ConfigurationItemCaptureTime = data.ConfigurationItemCaptureTime,
                 ConfigurationItemStatus = data.ConfigurationItemStatus,
                 ConfigurationStateID = data.ConfigurationStateID,
-                Version = data.ConfigurationItemVersion,
                 ResourceHash = GenerateResourceHash(data),
             });
             ships.AddRange(data.Relationships.Select(p => new ResourceRelationship()

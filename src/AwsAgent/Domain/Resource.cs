@@ -48,9 +48,6 @@ public class Resource : IEntity
     [BsonElement("tags")]
     public required ResourceTag[] Tags { get; set; }
 
-    [BsonElement("version")]
-    public required string Version { get; set; }
-
     [BsonElement("vpcId")]
     public required string VpcID { get; set; }
 
