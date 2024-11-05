@@ -17,12 +17,18 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
         foreach (var user in iamResponse.Users)
         {
             var groups = await GetUserGroup(user.UserName, cancellation);
-            // TODO: fill all fields
+            // TODO: fill UserPolicyList and AttachedManagedPolicies
             var config = new AwsIamConfig
             {
+                Path = user.Path,
                 GroupList = groups.Select(p => p.GroupName).ToList(),
+                UserName = user.UserName,
+                UserId = user.UserId,
+                Arn = user.Arn,
+                CreateDate = user.CreateDate,
+                Tags = user.Tags.Select(p => new ConfigTag { Key = p.Key, Value = p.Value }).ToList(),
             };
-            
+
             var configNode = Util.ConvertToJsonNode(config);
             response.Add(new Resource()
             {
