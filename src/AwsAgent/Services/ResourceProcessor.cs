@@ -55,6 +55,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IOptionsMonito
             UpdateResources = updateDatas.Select(ConvertResource).ToList(),
             InsertShips = insertShipDatas.Select(ConvertRelationship).ToList(),
             DeleteShips = deleteShipDatas.Select(p => p.Id).ToList(),
+            Provider = "Aws",
         };
     }
 

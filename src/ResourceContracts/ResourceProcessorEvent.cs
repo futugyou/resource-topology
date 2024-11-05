@@ -2,6 +2,9 @@
 
 public record ResourceProcessorEvent
 {
+    [JsonPropertyName("provider")]
+    public required string Provider { get; set; }
+    
     [JsonPropertyName("insert_resources")]
     public List<Resource> InsertResources { get; set; } = [];
 
