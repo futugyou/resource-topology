@@ -2,12 +2,18 @@ namespace AwsAgent.ResourceAdapter;
 
 public class Util
 {
-    public static JsonSerializerOptions DefaultJsonOptions = new JsonSerializerOptions
+    public static readonly JsonSerializerOptions DefaultJsonOptions = new()
     {
         Converters = { new SortedJsonNodeConverter() },
         WriteIndented = true
     };
-    
+
+    public static JsonNode ConvertToJsonNode(object obj)
+    {
+        string jsonString = JsonSerializer.Serialize(obj);
+        return JsonNode.Parse(jsonString)!;
+    }
+
     public static ResourceTag[] ConvertTag(dynamic tags)
     {
         List<ResourceTag> result = [];

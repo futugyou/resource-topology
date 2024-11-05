@@ -117,19 +117,6 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
 
     private static string GenerateResourceHash(AwsConfigRawData data)
     {
-        // // TODO: use data.Configuration or data.ConfigurationItemCaptureTime
-        // string jsonString = JsonSerializer.Serialize(data.Configuration);
-        // byte[] bytes = Encoding.UTF8.GetBytes(jsonString);
-        // byte[] hash = SHA256.HashData(bytes);
-        // StringBuilder builder = new();
-        // foreach (byte b in hash)
-        // {
-        //     builder.Append(b.ToString("x2"));
-        // }
-        // return builder.ToString();
-
-        // return data.ConfigurationItemCaptureTime.ToString();
-
         return data.Configuration.GetHash();
     }
 

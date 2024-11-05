@@ -45,3 +45,42 @@ public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResour
         return (response, []);
     }
 }
+
+public record AwsIamConfig
+{
+    [JsonPropertyName("path")]
+    public string Path { get; set; } = "";
+
+    [JsonPropertyName("groupList")]
+    public List<string> GroupList { get; set; } = [];
+
+    [JsonPropertyName("userPolicyList")]
+    public List<UserPolicy> UserPolicyList { get; set; } = [];
+
+    [JsonPropertyName("attachedManagedPolicies")]
+    public List<UserPolicy> AttachedManagedPolicies { get; set; } = [];
+
+    [JsonPropertyName("userName")]
+    public string UserName { get; set; } = "";
+
+    [JsonPropertyName("arn")]
+    public string Arn { get; set; } = "";
+
+    [JsonPropertyName("userId")]
+    public string UserId { get; set; } = "";
+
+    [JsonPropertyName("createDate")]
+    public DateTime CreateDate { get; set; }
+
+    [JsonPropertyName("tags")]
+    public List<Tag> Tags { get; set; } = [];
+}
+
+public class UserPolicy
+{
+    [JsonPropertyName("policyDocument")]
+    public string PolicyDocument { get; set; } = "";
+
+    [JsonPropertyName("policyName")]
+    public string PolicyName { get; set; } = "";
+}
