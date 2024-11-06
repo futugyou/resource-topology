@@ -17,6 +17,36 @@ public static class JsonNodeExtensions
         return builder.ToString();
     }
 
+    public static string GetHashWithIncludeFields(this JsonNode node, List<string>? includedFields = default)
+    {
+        node = FilterOutFields(node, includedFields, true);
+        return node.GetHash();
+    }
+
+    public static string GetHashWithExcludeFields(this JsonNode node, List<string>? excludedFields = default)
+    {
+        node = FilterOutFields(node, excludedFields, false);
+        return node.GetHash();
+    }
+
+    static JsonNode FilterOutFields(JsonNode node, List<string>? fields = default, bool included = false)
+    {
+        fields ??= [];
+        if (fields.Count == 0)
+        {
+            return node;
+        }
+
+        if (node is JsonObject jsonObject)
+        {
+            return new JsonObject(jsonObject
+                        .Where(kvp => included ? fields.Contains(kvp.Key) : !fields.Contains(kvp.Key))
+                        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+        }
+
+        return node;
+    }
+
     static JsonNode SortJsonNode(JsonNode node)
     {
         if (node is JsonObject jsonObject)
