@@ -3,7 +3,7 @@ using Group = Amazon.IdentityManagement.Model.Group;
 
 namespace AwsAgent.ResourceAdapter;
 
-public class AwsIamAdapter(IAmazonIdentityManagementService iamClient) : IResourceAdapter
+public class AwsIAMUserAdapter(IAmazonIdentityManagementService iamClient) : IResourceAdapter
 {
     public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {

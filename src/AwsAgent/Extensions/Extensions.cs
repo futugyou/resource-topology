@@ -65,13 +65,15 @@ public static class Extensions
             }
             else
             {
-                serviceCollection.Add(sp.GetRequiredService<AwsIamAdapter>());
+                serviceCollection.Add(sp.GetRequiredService<AwsIAMUserAdapter>());
+                serviceCollection.Add(sp.GetRequiredService<AwsIAMPolicyAdapter>());
             }
 
             return serviceCollection.AsEnumerable();
         });
 
-        builder.Services.AddScoped<AwsIamAdapter>();
+        builder.Services.AddScoped<AwsIAMUserAdapter>();
+        builder.Services.AddScoped<AwsIAMPolicyAdapter>();
         builder.Services.AddScoped<AwsConfigAdapter>();
 
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
