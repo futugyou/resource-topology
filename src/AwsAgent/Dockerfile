@@ -4,10 +4,13 @@ WORKDIR /app
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
-WORKDIR "/AwsAgent"
-COPY ["src/AwsAgent/AwsAgent.csproj", "./"]
-RUN dotnet restore "AwsAgent.csproj"
-COPY ["src/AwsAgent", "./"]
+WORKDIR /src
+COPY ["src/AwsAgent/AwsAgent.csproj", "AwsAgent/"]
+COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+RUN dotnet restore "AwsAgent/AwsAgent.csproj"
+COPY ["src/AwsAgent", "AwsAgent/"]
+COPY ["src/ResourceContracts", "ResourceContracts/"]
+WORKDIR "/src/AwsAgent/"
 RUN dotnet build "AwsAgent.csproj" -c $configuration -o /app/build
 
 FROM build AS publish

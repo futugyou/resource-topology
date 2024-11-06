@@ -6,10 +6,13 @@ WORKDIR /app
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
-WORKDIR "/ResourceManager"
-COPY ["src/ResourceManager/ResourceManager.csproj", "./"]
-RUN dotnet restore "ResourceManager.csproj"
-COPY ["src/ResourceManager", "./"]
+WORKDIR /src
+COPY ["src/ResourceManager/ResourceManager.csproj", "ResourceManager/"]
+COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+RUN dotnet restore "ResourceManager/ResourceManager.csproj"
+COPY ["src/ResourceManager", "ResourceManager/"]
+COPY ["src/ResourceContracts", "ResourceContracts/"]
+WORKDIR "/src/ResourceManager/"
 RUN dotnet build "ResourceManager.csproj" -c $configuration -o /app/build
 
 FROM build AS publish
