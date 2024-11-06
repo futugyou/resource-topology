@@ -1,0 +1,74 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  resource-manager:
+    image: resource-manager
+    container_name: resource-manager
+    build:
+      context: .
+      dockerfile: src/ResourceManager/Dockerfile
+    ports:
+      - "5000:5000"
+      - "50002:50001"
+    depends_on:
+      - redis
+
+  resource-manager-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:resource-manager"
+    depends_on:
+      - resource-manager
+    command: ["./daprd",
+      "-app-id", "resource-manager",
+      "-app-port", "5000",
+      "-resources-path", "/components"
+      ]
+    volumes:
+      - "./dapr/components/:/components"
+
+  aws-agent:
+    image: aws-agent
+    container_name: aws-agent
+    build:
+      context: .
+      dockerfile: src/AwsAgent/Dockerfile
+    depends_on:
+      - redis
+    ports:
+      - "50001:50001"
+    environment:
+      - SERVICEOPTION__DBNAME=resource_topology
+      - SERVICEOPTION__WORKERINTERVAL=1
+      - SERVICEOPTION__RUNSINGLE=false
+      - SERVICEOPTION__AWSCONFIGSUPPORTED=true
+      - SERVICEOPTION__MAXCONCURRENTADAPTERS=5
+      - SERVICEOPTION__REGION=cn-north-1
+      - SERVICEOPTION__ACCESSKEYID=${ACCESS_KEY_ID}
+      - SERVICEOPTION__SECRETACCESSKEY=${SECRET_ACCESS_KEY}
+      - CONNECTIONSTRINGS__MONGODB=${AWSAGENT_MONGODB_URL}
+
+  aws-agent-dapr:
+    image: "daprio/daprd"
+    network_mode: "service:aws-agent"
+    depends_on:
+      - aws-agent
+    command: ["./daprd",
+      "-app-id", "aws-agent",
+      "-resources-path", "/components"
+      ]
+    volumes:
+      - "./dapr/components/:/components"
+
+  dapr-placement:
+    image: "daprio/dapr"
+    command: ["./placement", "-port", "50000", "-log-level", "debug"]
+    ports:
+      - "50000:50000"
+      
+networks:
+  default:
+    name: dapr-network
