@@ -19,12 +19,6 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
         return Task.FromResult(new DifferentialResourcesRecord(insertDatas, deleteDatas, updateDatas, insertShipDatas, deleteShipDatas));
     }
 
-    protected override Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(
-        List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
-    {
-        return wrapper.GetAdditionalResources(resources, ships, cancellation);
-    }
-
     protected override Task<(List<Resource>, List<ResourceRelationship>)> GetResourcesFromAWS(CancellationToken cancellation)
     {
         return wrapper.GetResourcAndRelationFromAWS(cancellation);
@@ -36,12 +30,6 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
         var dbResourceShiplTask = resourceRelationshipRepository.ListResourceRelationshipsAsync(cancellation);
         await Task.WhenAll(dbResourcesTask, dbResourceShiplTask);
         return (dbResourcesTask.Result, dbResourceShiplTask.Result);
-    }
-
-    protected override Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(
-        List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
-    {
-        return wrapper.MergeResources(resources, ships, cancellation);
     }
 
     protected override Task SaveDifferentialDatas(DifferentialResourcesRecord record, CancellationToken cancellation)

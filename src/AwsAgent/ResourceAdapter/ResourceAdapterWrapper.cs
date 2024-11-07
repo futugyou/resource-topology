@@ -25,17 +25,21 @@ public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters, IOpt
         return ([.. resources], [.. relationships]);
     }
 
-    public Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    private Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
         return ExecuteAdapterOperation(adapter => adapter.GetAdditionalResources(resources, relationships, cancellation), cancellation);
     }
 
-    public Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
-        return ExecuteAdapterOperation(adapter => adapter.GetResourcAndRelationFromAWS(cancellation), cancellation);
+        (List<Resource> resources, List<ResourceRelationship> resourceShips) = await ExecuteAdapterOperation(adapter => adapter.GetResourcAndRelationFromAWS(cancellation), cancellation);
+        (resources, resourceShips) = await GetAdditionalResources(resources, resourceShips, cancellation);
+        (resources, resourceShips) = await MergeResources(resources, resourceShips, cancellation);
+        
+        return (resources, resourceShips);
     }
 
-    public Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    private Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
         return ExecuteAdapterOperation(adapter => adapter.MergeResources(resources, relationships, cancellation), cancellation);
     }
