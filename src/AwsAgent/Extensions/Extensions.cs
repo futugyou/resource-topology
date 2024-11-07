@@ -77,7 +77,6 @@ public static class Extensions
         builder.Services.AddScoped<AwsConfigAdapter>();
 
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
-        builder.Services.AddScoped<AwsAgent.Processor.AbstractResourceProcessor, AwsAgent.Processor.ResourceProcessor>();
         builder.Services.AddDaprClient();
 
         builder.Services.AddHostedService<Worker>();

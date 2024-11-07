@@ -1,14 +1,11 @@
 
 namespace AwsAgent.Processor;
 
-public class ResourceProcessor(ILogger<ResourceProcessor> logger,
-IResourceRepository resourceRepository,
-                               IResourceRelationshipRepository resourceRelationshipRepository,
-                               IResourceAdapterWrapper wrapper,
-                               DaprClient dapr)
- : AbstractResourceProcessor(logger)
+public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepository resourceRepository,
+    IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr) : AbstractResourceProcessor(logger)
 {
-    protected override Task<DifferentialResourcesRecord> DifferentialResourcesData(List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation)
+    protected override Task<DifferentialResourcesRecord> DifferentialResourcesData(
+        List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation)
     {
 
         var insertDatas = GetExceptDatas(awsResources, dbResources);
@@ -22,7 +19,8 @@ IResourceRepository resourceRepository,
         return Task.FromResult(new DifferentialResourcesRecord(insertDatas, deleteDatas, updateDatas, insertShipDatas, deleteShipDatas));
     }
 
-    protected override Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
+    protected override Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(
+        List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
     {
         return Task.FromResult((resources, ships));
     }
@@ -40,7 +38,8 @@ IResourceRepository resourceRepository,
         return (dbResourcesTask.Result, dbResourceShiplTask.Result);
     }
 
-    protected override Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
+    protected override Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(
+        List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
     {
         return Task.FromResult((resources, ships));
     }
@@ -71,7 +70,9 @@ IResourceRepository resourceRepository,
                 select b).ToList();
     }
 
-    private static ResourceContracts.ResourceProcessorEvent ConvertResourceToEvent(List<Resource> insertDatas, List<Resource> deleteDatas, List<Resource> updateDatas, List<ResourceRelationship> insertShipDatas, List<ResourceRelationship> deleteShipDatas)
+    private static ResourceContracts.ResourceProcessorEvent ConvertResourceToEvent(
+        List<Resource> insertDatas, List<Resource> deleteDatas, List<Resource> updateDatas,
+        List<ResourceRelationship> insertShipDatas, List<ResourceRelationship> deleteShipDatas)
     {
         return new ResourceContracts.ResourceProcessorEvent
         {

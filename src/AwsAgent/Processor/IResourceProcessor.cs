@@ -1,4 +1,4 @@
-namespace AwsAgent.Services;
+namespace AwsAgent.Processor;
 
 public interface IResourceProcessor
 {

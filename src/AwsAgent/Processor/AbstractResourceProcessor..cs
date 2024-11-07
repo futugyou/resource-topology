@@ -1,6 +1,6 @@
 namespace AwsAgent.Processor;
 
-public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcessor> logger)
+public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcessor> logger) : IResourceProcessor
 {
     public async Task ProcessingData(CancellationToken cancellation)
     {
@@ -17,7 +17,7 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
         {
             return;
         }
-        
+
         logger.LogInformation("{count} resources need to create, {count} resources need to delete, {count} resources need to update", record.InsertDatas.Count, record.DeleteDatas.Count, record.UpdateDatas.Count);
         logger.LogInformation("{count} ships need to create, {count} ships need to delete,", record.InsertShipDatas.Count, record.DeleteShipDatas.Count);
 
