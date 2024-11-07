@@ -53,7 +53,7 @@ public static class Extensions
         builder.Services.AddAWSService<IAmazonConfigService>();
 
         builder.Services.AddScoped<IResourceAdapterWrapper, ResourceAdapterWrapper>();
- 
+
         builder.Services.AddScoped(sp =>
         {
             var options = sp.GetRequiredService<IOptions<ServiceOption>>().Value;
@@ -77,6 +77,7 @@ public static class Extensions
         builder.Services.AddScoped<AwsConfigAdapter>();
 
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
+        builder.Services.AddScoped<AwsAgent.Processor.AbstractResourceProcessor, AwsAgent.Processor.ResourceProcessor>();
         builder.Services.AddDaprClient();
 
         builder.Services.AddHostedService<Worker>();

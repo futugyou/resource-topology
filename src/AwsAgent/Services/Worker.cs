@@ -12,7 +12,7 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHo
 
             try
             {
-                var processor = scope.ServiceProvider.GetRequiredService<IResourceProcessor>();
+                var processor = scope.ServiceProvider.GetRequiredService<AwsAgent.Processor.AbstractResourceProcessor>();
                 await processor.ProcessingData(stoppingToken);
             }
             catch (Exception ex)
