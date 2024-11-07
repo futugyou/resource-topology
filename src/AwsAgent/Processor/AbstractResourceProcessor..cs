@@ -9,7 +9,6 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
         await Task.WhenAll(dbDataTask, awsDataTask);
 
         (List<Resource> resources, List<ResourceRelationship> resourceShips) = await GetAdditionalResources(awsDataTask.Result.resources, awsDataTask.Result.resourceShips, cancellation);
-        (resources, resourceShips) = await GetAdditionalResources(resources, resourceShips, cancellation);
         (resources, resourceShips) = await MergeResources(resources, resourceShips, cancellation);
 
         var record = await DifferentialResourcesData(dbDataTask.Result.resources, dbDataTask.Result.resourceShips, resources, resourceShips, cancellation);

@@ -22,7 +22,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
     protected override Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(
         List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
     {
-        return Task.FromResult((resources, ships));
+        return wrapper.GetAdditionalResources(resources, ships, cancellation);
     }
 
     protected override Task<(List<Resource>, List<ResourceRelationship>)> GetResourcesFromAWS(CancellationToken cancellation)
@@ -41,7 +41,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
     protected override Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(
         List<Resource> resources, List<ResourceRelationship> ships, CancellationToken cancellation)
     {
-        return Task.FromResult((resources, ships));
+        return wrapper.MergeResources(resources, ships, cancellation);
     }
 
     protected override Task SaveDifferentialDatas(DifferentialResourcesRecord record, CancellationToken cancellation)

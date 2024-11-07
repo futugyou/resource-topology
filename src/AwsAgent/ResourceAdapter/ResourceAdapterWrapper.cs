@@ -1,25 +1,42 @@
-
 namespace AwsAgent.ResourceAdapter;
 
 public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters, IOptions<ServiceOption> options) : IResourceAdapterWrapper
 {
-    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    private async Task<(List<Resource>, List<ResourceRelationship>)> ExecuteAdapterOperation(
+        Func<IResourceAdapter, Task<(List<Resource>, List<ResourceRelationship>)>> operation,
+        CancellationToken cancellation)
     {
         var resources = new ConcurrentBag<Resource>();
-        var ships = new ConcurrentBag<ResourceRelationship>();
+        var relationships = new ConcurrentBag<ResourceRelationship>();
         var serviceOption = options.Value;
+
         using var limiter = new ConcurrencyLimiter(serviceOption?.MaxConcurrentAdapters ?? 5);
         var tasks = adapters.Select(adapter =>
             limiter.ExecuteAsync(async () =>
             {
-                var (resource, ship) = await adapter.GetResourcAndRelationFromAWS(cancellation);
+                var (resource, relationship) = await operation(adapter);
                 resource.ForEach(r => resources.Add(r));
-                ship.ForEach(r => ships.Add(r));
-                return (resource, ship);
+                relationship.ForEach(r => relationships.Add(r));
+                return (resource, relationship);
             })).ToList();
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).WaitAsync(cancellation);
 
-        return ([.. resources], [.. ships]);
+        return ([.. resources], [.. relationships]);
+    }
+
+    public Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    {
+        return ExecuteAdapterOperation(adapter => adapter.GetAdditionalResources(resources, relationships, cancellation), cancellation);
+    }
+
+    public Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    {
+        return ExecuteAdapterOperation(adapter => adapter.GetResourcAndRelationFromAWS(cancellation), cancellation);
+    }
+
+    public Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    {
+        return ExecuteAdapterOperation(adapter => adapter.MergeResources(resources, relationships, cancellation), cancellation);
     }
 }
