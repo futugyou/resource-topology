@@ -12,7 +12,7 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.402.42" />
     <PackageReference Include="Dapr.AspNetCore" Version="1.14.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="3.0.0" /> 
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.2.0" />
   </ItemGroup>
