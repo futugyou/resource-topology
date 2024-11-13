@@ -18,3 +18,7 @@ updates:
       aws:
         patterns:
           - "AWSSDK*"
+      openapi:
+        patterns:
+          - "Microsoft.AspNetCore.OpenApi"
+          - "Swashbuckle.AspNetCore"
