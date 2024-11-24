@@ -42,7 +42,14 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
     protected override Task SendResourceProcessingEvent(DifferentialResourcesRecord record, CancellationToken cancellation)
     {
         var processorEvent = ConvertResourceToEvent(record.InsertDatas, record.DeleteDatas, record.UpdateDatas, record.InsertShipDatas, record.DeleteShipDatas);
-        return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
+        var upsert = new List<StateTransactionRequest>()
+        {
+            new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert)
+        };
+        
+        return dapr.ExecuteStateTransactionAsync("redis-state", upsert, null, cancellation);
+        // return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
     }
 
     private static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity
