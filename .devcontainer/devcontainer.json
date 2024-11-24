@@ -5,8 +5,9 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/universal:2",
 	"features": {
+		"ghcr.io/dapr/cli/dapr-cli:0": {},
 		"ghcr.io/elanhasson/devcontainer-features/dotnet-aspire-daily:1": {},
-		"docker-in-docker": "latest",
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/rio/features/k3d:1": {}
 	},
 	"customizations": {
