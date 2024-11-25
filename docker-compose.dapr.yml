@@ -27,6 +27,7 @@ services:
     command: ["./daprd",
       "-app-id", "resource-manager",
       "-app-port", "5000",
+      "-log-level", "warn",
       "-actors-service", "placement:50006",
       "-resources-path", "/components"
       ]
@@ -56,6 +57,7 @@ services:
       - aws-agent
     command: ["./daprd",
       "-app-id", "aws-agent",
+      "-log-level", "warn",
       "-actors-service", "placement:50006",
       "-resources-path", "/components"
       ]
@@ -66,7 +68,10 @@ services:
   placement:
     container_name: placement
     image: "daprio/dapr"
-    command: ["./placement", "-port", "50006"]
+    command: ["./placement",
+      "-log-level", "warn",
+      "-port", "50006"
+      ]
     ports:
       - "50006:50006"
       
