@@ -1,17 +1,16 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: resource-agent
+  name: aws-agent-config
 spec:
-  type: pubsub.redis
+  type: configuration.redis
   version: v1
   metadata:
   - name: redisHost
     value: redis:6379
-  - name: redisPassword
     secretKeyRef:
       name: redis_password
   - name: redisDB
-    value: "1"
+    value: "3"
 auth:
-  secretStore: pubsub-secret
+  secretStore: aws-agent-secret

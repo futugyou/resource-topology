@@ -1,15 +1,18 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: redis-state
+  name: aws-agent-state
 spec:
   type: state.redis
   version: v1
   metadata:
   - name: redisHost
-    value: localhost:6379
+    value: redis:6379
+  - name: redisPassword
     secretKeyRef:
       name: redis_password
+  - name: redisDB
+    value: "0"
   - name: actorStateStore
     value: "true"
   - name: outboxPublishPubsub
@@ -17,4 +20,4 @@ spec:
   - name: outboxPublishTopic
     value: resources
 auth:
-  secretStore: localsecretstore
+  secretStore: aws-agent-secret
