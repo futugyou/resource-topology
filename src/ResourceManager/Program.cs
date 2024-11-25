@@ -10,7 +10,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Dapr will send serialized event object vs. being raw CloudEvent
-app.UseCloudEvents();
+// app.UseCloudEvents();
 
 // needed for Dapr pub/sub routing
 app.MapSubscribeHandler();
@@ -44,11 +44,11 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPost("/resources", [Topic("resource-agent", "resources")] (ResourceProcessorEvent resource) =>
+app.MapPost("/resources", [Topic("resource-agent", "resources")] (ResourceEventWrapper resource) =>
 {
-    var data = JsonSerializer.Serialize(resource);
-    Console.WriteLine("Subscriber received : " + data);
-    return Results.Ok(data);
+    // var data = JsonSerializer.Serialize(resource);
+    Console.WriteLine("Subscriber received : " + resource.Data);
+    return Results.Ok(resource);
 });
 
 app.Run();
@@ -56,4 +56,15 @@ app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+public record ResourceEventWrapper
+{
+    [property: JsonPropertyName("data")]
+    public string Data { get; init; }
+
+    public ResourceEventWrapper(string data)
+    {
+        Data = data;
+    }
 }
