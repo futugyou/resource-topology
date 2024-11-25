@@ -32,6 +32,7 @@ services:
       ]
     volumes:
       - "./dapr/components/:/components"
+      - "./dapr/secrets/:/secrets"
 
   aws-agent:
     image: aws-agent
@@ -60,6 +61,7 @@ services:
       ]
     volumes:
       - "./dapr/components/:/components"
+      - "./dapr/secrets/:/secrets"
 
   placement:
     container_name: placement
