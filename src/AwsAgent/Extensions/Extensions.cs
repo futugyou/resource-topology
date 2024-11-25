@@ -1,5 +1,3 @@
-
-
 namespace AwsAgent.Extensions;
 
 public static class Extensions
@@ -8,7 +6,15 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        var daprClientBuilder = new DaprClientBuilder();
+        DaprClient daprClient = daprClientBuilder.Build();
+        builder.Services.AddSingleton(daprClient);
+
         var configuration = builder.Configuration;
+        configuration.AddDaprConfigurationStore("aws-agent-config", [], daprClient, TimeSpan.FromSeconds(20));
+        configuration.AddStreamingDaprConfigurationStore("aws-agent-config", [], daprClient, TimeSpan.FromSeconds(20));
+        configuration.AddDaprSecretStore("aws-agent-secret", daprClient, TimeSpan.FromSeconds(10));
+
         builder.Services.AddOptions<ServiceOption>().BindConfiguration(nameof(ServiceOption));
         builder.Services.PostConfigure<ServiceOption>(op =>
         {
@@ -77,7 +83,7 @@ public static class Extensions
         builder.Services.AddScoped<AwsConfigAdapter>();
 
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
-        builder.Services.AddDaprClient();
+        // builder.Services.AddDaprClient();
 
         builder.Services.AddHostedService<Worker>();
 

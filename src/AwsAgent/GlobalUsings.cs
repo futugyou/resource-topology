@@ -11,6 +11,7 @@ global using AwsAgent.Processor;
 global using AwsAgent.ResourceAdapter;
 global using AwsAgent.Services;
 global using Dapr.Client;
+global using Dapr.Extensions.Configuration;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Options;
 global using MongoDB.Driver;

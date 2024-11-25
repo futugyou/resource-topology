@@ -48,7 +48,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
             new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert)
         };
         
-        return dapr.ExecuteStateTransactionAsync("redis-state", upsert, null, cancellation);
+        return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, null, cancellation);
         // return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
     }
 
