@@ -92,6 +92,13 @@ public static class Extensions
         // string dbName = configuration["DBOption:DBName"]!;
         // builder.Services.AddMongoDB<AwsContext>(connectionString, dbName);
 
+        builder.Services.AddDaprWorkflow(options =>
+        {
+            options.RegisterWorkflow<ResourceProcessorWorkflow>();
+            options.RegisterActivity<GetDatabaseResourceActivity>();
+            options.RegisterActivity<GetAwsResourceActivity>();
+        });
+
         return builder;
     }
 }
