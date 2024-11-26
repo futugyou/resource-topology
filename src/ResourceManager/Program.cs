@@ -10,7 +10,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Dapr will send serialized event object vs. being raw CloudEvent
-// app.UseCloudEvents();
+app.UseCloudEvents();
 
 // needed for Dapr pub/sub routing
 app.MapSubscribeHandler();
@@ -44,11 +44,13 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPost("/resources", [Topic("resource-agent", "resources")] (ResourceEventWrapper resource) =>
+// app.MapPost("/resources", [Topic("resource-agent", "resources")] ([FromBody] ResourceProcessorEvent resource) =>
+// TODO: some error here https://github.com/dapr/dotnet-sdk/issues/1332#issuecomment-2380321656
+app.MapPost("/resources", [Topic("resource-agent", "resources")] (object resource) =>
 {
-    // var data = JsonSerializer.Serialize(resource);
-    Console.WriteLine("Subscriber received : " + resource.Data);
-    return Results.Ok(resource);
+    var data = JsonSerializer.Serialize(resource);
+    Console.WriteLine("Subscriber received : " + data);
+    return Results.Ok(data);
 });
 
 app.Run();

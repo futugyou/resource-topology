@@ -43,12 +43,17 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
     {
         var processorEvent = ConvertResourceToEvent(record.InsertDatas, record.DeleteDatas, record.UpdateDatas, record.InsertShipDatas, record.DeleteShipDatas);
         var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
+        var metadata = new Dictionary<string, string> {
+            {"datacontenttype","application/json"},
+            {"contentType","application/json"}, 
+            {"ttlInSeconds","86400"},
+        }; 
         var upsert = new List<StateTransactionRequest>()
         {
-            new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert)
+            new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert, metadata:metadata)
         };
-        
-        return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, null, cancellation);
+
+        return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
         // return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
     }
 
