@@ -1,17 +1,44 @@
+# apiVersion: dapr.io/v1alpha1
+# kind: Component
+# metadata:
+#   name: resource-agent
+# spec:
+#   type: pubsub.redis
+#   version: v1
+#   metadata:
+#   - name: redisHost
+#     value: redis:6379
+#   - name: redisPassword
+#     secretKeyRef:
+#       name: redis_password
+#   - name: redisDB
+#     value: "1"
+# auth:
+#   secretStore: pubsub-secret
+
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: resource-agent
 spec:
-  type: pubsub.redis
+  type: pubsub.rabbitmq
   version: v1
   metadata:
-  - name: redisHost
-    value: redis:6379
-  - name: redisPassword
+  - name: protocol
+    value: amqp  
+  - name: hostname
+    value: rabbitmq 
+  - name: username
     secretKeyRef:
-      name: redis_password
-  - name: redisDB
-    value: "1"
+      name: mq_user
+  - name: password
+    secretKeyRef:
+      name: mq_password
+  - name: durable
+    value: true
+  - name: deliveryMode
+    value: 2
+  - name: enableDeadLetter
+    value: true
 auth:
   secretStore: pubsub-secret
