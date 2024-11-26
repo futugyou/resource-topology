@@ -5,6 +5,24 @@ services:
     ports:
       - "6379:6379"
 
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq/
+      - rabbitmqlog:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
   resource-manager:
     image: resource-manager
     container_name: resource-manager
@@ -15,8 +33,12 @@ services:
       - "5000:5000"
       - "50002:50002"
     depends_on:
-      - redis
-      - placement
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      placement:
+        condition: service_started
 
   resource-manager-dapr:
     image: "daprio/daprd"
@@ -42,8 +64,12 @@ services:
       context: .
       dockerfile: src/AwsAgent/Dockerfile
     depends_on:
-      - redis
-      - placement
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      placement:
+        condition: service_started
     ports:
       - "50001:50001"
     environment:
@@ -78,3 +104,7 @@ services:
 networks:
   default:
     name: dapr-network
+
+volumes:
+  rabbitmqdata:
+  rabbitmqlog:
