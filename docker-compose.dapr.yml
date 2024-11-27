@@ -85,7 +85,6 @@ services:
       - aws-agent
     command: ["./daprd",
       "-app-id", "aws-agent",
-      "-app-port", "5000",
       "-log-level", "warn",
       "-actors-service", "placement:50006",
       "-resources-path", "/components"
