@@ -15,6 +15,7 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
+      - ./dapr/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - rabbitmqdata:/var/lib/rabbitmq/
       - rabbitmqlog:/var/log/rabbitmq
     healthcheck:
@@ -31,7 +32,7 @@ services:
       dockerfile: src/ResourceManager/Dockerfile
     ports:
       - "5000:5000"
-      - "50002:50002"
+      - "50001:50001"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -71,7 +72,8 @@ services:
       placement:
         condition: service_started
     ports:
-      - "50001:50001"
+      - "5001:5000"
+      - "50002:50001"
     environment:
       - SERVICEOPTION__WORKERINTERVAL=5
 
@@ -83,6 +85,7 @@ services:
       - aws-agent
     command: ["./daprd",
       "-app-id", "aws-agent",
+      "-app-port", "5000",
       "-log-level", "warn",
       "-actors-service", "placement:50006",
       "-resources-path", "/components"

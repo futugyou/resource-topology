@@ -1,6 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+EXPOSE 5000 50001
 USER app
 WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:5000
 ENV SERVICEOPTION__WORKERINTERVAL=5
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build

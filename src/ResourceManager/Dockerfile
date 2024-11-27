@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-EXPOSE 5000 
+EXPOSE 5000 50001
 USER app
-ENV ASPNETCORE_URLS=http://+:5000
 WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:5000
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
