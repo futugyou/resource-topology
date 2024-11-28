@@ -56,7 +56,8 @@ services:
       "-dapr-grpc-port", "50001",
       "-dapr-http-port", "3500",
       "-log-level", "warn",
-      "-actors-service", "placement:50006",
+      "-placement-host-address", "placement:50006",
+      # "-actors-service", "placement:50006",
       "-resources-path", "/components"
       ]
     volumes:
@@ -93,7 +94,8 @@ services:
       "-log-level", "warn",
       "-dapr-grpc-port", "50001",
       "-dapr-http-port", "3500",
-      "-actors-service", "placement:50006",
+      "-placement-host-address", "placement:50006",
+      # "-actors-service", "placement:50006",
       "-scheduler-host-address", "scheduler-0:50007",
       "-resources-path", "/components"
       ]
