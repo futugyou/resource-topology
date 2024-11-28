@@ -1,4 +1,4 @@
-namespace AwsAgent.ResourceAdapter;
+namespace AwsAgent.Extensions;
 
 public class Util
 {
@@ -45,5 +45,18 @@ public class Util
             return match.Groups[1].Value;
         }
         return "";
+    }
+
+    public static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity
+    {
+        return first.ExceptBy(second.Select(d => d.Id), d => d.Id).ToList();
+    }
+
+    public static List<Resource> GetIntersectDatas(List<Resource> first, List<Resource> second)
+    {
+        return (from a in first
+                join b in second on a.Id equals b.Id
+                where a.ResourceHash != b.ResourceHash
+                select b).ToList();
     }
 }

@@ -8,13 +8,13 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
         List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation)
     {
 
-        var insertDatas = GetExceptDatas(awsResources, dbResources);
-        var deleteDatas = GetExceptDatas(dbResources, awsResources);
-        var updateDatas = GetIntersectDatas(dbResources, awsResources);
+        var insertDatas = Util.GetExceptDatas(awsResources, dbResources);
+        var deleteDatas = Util.GetExceptDatas(dbResources, awsResources);
+        var updateDatas = Util.GetIntersectDatas(dbResources, awsResources);
 
         // ship do not need update, only insert and delete
-        var insertShipDatas = GetExceptDatas(awsShips, dbShips);
-        var deleteShipDatas = GetExceptDatas(dbShips, awsShips);
+        var insertShipDatas = Util.GetExceptDatas(awsShips, dbShips);
+        var deleteShipDatas = Util.GetExceptDatas(dbShips, awsShips);
 
         return Task.FromResult(new DifferentialResourcesRecord(insertDatas, deleteDatas, updateDatas, insertShipDatas, deleteShipDatas));
     }
@@ -45,9 +45,9 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
         var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
         var metadata = new Dictionary<string, string> {
             {"datacontenttype","application/json"},
-            {"contentType","application/json"}, 
+            {"contentType","application/json"},
             {"ttlInSeconds","86400"},
-        }; 
+        };
         var upsert = new List<StateTransactionRequest>()
         {
             new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert, metadata:metadata)
@@ -55,19 +55,6 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
 
         return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
         // return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
-    }
-
-    private static List<Entity> GetExceptDatas<Entity>(List<Entity> first, List<Entity> second) where Entity : IEntity
-    {
-        return first.ExceptBy(second.Select(d => d.Id), d => d.Id).ToList();
-    }
-
-    private static List<Resource> GetIntersectDatas(List<Resource> first, List<Resource> second)
-    {
-        return (from a in first
-                join b in second on a.Id equals b.Id
-                where a.ResourceHash != b.ResourceHash
-                select b).ToList();
     }
 
     private static ResourceContracts.ResourceProcessorEvent ConvertResourceToEvent(

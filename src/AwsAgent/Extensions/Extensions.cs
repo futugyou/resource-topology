@@ -103,6 +103,7 @@ public static class Extensions
             options.RegisterWorkflow<ResourceProcessorWorkflow>();
             options.RegisterActivity<GetDatabaseResourceActivity>();
             options.RegisterActivity<GetAwsResourceActivity>();
+            options.RegisterActivity<IncrementResourceActivity>();
         });
 
         return builder;

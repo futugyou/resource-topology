@@ -32,8 +32,3 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
 
     protected abstract Task SendResourceProcessingEvent(DifferentialResourcesRecord record, CancellationToken cancellation);
 }
-
-public record DifferentialResourcesRecord(List<Resource> InsertDatas, List<Resource> DeleteDatas, List<Resource> UpdateDatas, List<ResourceRelationship> InsertShipDatas, List<ResourceRelationship> DeleteShipDatas)
-{
-    public bool HasChange() => InsertDatas.Count != 0 || DeleteDatas.Count != 0 || UpdateDatas.Count != 0 || InsertShipDatas.Count != 0 || DeleteShipDatas.Count != 0;
-}

@@ -7,6 +7,7 @@ global using AwsAgent.Activities;
 global using AwsAgent.Domain;
 global using AwsAgent.Extensions;
 global using AwsAgent.Infrastructure;
+global using AwsAgent.Model;
 global using AwsAgent.Option;
 global using AwsAgent.Processor;
 global using AwsAgent.ResourceAdapter;
