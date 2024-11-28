@@ -34,8 +34,12 @@ services:
     ports:
       - "5000:5000"
       - "50001:50001"
+      - "3500:3500"
     depends_on:
       - placement
+    environment:
+      - DAPR_GRPC_PORT=50001
+      - DAPR_HTTP_PORT=3500
 
   resource-manager-dapr:
     image: "daprio/daprd"
@@ -49,6 +53,8 @@ services:
     command: ["./daprd",
       "-app-id", "resource-manager",
       "-app-port", "5000",
+      "-dapr-grpc-port", "50001",
+      "-dapr-http-port", "3500",
       "-log-level", "warn",
       "-actors-service", "placement:50006",
       "-resources-path", "/components"
@@ -66,11 +72,12 @@ services:
     depends_on:
       - placement
     ports:
-      - "5001:5000"
       - "50002:50001"
+      - "3501:3500"
     environment:
       - SERVICEOPTION__WORKERINTERVAL=5
       - DAPR_GRPC_PORT=50001
+      - DAPR_HTTP_PORT=3500
 
   aws-agent-dapr:
     image: "daprio/daprd"
@@ -85,6 +92,7 @@ services:
       "-app-id", "aws-agent",
       "-log-level", "warn",
       "-dapr-grpc-port", "50001",
+      "-dapr-http-port", "3500",
       "-actors-service", "placement:50006",
       "-scheduler-host-address", "scheduler-0:50007",
       "-resources-path", "/components"
@@ -120,6 +128,20 @@ services:
     ports:
       - "50006:50006"
       
+  dapr-dashboard:
+    container_name: dapr-dashboard
+    image: "daprio/dashboard"
+    command: [ "--docker-compose=true", 
+      "--components-path=/home/nonroot/components", 
+      "--config-path=/home/nonroot/configuration", 
+      "--docker-compose-path=/home/nonroot/docker-compose.yml" ]
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./dapr/components/:/home/nonroot/components"
+      - "./dapr/config/:/home/nonroot/configuration"
+      - "./docker-compose.dapr.yml:/home/nonroot/docker-compose.yml"
+
 networks:
   default:
     name: dapr-network
