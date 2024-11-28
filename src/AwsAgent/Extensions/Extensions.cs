@@ -104,6 +104,7 @@ public static class Extensions
             options.RegisterActivity<GetDatabaseResourceActivity>();
             options.RegisterActivity<GetAwsResourceActivity>();
             options.RegisterActivity<IncrementResourceActivity>();
+            options.RegisterActivity<SaveResourceActivity>();
         });
 
         return builder;
