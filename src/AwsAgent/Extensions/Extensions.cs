@@ -8,6 +8,11 @@ public static class Extensions
 
         var daprClientBuilder = new DaprClientBuilder();
         DaprClient daprClient = daprClientBuilder.Build();
+        while (!daprClient.CheckHealthAsync().Result)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        }
+        
         builder.Services.AddSingleton(daprClient);
 
         var configuration = builder.Configuration;
@@ -85,7 +90,8 @@ public static class Extensions
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
         // builder.Services.AddDaprClient();
 
-        builder.Services.AddHostedService<Worker>();
+        // builder.Services.AddHostedService<Worker>();
+        builder.Services.AddHostedService<DaprWorker>();
 
         // We do not want use efcore for this project.
         // string connectionString = configuration.GetConnectionString("Mongodb")!;
