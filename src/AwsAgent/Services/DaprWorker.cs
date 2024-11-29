@@ -21,6 +21,13 @@ public class DaprWorker(ILogger<Worker> logger, IServiceProvider servicerovider)
             }
             catch (Exception ex)
             {
+                try
+                {
+                    await _daprWorkflowClient.PurgeInstanceAsync(workflowId, stoppingToken);
+                }
+                catch (Exception)
+                {
+                }
                 logger.LogError("DaprWorker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
             }
 
