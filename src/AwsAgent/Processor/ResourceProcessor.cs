@@ -2,7 +2,7 @@
 namespace AwsAgent.Processor;
 
 public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepository resourceRepository,
-    IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr) : AbstractResourceProcessor(logger)
+    IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr, IMapper mapper) : AbstractResourceProcessor(logger)
 {
     protected override Task<DifferentialResourcesRecord> DifferentialResourcesData(
         List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation)
@@ -41,7 +41,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
 
     protected override Task SendResourceProcessingEvent(DifferentialResourcesRecord record, CancellationToken cancellation)
     {
-        var processorEvent = ConvertResourceToEvent(record.InsertDatas, record.DeleteDatas, record.UpdateDatas, record.InsertShipDatas, record.DeleteShipDatas);
+        var processorEvent = mapper.Map<ResourceContracts.ResourceProcessorEvent>(record);
         var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
         var metadata = new Dictionary<string, string> {
             {"datacontenttype","application/json"},
@@ -54,51 +54,5 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
         };
 
         return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
-        // return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
-    }
-
-    private static ResourceContracts.ResourceProcessorEvent ConvertResourceToEvent(
-        List<Resource> insertDatas, List<Resource> deleteDatas, List<Resource> updateDatas,
-        List<ResourceRelationship> insertShipDatas, List<ResourceRelationship> deleteShipDatas)
-    {
-        return new ResourceContracts.ResourceProcessorEvent
-        {
-            InsertResources = insertDatas.Select(ConvertResource).ToList(),
-            DeleteResources = deleteDatas.Select(p => p.Id).ToList(),
-            UpdateResources = updateDatas.Select(ConvertResource).ToList(),
-            InsertShips = insertShipDatas.Select(ConvertRelationship).ToList(),
-            DeleteShips = deleteShipDatas.Select(p => p.Id).ToList(),
-            Provider = "Aws",
-        };
-    }
-
-    private static ResourceContracts.ResourceRelationship ConvertRelationship(ResourceRelationship ship)
-    {
-        return new()
-        {
-            Id = ship.Id,
-            Relation = ship.Label,
-            SourceId = ship.SourceId,
-            TargetId = ship.TargetId,
-        };
-    }
-
-    private static ResourceContracts.Resource ConvertResource(Resource res)
-    {
-        return new()
-        {
-            Id = res.Id,
-            ResourceHash = res.ResourceHash,
-            ResourceCreationTime = res.ResourceCreationTime,
-            Configuration = res.Configuration,
-            AvailabilityZone = res.AvailabilityZone,
-            Region = res.AwsRegion,
-            AccountID = res.AccountID,
-            ResourceType = res.ResourceType,
-            ResourceName = res.ResourceName,
-            ResourceID = res.ResourceID,
-            ResourceUrl = res.ResourceUrl,
-            Tags = res.Tags.ToDictionary(tag => tag.Key, tag => tag.Value),
-        };
     }
 }

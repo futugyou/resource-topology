@@ -5,6 +5,8 @@ public static class Extensions
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        builder.Services.AddAutoMapper(typeof(Program));
+        AutoMapperConfig.RegisterMapper();
 
         var daprClientBuilder = new DaprClientBuilder();
         DaprClient daprClient = daprClientBuilder.Build();
@@ -12,7 +14,7 @@ public static class Extensions
         {
             Thread.Sleep(TimeSpan.FromSeconds(5));
         }
-        
+
         builder.Services.AddSingleton(daprClient);
 
         var configuration = builder.Configuration;
