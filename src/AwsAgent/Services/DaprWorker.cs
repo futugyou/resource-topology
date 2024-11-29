@@ -10,14 +10,14 @@ public class DaprWorker(ILogger<Worker> logger, IServiceProvider servicerovider)
             var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<ServiceOption>>();
             var _daprWorkflowClient = scope.ServiceProvider.GetRequiredService<DaprWorkflowClient>();
             var serviceOption = optionsMonitor.CurrentValue;
-            //TODO: create meaning Id
-            var workflowId = Guid.NewGuid().ToString();
+
+            var workflowId = $"aws-resource-process-{Guid.NewGuid()}";
             try
             {
-                await _daprWorkflowClient.ScheduleNewWorkflowAsync(nameof(ResourceProcessorWorkflow), workflowId, "");
-                await _daprWorkflowClient.WaitForWorkflowCompletionAsync(workflowId, cancellation: stoppingToken);
-                var state = await _daprWorkflowClient.GetWorkflowStateAsync(workflowId);
-                Console.WriteLine($"Workflow started with ID: {workflowId}, Workflow state: {state.RuntimeStatus}");
+                var schedule = await _daprWorkflowClient.ScheduleNewWorkflowAsync(nameof(ResourceProcessorWorkflow), workflowId, "");
+                logger.LogInformation("ScheduleNewWorkflowAsync result: {schedule}", schedule);
+                var state = await _daprWorkflowClient.WaitForWorkflowCompletionAsync(workflowId, cancellation: stoppingToken);
+                logger.LogInformation("Workflow started with ID: {workflowId}, Workflow state: {state.RuntimeStatus}", workflowId, state.ReadCustomStatusAs<string>());
             }
             catch (Exception ex)
             {
