@@ -2,7 +2,7 @@ namespace AwsAgent.ResourceAdapter;
 
 public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAdapter
 {
-    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    public async Task<ResourceAndShip> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
         List<string> result = [];
         string? nextToken = null;
@@ -54,11 +54,11 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
         return ConvertConfigStringArrayToResource(result);
     }
 
-    private static (List<Resource>, List<ResourceRelationship>) ConvertConfigStringArrayToResource(List<string> result)
+    private static ResourceAndShip ConvertConfigStringArrayToResource(List<string> result)
     {
         if (result.Count == 0)
         {
-            return ([], []);
+            return new ResourceAndShip([], []);
         }
 
         var rawdatastring = "[" + string.Join(",", result) + "]";
@@ -66,11 +66,11 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
         return ConvertConfigDatasToResource(datas);
     }
 
-    private static (List<Resource>, List<ResourceRelationship>) ConvertConfigDatasToResource(AwsConfigRawData[]? datas)
+    private static ResourceAndShip ConvertConfigDatasToResource(AwsConfigRawData[]? datas)
     {
         if (datas == null || datas.Length == 0)
         {
-            return ([], []);
+            return new ResourceAndShip([], []);
         }
 
         var resources = new List<Resource>(datas.Length);
@@ -111,7 +111,7 @@ public class AwsConfigAdapter(IAmazonConfigService configService) : IResourceAda
             }));
         }
         ConversionShipData(resources, ships);
-        return (resources, ships);
+        return new ResourceAndShip(resources, ships);
     }
 
     private static string GenerateResourceHash(AwsConfigRawData data)

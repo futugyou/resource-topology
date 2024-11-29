@@ -4,12 +4,12 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
 {
     public async Task ProcessingData(CancellationToken cancellation)
     {
-        Task<(List<Resource> resources, List<ResourceRelationship> resourceShips)> dbDataTask = GetResourcesFromDB(cancellation);
-        Task<(List<Resource> resources, List<ResourceRelationship> resourceShips)> awsDataTask = GetResourcesFromAWS(cancellation);
+        Task<ResourceAndShip> dbDataTask = GetResourcesFromDB(cancellation);
+        Task<ResourceAndShip> awsDataTask = GetResourcesFromAWS(cancellation);
         await Task.WhenAll(dbDataTask, awsDataTask);
 
-        var record = await DifferentialResourcesData(dbDataTask.Result.resources, dbDataTask.Result.resourceShips,
-            awsDataTask.Result.resources, awsDataTask.Result.resourceShips, cancellation);
+        var record = await DifferentialResourcesData(dbDataTask.Result.Resources, dbDataTask.Result.Ships,
+            awsDataTask.Result.Resources, awsDataTask.Result.Ships, cancellation);
         if (!record.HasChange())
         {
             return;
@@ -22,9 +22,9 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
         await SendResourceProcessingEvent(record, cancellation);
     }
 
-    protected abstract Task<(List<Resource>, List<ResourceRelationship>)> GetResourcesFromAWS(CancellationToken cancellation);
+    protected abstract Task<ResourceAndShip> GetResourcesFromAWS(CancellationToken cancellation);
 
-    protected abstract Task<(List<Resource>, List<ResourceRelationship>)> GetResourcesFromDB(CancellationToken cancellation);
+    protected abstract Task<ResourceAndShip> GetResourcesFromDB(CancellationToken cancellation);
 
     protected abstract Task<DifferentialResourcesRecord> DifferentialResourcesData(List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation);
 

@@ -2,8 +2,8 @@ namespace AwsAgent.ResourceAdapter;
 
 public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters, IOptions<ServiceOption> options) : IResourceAdapterWrapper
 {
-    private async Task<(List<Resource>, List<ResourceRelationship>)> ExecuteAdapterOperation(
-        Func<IResourceAdapter, Task<(List<Resource>, List<ResourceRelationship>)>> operation,
+    private async Task<ResourceAndShip> ExecuteAdapterOperation(
+        Func<IResourceAdapter, Task<ResourceAndShip>> operation,
         CancellationToken cancellation)
     {
         var resources = new ConcurrentBag<Resource>();
@@ -22,24 +22,24 @@ public class ResourceAdapterWrapper(IEnumerable<IResourceAdapter> adapters, IOpt
 
         await Task.WhenAll(tasks).WaitAsync(cancellation);
 
-        return ([.. resources], [.. relationships]);
+        return new ResourceAndShip([.. resources], [.. relationships]);
     }
 
-    private Task<(List<Resource>, List<ResourceRelationship>)> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    private Task<ResourceAndShip> GetAdditionalResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
         return ExecuteAdapterOperation(adapter => adapter.GetAdditionalResources(resources, relationships, cancellation), cancellation);
     }
 
-    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    public async Task<ResourceAndShip> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
         (List<Resource> resources, List<ResourceRelationship> resourceShips) = await ExecuteAdapterOperation(adapter => adapter.GetResourcAndRelationFromAWS(cancellation), cancellation);
         (resources, resourceShips) = await GetAdditionalResources(resources, resourceShips, cancellation);
         (resources, resourceShips) = await MergeResources(resources, resourceShips, cancellation);
         
-        return (resources, resourceShips);
+        return new ResourceAndShip(resources, resourceShips);
     }
 
-    private Task<(List<Resource>, List<ResourceRelationship>)> MergeResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
+    private Task<ResourceAndShip> MergeResources(List<Resource> resources, List<ResourceRelationship> relationships, CancellationToken cancellation)
     {
         return ExecuteAdapterOperation(adapter => adapter.MergeResources(resources, relationships, cancellation), cancellation);
     }

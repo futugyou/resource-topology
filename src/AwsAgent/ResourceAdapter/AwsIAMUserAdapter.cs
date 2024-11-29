@@ -5,13 +5,13 @@ namespace AwsAgent.ResourceAdapter;
 
 public class AwsIAMUserAdapter(IAmazonIdentityManagementService iamClient) : IResourceAdapter
 {
-    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    public async Task<ResourceAndShip> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
         var response = new List<Resource>();
         var iamResponse = await iamClient.ListUsersAsync(cancellation);
         if (iamResponse == null)
         {
-            return ([], []);
+            return new ResourceAndShip([], []);
         }
 
         foreach (var user in iamResponse.Users)
@@ -58,7 +58,7 @@ public class AwsIAMUserAdapter(IAmazonIdentityManagementService iamClient) : IRe
         }
 
         //TODO: how to get relship
-        return (response, []);
+        return new ResourceAndShip(response, []);
     }
 
     private async Task<List<Group>> GetUserGroup(string userName, CancellationToken cancellation)

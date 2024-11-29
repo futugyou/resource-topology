@@ -2,5 +2,5 @@ namespace AwsAgent.ResourceAdapter;
 
 public interface IResourceAdapterWrapper
 {
-    Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation);
+    Task<ResourceAndShip> GetResourcAndRelationFromAWS(CancellationToken cancellation);
 }

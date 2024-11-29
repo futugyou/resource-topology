@@ -6,3 +6,4 @@ public record DifferentialResourcesRecord(List<Resource> InsertDatas, List<Resou
 {
     public bool HasChange() => InsertDatas.Count != 0 || DeleteDatas.Count != 0 || UpdateDatas.Count != 0 || InsertShipDatas.Count != 0 || DeleteShipDatas.Count != 0;
 }
+public record  ResourceAndShip(List<Resource> Resources, List<ResourceRelationship> Ships);

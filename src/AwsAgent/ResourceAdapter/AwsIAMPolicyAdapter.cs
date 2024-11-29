@@ -2,13 +2,13 @@ namespace AwsAgent.ResourceAdapter;
 
 public class AwsIAMPolicyAdapter(IAmazonIdentityManagementService iamClient) : IResourceAdapter
 {
-    public async Task<(List<Resource>, List<ResourceRelationship>)> GetResourcAndRelationFromAWS(CancellationToken cancellation)
+    public async Task<ResourceAndShip> GetResourcAndRelationFromAWS(CancellationToken cancellation)
     {
         var response = new List<Resource>();
         var iamResponse = await iamClient.ListPoliciesAsync(cancellation);
         if (iamResponse == null)
         {
-            return ([], []);
+            return new ResourceAndShip([], []);
         }
         foreach (var policy in iamResponse.Policies)
         {
@@ -54,7 +54,7 @@ public class AwsIAMPolicyAdapter(IAmazonIdentityManagementService iamClient) : I
             });
         }
 
-        return (response, []);
+        return new ResourceAndShip(response, []);
     }
 }
 

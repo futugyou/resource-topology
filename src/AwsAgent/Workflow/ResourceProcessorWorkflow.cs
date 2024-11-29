@@ -8,19 +8,19 @@ public class ResourceProcessorWorkflow : Workflow<string, bool>
         var instanceId = context.InstanceId;
         Console.WriteLine($"{instanceId}: aws resource processing starting...");
         Console.WriteLine($"{instanceId}: 1. get resources");
-        var dbDataTask = context.CallActivityAsync<(List<Resource>, List<ResourceRelationship>)>(nameof(GetDatabaseResourceActivity), input);
-        var awsDataTask = context.CallActivityAsync<(List<Resource>, List<ResourceRelationship>)>(nameof(GetAwsResourceActivity), input);
+        var dbDataTask = context.CallActivityAsync<ResourceAndShip>(nameof(GetDatabaseResourceActivity), input);
+        var awsDataTask = context.CallActivityAsync<ResourceAndShip>(nameof(GetAwsResourceActivity), input);
 
         await Task.WhenAll(dbDataTask, awsDataTask);
         var dbData = dbDataTask.Result;
         var awsData = awsDataTask.Result;
 
         Console.WriteLine($"{instanceId}: 2. calculate resources increment.");
-        var incrementResource = new IncrementResource(dbData.Item1, dbData.Item2, awsData.Item1, awsData.Item2);
+        var incrementResource = new IncrementResource(dbData.Resources, dbData.Ships, awsData.Resources, awsData.Ships);
         var record = await context.CallActivityAsync<DifferentialResourcesRecord>(nameof(IncrementResourceActivity), incrementResource);
         if (!record.HasChange())
         {
-            Console.WriteLine("{instanceId}: no resources need to process");
+            Console.WriteLine($"{instanceId}: no resources need to process");
             context.SetCustomStatus("success, no resources need to process.");
             return true;
         }
