@@ -1,0 +1,38 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: aws-agent-state
+spec:
+  type: state.mongodb
+  version: v1
+  metadata:  
+  - name: server
+    secretKeyRef:
+      name: mongodb-state-secret
+      key: mongodb_state_host      
+  - name: username
+    secretKeyRef:
+      name: mongodb-state-secret
+      key: mongodb_state_username
+  - name: password
+    secretKeyRef:
+      name: mongodb-state-secret
+      key: mongodb_state_password
+  - name: params
+    value: "?retryWrites=true&w=majority"
+  - name: operationTimeout
+    value: "15s"
+  - name: databaseName
+    value: "daprStore"
+  - name: collectionName
+    value: "daprCollection"
+  - name: actorStateStore
+    value: "true"
+  - name: outboxPublishPubsub
+    value: resource-agent
+  - name: outboxPublishTopic
+    value: resources
+auth:
+  secretStore: kubernetes
+scopes:
+- aws-agent

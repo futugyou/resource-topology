@@ -8,5 +8,9 @@ spec:
   metadata:
   - name: redisHost
     value: redis:6379
+  - name: redisPassword
+    value: ""
   - name: redisDB
     value: "0"
+scopes:
+- aws-agent

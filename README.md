@@ -21,6 +21,12 @@ A project for displaying resource topology
         --from-literal=RABBITMQ_DEFAULT_USER=user \
         --from-literal=RABBITMQ_DEFAULT_PASS=password
 
+    # use mongodb cloud atlas, so not deploy it in k8s
+    kubectl create secret generic mongodb-state-secret \
+        --from-literal=mongodb_state_host=****** \
+        --from-literal=mongodb_state_username=****** \
+        --from-literal=mongodb_state_password=******
+
     kubectl apply -f ./deploy/k8s/ -R
     ```
 
