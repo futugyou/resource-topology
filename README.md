@@ -13,4 +13,15 @@ A project for displaying resource topology
     docker-compose -f ./docker-compose.dapr.yml up
     ```
 
+
+- kubernetes
+
+    ```ps
+    kubectl create secret generic rabbitmq-secret \
+        --from-literal=RABBITMQ_DEFAULT_USER=user \
+        --from-literal=RABBITMQ_DEFAULT_PASS=password
+
+    kubectl apply -f ./deploy/k8s/ -R
+    ```
+
 ## reference
