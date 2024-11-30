@@ -18,6 +18,13 @@ A project for displaying resource topology
     ```shell
     k3d cluster create mycluster
 
+    # Although the config/secret component of dapr is not used, the component has been loaded in the code, so it must be configured
+    # And the code will throw an error: 
+    # failed getting secrets from secret store aws-agent-secret: secrets is forbidden:
+    # User "system:serviceaccount:default:default" cannot list resource "secrets" in API group "" in the namespace "default"
+    # so, add list verbs to role
+    kubectl get role secret-reader -n default -o yaml > secret-reader-role.yaml
+
     kubectl create secret generic rabbitmq-secret \
         --from-literal=RABBITMQ_DEFAULT_USER=user \
         --from-literal=RABBITMQ_DEFAULT_PASS=password
