@@ -13,10 +13,11 @@ A project for displaying resource topology
     docker-compose -f ./docker-compose.dapr.yml up
     ```
 
+- kubernetes (k3d)
 
-- kubernetes
+    ```shell
+    k3d cluster create mycluster
 
-    ```ps
     kubectl create secret generic rabbitmq-secret \
         --from-literal=RABBITMQ_DEFAULT_USER=user \
         --from-literal=RABBITMQ_DEFAULT_PASS=password
@@ -27,6 +28,14 @@ A project for displaying resource topology
         --from-literal=mongodb_state_username=****** \
         --from-literal=mongodb_state_password=******
 
+    # aws-agent secret
+    kubectl create secret generic aws-agent-secret \
+        --from-literal=Mongodb=****** \
+        --from-literal=AccessKeyId=****** \
+        --from-literal=SecretAccessKey=******
+
+    docker build -f ./src/AwsAgent/Dockerfile -t aws-agent .
+    k3d image import aws-agent -c mycluster
     kubectl apply -f ./deploy/k8s/ -R
     ```
 
