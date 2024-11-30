@@ -8,10 +8,5 @@ spec:
   metadata:
   - name: redisHost
     value: redis:6379
-  - name: redisPassword
-    secretKeyRef:
-      name: redis_password
   - name: redisDB
-    value: "3"
-auth:
-  secretStore: aws-agent-secret
+    value: "0"
