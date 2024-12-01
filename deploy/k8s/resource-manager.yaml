@@ -30,6 +30,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/app-id: "resource-manager" 
         dapr.io/grpc-port: "50001" # default
+        dapr.io/app-port: "5000"
         dapr.io/log-level: "warn"
         dapr.io/enable-api-logging: "true"
       labels:

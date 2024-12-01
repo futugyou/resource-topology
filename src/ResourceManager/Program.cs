@@ -39,6 +39,7 @@ app.MapGet("/weatherforecast", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
+    Console.WriteLine("forecast count : " + forecast.Length);
     return forecast;
 })
 .WithName("GetWeatherForecast")
