@@ -16,7 +16,8 @@ A project for displaying resource topology
 - kubernetes (k3d)
 
     ```shell
-    k3d cluster create mycluster
+    k3d cluster create mycluster -p "8887:80@loadbalancer" --agents 1
+    dapr init -k
 
     # Although the config/secret component of dapr is not used, the component has been loaded in the code, so it must be configured
     # And the code will throw an error: 
@@ -24,10 +25,6 @@ A project for displaying resource topology
     # User "system:serviceaccount:default:default" cannot list resource "secrets" in API group "" in the namespace "default"
     # so, add list verbs to role
     kubectl get role secret-reader -n default -o yaml > secret-reader-role.yaml
-
-    kubectl create secret generic rabbitmq-secret \
-        --from-literal=RABBITMQ_DEFAULT_USER=user \
-        --from-literal=RABBITMQ_DEFAULT_PASS=password
 
     # use mongodb cloud atlas, so not deploy it in k8s
     kubectl create secret generic mongodb-state-secret \
@@ -42,8 +39,13 @@ A project for displaying resource topology
         --from-literal=SecretAccessKey=******
 
     docker build -f ./src/AwsAgent/Dockerfile -t aws-agent .
+    docker build -f ./src/ResourceManager/Dockerfile -t resource-manager .
     k3d image import aws-agent -c mycluster
+    k3d image import resource-manager -c mycluster
     kubectl apply -f ./deploy/k8s/ -R
+
+    # There are still problems with traefik configuration, so use port-forward
+    kubectl port-forward svc/rabbitmq-ui 8888:15672
     ```
 
 ## reference

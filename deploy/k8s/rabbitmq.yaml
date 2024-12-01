@@ -138,7 +138,6 @@ metadata:
   namespace: default
   labels:
     app: rabbitmq
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   type: ClusterIP
   selector:
@@ -148,18 +147,38 @@ spec:
       port: 15672
       targetPort: 15672
 
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: rabbitmq-ui
-  namespace: default
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: PathPrefix(`/rabbitmq-ui`)
-      kind: Rule
-      services:
-        - name: rabbitmq-ui
-          port: 15672
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: rabbitmq-ui
+#   namespace: default
+# spec:
+#   entryPoints:
+#     - web
+#   routes:
+#     - match: PathPrefix(`/rabbitmq-ui`)
+#       kind: Rule
+#       services:
+#         - name: rabbitmq-ui
+#           port: 15672
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: rabbitmq
+#   namespace: default
+#   annotations:
+#     ingress.kubernetes.io/ssl-redirect: "false"
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /rabbitmq-ui
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: rabbitmq-ui
+#             port:
+#               number: 15672
