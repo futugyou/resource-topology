@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: resource-manager
+  name: resource-manager
+spec:
+  selector:
+    service: resource-manager
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: resource-manager
+  name: resource-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: resource-manager
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "resource-manager" 
+        dapr.io/grpc-port: "50001" # default
+        dapr.io/log-level: "warn"
+        dapr.io/enable-api-logging: "true"
+      labels:
+        service: resource-manager
+    spec:
+      containers:
+      - name: resource-manager
+        image: resource-manager
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 5000
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: resource-manager-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  name: resource-manager-config
+  labels:
+    service: resource-manager
+data:
+  appsettings.json: |+
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "AllowedHosts": "*"
+    }
+
+---
