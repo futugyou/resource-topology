@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: mongodb-secret
+  name: mongodb-state-secret
 type: Opaque
 data:
+  MONGODB_HOST: bW9uZ29kYi1zdGF0ZToyNzAxNw== # echo -n 'mongodb-state:27017' | base64
   MONGODB_USERNAME: dXNlcg==  # echo -n 'user' | base64 
   MONGODB_PASSWORD: cGFzc3dvcmQ=  # echo -n 'password' | base64
   MONGODB_ROOT_PASSWORD: cm9vdF9wYXNzd29yZA==  # echo -n 'root_password' | base64
@@ -12,9 +13,9 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: mongodb-state
   labels:
-    app: mongodb
+    app: mongodb-state
 spec:
   ports:
     - name: mongidb
@@ -22,23 +23,23 @@ spec:
       targetPort: 27017
   clusterIP: None # StatefulSet 的 Headless Service
   selector:
-    app: mongodb
+    app: mongodb-state
 
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongodb
+  name: mongodb-state
 spec:
-  serviceName: mongodb
+  serviceName: mongodb-state
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb
+      app: mongodb-state
   template:
     metadata:
       labels:
-        app: mongodb
+        app: mongodb-state
     spec:
       containers:
         - name: mongodb
@@ -51,16 +52,16 @@ spec:
             - name: MONGODB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secret
+                  name: mongodb-state-secret
                   key: MONGODB_USERNAME
             - name: MONGODB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secret
+                  name: mongodb-state-secret
                   key: MONGODB_PASSWORD
             - name: MONGODB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secret
+                  name: mongodb-state-secret
                   key: MONGODB_ROOT_PASSWORD
       restartPolicy: Always

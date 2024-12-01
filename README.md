@@ -26,12 +26,6 @@ A project for displaying resource topology
     # so, add list verbs to role
     kubectl get role secret-reader -n default -o yaml > secret-reader-role.yaml
 
-    # use mongodb cloud atlas, so not deploy it in k8s
-    kubectl create secret generic mongodb-state-secret \
-        --from-literal=mongodb_state_host=****** \
-        --from-literal=mongodb_state_username=****** \
-        --from-literal=mongodb_state_password=******
-
     # aws-agent secret
     kubectl create secret generic aws-agent-secret \
         --from-literal=Mongodb=****** \

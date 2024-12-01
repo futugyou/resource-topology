@@ -9,15 +9,15 @@ spec:
   - name: server
     secretKeyRef:
       name: mongodb-state-secret
-      key: mongodb_state_host      
+      key: MONGODB_HOST
   - name: username
     secretKeyRef:
       name: mongodb-state-secret
-      key: mongodb_state_username
+      key: MONGODB_USERNAME
   - name: password
     secretKeyRef:
       name: mongodb-state-secret
-      key: mongodb_state_password
+      key: MONGODB_PASSWORD
   - name: params
     value: "?retryWrites=true&w=majority"
   - name: operationTimeout
