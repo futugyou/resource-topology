@@ -24,7 +24,7 @@ A project for displaying resource topology
     # failed getting secrets from secret store aws-agent-secret: secrets is forbidden:
     # User "system:serviceaccount:default:default" cannot list resource "secrets" in API group "" in the namespace "default"
     # so, add list verbs to role
-    kubectl get role secret-reader -n default -o yaml > secret-reader-role.yaml
+    # kubectl get role secret-reader -n default -o yaml > secret-reader-role.yaml
 
     # aws-agent secret
     kubectl create secret generic aws-agent-secret \

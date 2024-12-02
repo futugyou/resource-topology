@@ -15,7 +15,7 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ./dapr/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./deploy/docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - rabbitmqdata:/var/lib/rabbitmq/
       - rabbitmqlog:/var/log/rabbitmq
     healthcheck:
@@ -61,8 +61,8 @@ services:
       "-resources-path", "/components"
       ]
     volumes:
-      - "./dapr/components/:/components"
-      - "./dapr/secrets/:/secrets"
+      - "./deploy/docker/components/:/components"
+      - "./deploy/docker/secrets/:/secrets"
 
   aws-agent:
     image: aws-agent
@@ -100,8 +100,8 @@ services:
       "-resources-path", "/components"
       ]
     volumes:
-      - "./dapr/components/:/components"
-      - "./dapr/secrets/:/secrets"
+      - "./deploy/docker/components/:/components"
+      - "./deploy/docker/secrets/:/secrets"
 
   scheduler-0:
     image: "daprio/dapr:1.14.4"
@@ -140,8 +140,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "./dapr/components/:/home/nonroot/components"
-      - "./dapr/config/:/home/nonroot/configuration"
+      - "./deploy/docker/components/:/home/nonroot/components"
+      - "./deploy/docker/config/:/home/nonroot/configuration"
       - "./docker-compose.dapr.yml:/home/nonroot/docker-compose.yml"
 
 networks:
