@@ -21,3 +21,5 @@ spec:
     value: resources
 auth:
   secretStore: aws-agent-secret
+scopes:
+- aws-agent

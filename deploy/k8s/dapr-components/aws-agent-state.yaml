@@ -3,29 +3,15 @@ kind: Component
 metadata:
   name: aws-agent-state
 spec:
-  type: state.mongodb
+  type: state.redis
   version: v1
-  metadata:  
-  - name: server
-    secretKeyRef:
-      name: mongodb-state-secret
-      key: MONGODB_HOST
-  - name: username
-    secretKeyRef:
-      name: mongodb-state-secret
-      key: MONGODB_USERNAME
-  - name: password
-    secretKeyRef:
-      name: mongodb-state-secret
-      key: MONGODB_PASSWORD
-  - name: params
-    value: "?retryWrites=true&w=majority"
-  - name: operationTimeout
-    value: "15s"
-  - name: databaseName
-    value: "daprStore"
-  - name: collectionName
-    value: "daprCollection"
+  metadata:
+  - name: redisHost
+    value: redis:6379
+  - name: redisPassword
+    value: ""
+  - name: redisDB
+    value: "0"
   - name: actorStateStore
     value: "true"
   - name: outboxPublishPubsub
