@@ -12,6 +12,7 @@ public static class Extensions
         DaprClient daprClient = daprClientBuilder.Build();
         while (!daprClient.CheckHealthAsync().Result)
         {
+            Console.WriteLine("wait for aws agent dapr health check.");
             Thread.Sleep(TimeSpan.FromSeconds(5));
         }
 
