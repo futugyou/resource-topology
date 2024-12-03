@@ -6,24 +6,21 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHo
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             var scope = servicerovider.CreateAsyncScope();
             var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<ServiceOption>>();
-            var serviceOption = optionsMonitor.CurrentValue;
+            var serviceOption = optionsMonitor.CurrentValue!;
 
-            try
+            if (serviceOption.DaprWorkflowSupported)
             {
-                var processor = scope.ServiceProvider.GetRequiredService<IResourceProcessor>();
-                await processor.ProcessingData(stoppingToken);
+                await DaprWorkflowProcessor(scope, stoppingToken);
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError("Worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
+                await NormalProcessor(scope, stoppingToken);
             }
 
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            }
+            logger.LogInformation("Worker end at: {time}", DateTimeOffset.Now);
 
             if (serviceOption.RunSingle)
             {
@@ -34,6 +31,44 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHo
             }
 
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
+        }
+    }
+
+    private async Task DaprWorkflowProcessor(IServiceScope scope, CancellationToken stoppingToken)
+    {
+        var _daprWorkflowClient = scope.ServiceProvider.GetRequiredService<DaprWorkflowClient>();
+
+        var workflowId = $"aws-resource-process-{Guid.NewGuid()}";
+        try
+        {
+            var schedule = await _daprWorkflowClient.ScheduleNewWorkflowAsync(nameof(ResourceProcessorWorkflow), workflowId, "");
+            logger.LogInformation("ScheduleNewWorkflowAsync result: {schedule}", schedule);
+            var state = await _daprWorkflowClient.WaitForWorkflowCompletionAsync(workflowId, cancellation: stoppingToken);
+            logger.LogInformation("Workflow started with ID: {workflowId}, Workflow state: {state.RuntimeStatus}", workflowId, state.ReadCustomStatusAs<string>());
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                await _daprWorkflowClient.PurgeInstanceAsync(workflowId, stoppingToken);
+            }
+            catch (Exception)
+            {
+            }
+            logger.LogError("DaprWorker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
+        }
+    }
+
+    private async Task NormalProcessor(IServiceScope scope, CancellationToken stoppingToken)
+    {
+        try
+        {
+            var processor = scope.ServiceProvider.GetRequiredService<IResourceProcessor>();
+            await processor.ProcessingData(stoppingToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
         }
     }
 }

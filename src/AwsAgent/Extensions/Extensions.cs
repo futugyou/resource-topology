@@ -93,8 +93,7 @@ public static class Extensions
         builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
         // builder.Services.AddDaprClient();
 
-        // builder.Services.AddHostedService<Worker>();
-        builder.Services.AddHostedService<DaprWorker>();
+        builder.Services.AddHostedService<Worker>();
 
         // We do not want use efcore for this project.
         // string connectionString = configuration.GetConnectionString("Mongodb")!;

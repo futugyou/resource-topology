@@ -18,6 +18,7 @@ public abstract class AbstractResourceProcessor(ILogger<AbstractResourceProcesso
         logger.LogInformation("{count} resources need to create, {count} resources need to delete, {count} resources need to update", record.InsertDatas.Count, record.DeleteDatas.Count, record.UpdateDatas.Count);
         logger.LogInformation("{count} ships need to create, {count} ships need to delete,", record.InsertShipDatas.Count, record.DeleteShipDatas.Count);
 
+        // Although dapr provides an outbox mode, there is still no simple way to use it with database transactions
         await SaveDifferentialDatas(record, cancellation);
         await SendResourceProcessingEvent(record, cancellation);
     }
