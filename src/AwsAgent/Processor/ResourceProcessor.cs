@@ -2,7 +2,8 @@
 namespace AwsAgent.Processor;
 
 public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepository resourceRepository,
-    IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr, IMapper mapper) : AbstractResourceProcessor(logger)
+    IResourceRelationshipRepository resourceRelationshipRepository, IResourceAdapterWrapper wrapper, DaprClient dapr,
+    IMapper mapper, IOptionsMonitor<ServiceOption> optionsMonitor) : AbstractResourceProcessor(logger)
 {
     protected override Task<DifferentialResourcesRecord> DifferentialResourcesData(
         List<Resource> dbResources, List<ResourceRelationship> dbShips, List<Resource> awsResources, List<ResourceRelationship> awsShips, CancellationToken cancellation)
@@ -21,7 +22,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
 
     protected override Task<ResourceAndShip> GetResourcesFromAWS(CancellationToken cancellation)
     {
-        return wrapper.GetResourcAndRelationFromAWS(cancellation); 
+        return wrapper.GetResourcAndRelationFromAWS(cancellation);
     }
 
     protected override async Task<ResourceAndShip> GetResourcesFromDB(CancellationToken cancellation)
@@ -42,17 +43,24 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
     protected override Task SendResourceProcessingEvent(DifferentialResourcesRecord record, CancellationToken cancellation)
     {
         var processorEvent = mapper.Map<ResourceContracts.ResourceProcessorEvent>(record);
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
-        var metadata = new Dictionary<string, string> {
-            {"datacontenttype","application/json"},
-            {"contentType","application/json"},
-            {"ttlInSeconds","86400"},
-        };
-        var upsert = new List<StateTransactionRequest>()
+        var serviceOption = optionsMonitor.CurrentValue!;
+        if (serviceOption.DaprStateOutboxSupported)
         {
-            new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert, metadata:metadata)
-        };
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(processorEvent);
+            var metadata = new Dictionary<string, string> {
+                {"datacontenttype","application/json"},
+                {"contentType","application/json"},
+                {"ttlInSeconds","86400"},
+            };
 
-        return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
+            var upsert = new List<StateTransactionRequest>()
+            {
+                new(Guid.NewGuid().ToString(), bytes, StateOperationType.Upsert, metadata:metadata)
+            };
+
+            return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
+        }
+
+        return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
     }
 }
