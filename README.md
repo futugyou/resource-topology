@@ -42,4 +42,23 @@ A project for displaying resource topology
     kubectl port-forward svc/rabbitmq-ui 8888:15672
     ```
 
+- dapr cmd
+
+    ```ps
+    dapr init
+
+    // use env secret
+    export AWS_AGENT_ServiceOption__AccessKeyId=
+    export AWS_AGENT_ServiceOption__SecretAccessKey=
+    export AWS_AGENT_ConnectionStrings__Mongodb=""
+
+    dapr run -f ./deploy/local # This cmd runs quite slowly.
+    
+    dapr run --app-id aws-agent --dapr-grpc-port 50001 --dapr-http-port 3500 --resources-path ./deploy/local/components -- dotnet run --project ./src/AwsAgent/
+    dapr run --app-id resource-manager --app-port 5000 --dapr-grpc-port 50002 --dapr-http-port 3501 \
+        --resources-path ./deploy/local/components -- dotnet run --urls=http://localhost:5000/ --project ./src/ResourceManager/
+
+    dapr uninstall
+    ```
+
 ## reference

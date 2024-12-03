@@ -1,21 +1,3 @@
-# apiVersion: dapr.io/v1alpha1
-# kind: Component
-# metadata:
-#   name: resource-agent
-# spec:
-#   type: pubsub.redis
-#   version: v1
-#   metadata:
-#   - name: redisHost
-#     value: redis:6379
-#   - name: redisPassword
-#     secretKeyRef:
-#       name: redis_password
-#   - name: redisDB
-#     value: "1"
-# auth:
-#   secretStore: pubsub-secret
-
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
