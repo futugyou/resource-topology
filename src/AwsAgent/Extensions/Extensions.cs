@@ -90,7 +90,8 @@ public static class Extensions
         builder.Services.AddScoped<AwsIAMPolicyAdapter>();
         builder.Services.AddScoped<AwsConfigAdapter>();
 
-        builder.Services.AddScoped<IResourceProcessor, ResourceProcessor>();
+        builder.Services.AddKeyedScoped<IResourceProcessor, ResourceProcessor>("Normal");
+        builder.Services.AddKeyedScoped<IResourceProcessor, WorkflowProcessor>("Workflow");
         // builder.Services.AddDaprClient();
 
         builder.Services.AddHostedService<Worker>();
