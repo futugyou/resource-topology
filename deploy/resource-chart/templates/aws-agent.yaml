@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-aws-agent
+  labels:
+    service: aws-agent
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.awsAgent.type }}
+  selector:
+    service: aws-agent
+    {{- include "resource-chart.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.awsAgent.ports | toYaml | nindent 2 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-aws-agent
+  labels:
+    service: aws-agent
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.awsAgent.replicas }}
+  selector:
+    matchLabels:
+      service: aws-agent
+    {{- include "resource-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        service: aws-agent
+      {{- include "resource-chart.selectorLabels" . | nindent 8 }}
+      annotations:
+        dapr.io/app-id: aws-agent
+        dapr.io/enable-api-logging: "true"
+        dapr.io/enabled: "true"
+        dapr.io/grpc-port: "50001"
+        dapr.io/log-level: warn
+    spec:
+      containers:
+      - env:
+        - name: ConnectionStrings__Mongodb
+          valueFrom:
+            secretKeyRef:
+              key: Mongodb
+              name: {{ include "resource-chart.fullname" . }}-secret
+        - name: ServiceOption__AccessKeyId
+          valueFrom:
+            secretKeyRef:
+              key: AccessKeyId
+              name: {{ include "resource-chart.fullname" . }}-secret
+        - name: ServiceOption__SecretAccessKey
+          valueFrom:
+            secretKeyRef:
+              key: SecretAccessKey
+              name: {{ include "resource-chart.fullname" . }}-secret
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.awsAgent.awsAgent.image.repository }}:{{ .Values.awsAgent.awsAgent.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.awsAgent.awsAgent.imagePullPolicy }}
+        name: aws-agent
+        ports:
+        - containerPort: 5000
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/appsettings.json
+          name: config-volume
+          subPath: appsettings.json
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: {{ include "resource-chart.fullname" . }}-config
+        name: config-volume
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-config
+  labels:
+    service: aws-agent
+  {{- include "resource-chart.labels" . | nindent 4 }}
+  annotations:
+    use-subpath: "true"
+data:
+  appsettings.json: {{ .Values.config.appsettingsJson | toYaml | indent 1 }}

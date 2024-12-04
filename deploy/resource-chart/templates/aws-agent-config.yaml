@@ -1,0 +1,18 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-config
+  labels:
+  {{- include "resource-chart.labels" . | nindent 4 }}
+scopes:
+- aws-agent
+spec:
+  metadata:
+  - name: redisHost
+    value: redis:6379
+  - name: redisPassword
+    value: ""
+  - name: redisDB
+    value: "3"
+  type: configuration.redis
+  version: v1

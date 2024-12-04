@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-resource-manager
+  labels:
+    service: resource-manager
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.resourceManager.type }}
+  selector:
+    service: resource-manager
+    {{- include "resource-chart.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.resourceManager.ports | toYaml | nindent 2 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-resource-manager
+  labels:
+    service: resource-manager
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.resourceManager.replicas }}
+  selector:
+    matchLabels:
+      service: resource-manager
+    {{- include "resource-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        service: resource-manager
+      {{- include "resource-chart.selectorLabels" . | nindent 8 }}
+      annotations:
+        dapr.io/app-id: resource-manager
+        dapr.io/app-port: "5000"
+        dapr.io/enable-api-logging: "true"
+        dapr.io/enabled: "true"
+        dapr.io/grpc-port: "50001"
+        dapr.io/log-level: warn
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.resourceManager.resourceManager.image.repository }}:{{ .Values.resourceManager.resourceManager.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.resourceManager.resourceManager.imagePullPolicy }}
+        name: resource-manager
+        ports:
+        - containerPort: 5000
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/appsettings.json
+          name: config-volume
+          subPath: appsettings.json
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: {{ include "resource-chart.fullname" . }}-resource-manager-config
+        name: config-volume
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-resource-manager-config
+  labels:
+    service: resource-manager
+  {{- include "resource-chart.labels" . | nindent 4 }}
+  annotations:
+    use-subpath: "true"
+data:
+  appsettings.json: {{ .Values.resourceManagerConfig.appsettingsJson | toYaml | indent
+    1 }}

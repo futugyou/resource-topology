@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq-secret
+  labels:
+  {{- include "resource-chart.labels" . | nindent 4 }}
+data:
+  RABBITMQ_DEFAULT_PASS: {{ required "rabbitmqSecret.rabbitmqDefaultPass is required"
+    .Values.rabbitmqSecret.rabbitmqDefaultPass | b64enc | quote }}
+  RABBITMQ_DEFAULT_USER: {{ required "rabbitmqSecret.rabbitmqDefaultUser is required"
+    .Values.rabbitmqSecret.rabbitmqDefaultUser | b64enc | quote }}
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq
+  labels:
+    app: rabbitmq
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.rabbitmq.type }}
+  selector:
+    app: rabbitmq
+    {{- include "resource-chart.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.rabbitmq.ports | toYaml | nindent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq-config
+  labels:
+    service: rabbitmq
+  {{- include "resource-chart.labels" . | nindent 4 }}
+  annotations:
+    use-subpath: "true"
+data:
+  rabbitmq.conf: {{ .Values.rabbitmqConfig.rabbitmqConf | toYaml | indent 1 }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq
+  labels:
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.rabbitmq.replicas }}
+  selector:
+    matchLabels:
+      app: rabbitmq
+  serviceName: {{ include "resource-chart.fullname" . }}-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              key: RABBITMQ_DEFAULT_USER
+              name: {{ include "resource-chart.fullname" . }}-rabbitmq-secret
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              key: RABBITMQ_DEFAULT_PASS
+              name: {{ include "resource-chart.fullname" . }}-rabbitmq-secret
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.rabbitmq.rabbitmq.image.repository }}:{{ .Values.rabbitmq.rabbitmq.image.tag
+          | default .Chart.AppVersion }}
+        name: rabbitmq
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+        readinessProbe:
+          exec:
+            command:
+            - rabbitmqctl
+            - status
+          failureThreshold: 10
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 30
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/rabbitmq/rabbitmq.conf
+          name: config-volume
+          subPath: rabbitmq.conf
+        - mountPath: /var/lib/rabbitmq
+          name: rabbitmq-data
+        - mountPath: /var/log/rabbitmq
+          name: rabbitmq-log
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: {{ include "resource-chart.fullname" . }}-rabbitmq-config
+        name: config-volume
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: {{ include "resource-chart.fullname" . }}-rabbitmq-data
+      - name: rabbitmq-log
+        persistentVolumeClaim:
+          claimName: {{ include "resource-chart.fullname" . }}-rabbitmq-log
+  updateStrategy: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq-data
+  labels:
+    service: rabbitmq-data
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.rabbitmqData.storageRequest | quote }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq-log
+  labels:
+    service: rabbitmq-log
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.rabbitmqLog.storageRequest | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-rabbitmq-ui
+  labels:
+    app: rabbitmq
+  {{- include "resource-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.rabbitmqUi.type }}
+  selector:
+    app: rabbitmq
+    {{- include "resource-chart.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.rabbitmqUi.ports | toYaml | nindent 2 }}

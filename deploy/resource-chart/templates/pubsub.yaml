@@ -1,0 +1,30 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ include "resource-chart.fullname" . }}-resource-agent
+  labels:
+  {{- include "resource-chart.labels" . | nindent 4 }}
+auth:
+  secretStore: kubernetes
+spec:
+  metadata:
+  - name: protocol
+    value: amqp
+  - name: hostname
+    value: rabbitmq
+  - name: username
+    secretKeyRef:
+      key: RABBITMQ_DEFAULT_USER
+      name: rabbitmq-secret
+  - name: password
+    secretKeyRef:
+      key: RABBITMQ_DEFAULT_PASS
+      name: rabbitmq-secret
+  - name: durable
+    value: true
+  - name: deliveryMode
+    value: 2
+  - name: enableDeadLetter
+    value: true
+  type: pubsub.rabbitmq
+  version: v1

@@ -1,0 +1,100 @@
+awsAgent:
+  awsAgent:
+    image:
+      repository: aws-agent
+      tag: alpine
+    imagePullPolicy: Never
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  replicas: 1
+  type: ClusterIP
+config:
+  appsettingsJson: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      },
+      "ServiceOption": {
+        "DBName": "resource_topology",
+        "Region": "cn-north-1",
+        "WorkerInterval": 60,
+        "RunSingle": false,
+        "AwsconfigSupported": true,
+        "MaxConcurrentAdapters": 5
+      }
+    }
+kubernetesClusterDomain: cluster.local
+pvc:
+  rabbitmqData:
+    storageRequest: 100Mi
+  rabbitmqLog:
+    storageRequest: 100Mi
+  redisData:
+    storageRequest: 100Mi
+rabbitmq:
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: management
+    port: 15672
+    targetPort: 15672
+  rabbitmq:
+    image:
+      repository: rabbitmq
+      tag: management-alpine
+  replicas: 1
+  type: ClusterIP
+rabbitmqConfig:
+  rabbitmqConf: |-
+    log.console = true
+    log.syslog = true
+    log.console.level = warning
+    log.syslog.level = warning
+rabbitmqSecret:
+  rabbitmqDefaultPass: ""
+  rabbitmqDefaultUser: ""
+rabbitmqUi:
+  ports:
+  - name: management
+    port: 15672
+    targetPort: 15672
+  type: ClusterIP
+redis:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  redis:
+    image:
+      repository: redis
+      tag: alpine
+  replicas: 1
+  type: ClusterIP
+resourceManager:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  replicas: 1
+  resourceManager:
+    image:
+      repository: resource-manager
+      tag: alpine
+    imagePullPolicy: Never
+  type: ClusterIP
+resourceManagerConfig:
+  appsettingsJson: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "AllowedHosts": "*"
+    }
