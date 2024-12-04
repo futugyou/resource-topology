@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+EXPOSE 5000 50001
+USER app
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:5000
+ENV SERVICEOPTION__WORKERINTERVAL=5
+
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG configuration=Release
+WORKDIR /src
+COPY ["src/KubeAgent/KubeAgent.csproj", "KubeAgent/"]
+COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+RUN dotnet restore "KubeAgent/KubeAgent.csproj"
+COPY ["src/KubeAgent", "KubeAgent/"]
+COPY ["src/ResourceContracts", "ResourceContracts/"]
+WORKDIR "/src/KubeAgent/"
+RUN dotnet build "KubeAgent.csproj" -c $configuration -o /app/build
+
+FROM build AS publish
+ARG configuration=Release
+RUN dotnet publish "KubeAgent.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "KubeAgent.dll"]
