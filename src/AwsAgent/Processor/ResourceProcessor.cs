@@ -51,6 +51,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
                 {"datacontenttype","application/json"},
                 {"contentType","application/json"},
                 {"ttlInSeconds","86400"},
+                {"cloudevent.type", "outbox-resource"},
             };
 
             var upsert = new List<StateTransactionRequest>()
@@ -61,6 +62,9 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger, IResourceRepos
             return dapr.ExecuteStateTransactionAsync("aws-agent-state", upsert, cancellationToken: cancellation);
         }
 
-        return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
+        var metadata1 = new Dictionary<string, string>() {
+            { "cloudevent.type", "resource" },
+        };
+        return dapr.PublishEventAsync("resource-agent", "resources", processorEvent, metadata1, cancellation);
     }
 }

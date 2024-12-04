@@ -45,14 +45,24 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-// app.MapPost("/resources", [Topic("resource-agent", "resources")] ([FromBody] ResourceProcessorEvent resource) =>
 // TODO: some error here https://github.com/dapr/dotnet-sdk/issues/1332#issuecomment-2380321656
-app.MapPost("/resources", [Topic("resource-agent", "resources")] (object resource) =>
+app.MapPost("/resource-event-outbox",
+[Topic("resource-agent", "resources", "event.type ==\"outbox-resource\"", 1)]
+(object resource) =>
 {
     var data = JsonSerializer.Serialize(resource);
-    Console.WriteLine("Subscriber received : " + data);
+    Console.WriteLine("outbox-resource received : " + data);
     return Results.Ok(data);
 });
+
+app.MapPost("/resource-event",
+[Topic("resource-agent", "resources", "event.type ==\"resource\"", 2)]
+([FromBody] ResourceProcessorEvent resource) =>
+{
+    var data = JsonSerializer.Serialize(resource);
+    Console.WriteLine("resource received : " + data);
+    return TypedResults.Ok(data);
+}).WithName("resource-event").WithOpenApi();
 
 app.Run();
 

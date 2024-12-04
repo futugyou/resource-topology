@@ -11,7 +11,7 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHo
             var serviceOption = optionsMonitor.CurrentValue!;
             var processorKey = serviceOption.DaprWorkflowSupported ? "Workflow" : "Normal";
             logger.LogInformation("Worker running at: {time}, processor is {key}", DateTimeOffset.Now, processorKey);
-            
+
             try
             {
                 var processor = scope.ServiceProvider.GetRequiredKeyedService<IResourceProcessor>(processorKey);
@@ -19,7 +19,7 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IHo
             }
             catch (Exception ex)
             {
-                logger.LogError("Worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, ex.Message);
+                logger.LogError("Worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
             }
 
             logger.LogInformation("Worker end at: {time}", DateTimeOffset.Now);
