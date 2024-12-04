@@ -18,6 +18,7 @@ public class SendResourceProcessingEventActivity(DaprClient dapr, IMapper mapper
                 {"datacontenttype","application/json"},
                 {"contentType","application/json"},
                 {"ttlInSeconds","86400"},
+                {"cloudevent.type", "outbox-resource"},
             };
 
             var upsert = new List<StateTransactionRequest>()
@@ -29,7 +30,11 @@ public class SendResourceProcessingEventActivity(DaprClient dapr, IMapper mapper
         }
         else
         {
-            await dapr.PublishEventAsync("resource-agent", "resources", processorEvent, cancellation);
+            var metadata = new Dictionary<string, string>() {
+                { "cloudevent.type", "resource" },
+            };
+            
+            await dapr.PublishEventAsync("resource-agent", "resources", processorEvent, metadata, cancellation);
         }
 
         return true;
