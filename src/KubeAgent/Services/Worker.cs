@@ -1,23 +1,44 @@
+using k8s;
+
 namespace KubeAgent.Services;
 
-public class Worker : BackgroundService
+public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
 
-    public Worker(ILogger<Worker> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_logger.IsEnabled(LogLevel.Information))
+
+            var scope = servicerovider.CreateAsyncScope();
+            var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<AgentOptions>>();
+            var serviceOption = optionsMonitor.CurrentValue!;
+            logger.LogInformation("Kube agent worker running at: {time}", DateTimeOffset.Now);
+
+            try
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(serviceOption.KubeconfigPath);
+                var client = new Kubernetes(config);
+                var namespaces = client.CoreV1.ListNamespace();
+                foreach (var ns in namespaces.Items)
+                {
+                    Console.WriteLine(ns.Metadata.Name);
+                    var list = client.CoreV1.ListNamespacedPod(ns.Metadata.Name);
+                    foreach (var item in list.Items)
+                    {
+                        Console.WriteLine(item.Metadata.Name);
+                    }
+                }
             }
-            await Task.Delay(1000, stoppingToken);
+            catch (Exception ex)
+            {
+                logger.LogError("Kube agent worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
+            }
+
+
+            logger.LogInformation("Kube agent woorker end at: {time}", DateTimeOffset.Now);
+            await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
 }

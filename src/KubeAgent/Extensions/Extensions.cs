@@ -6,6 +6,7 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder); 
         
+        builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddHostedService<Worker>();
 
         return builder;

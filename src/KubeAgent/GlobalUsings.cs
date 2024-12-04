@@ -1,3 +1,4 @@
+global using KubeAgent;
 global using KubeAgent.Extensions;
 global using KubeAgent.Services;
 global using Microsoft.Extensions.Options;
