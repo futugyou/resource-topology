@@ -12,11 +12,10 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger) : IResourcePro
         await channel.Writer.WriteAsync(data, cancellation);
     }
 
-    public Task Complete(CancellationToken cancellation)
+    public async Task Complete(CancellationToken cancellation)
     {
-
         channel.Writer.Complete();
-        return Task.CompletedTask;
+        await channel.Reader.Completion;
     }
 
     public async Task ProcessingData(CancellationToken cancellation)
@@ -38,6 +37,10 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger) : IResourcePro
     {
         //TODO
         logger.LogInformation("Processing batch with {count} items.", batch.Count);
+        foreach (var res in batch)
+        {
+            Console.WriteLine(res.ResourceType + "   " + res.Name);
+        }
         return Task.CompletedTask;
     }
 }

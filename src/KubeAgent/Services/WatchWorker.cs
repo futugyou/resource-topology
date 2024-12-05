@@ -21,6 +21,6 @@ public class WatchWorker(ILogger<Worker> logger, IEnumerable<IResourceMonitor> m
             logger.LogError("Kube agent watch worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
         }
 
-        logger.LogInformation("Kube agent watch woorker end at: {time}", DateTimeOffset.Now);
+        logger.LogInformation("Kube agent watch worker end at: {time}", DateTimeOffset.Now);
     }
 }

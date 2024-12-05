@@ -25,7 +25,7 @@ public static class Extensions
             return new Kubernetes(kubernetesClientConfig);
         });
 
-        // builder.Services.AddHostedService<Worker>();
+        builder.Services.AddHostedService<Worker>();
         builder.Services.AddHostedService<WatchWorker>();
         builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
         builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
