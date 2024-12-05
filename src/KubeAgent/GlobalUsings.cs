@@ -2,6 +2,7 @@ global using k8s;
 global using k8s.Models;
 global using KubeAgent;
 global using KubeAgent.Extensions;
+global using KubeAgent.Model;
 global using KubeAgent.Monitor;
 global using KubeAgent.Processor;
 global using KubeAgent.Services;

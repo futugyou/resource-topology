@@ -29,6 +29,7 @@ public static class Extensions
         builder.Services.AddHostedService<WatchWorker>();
         builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
         builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
+        builder.Services.AddSingleton<IResourceProcessor, ResourceProcessor>();
 
         return builder;
     }
