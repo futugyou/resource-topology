@@ -3,7 +3,7 @@ using k8s.Models;
 
 namespace KubeAgent.Services;
 
-public class WatchWorker(ILogger<Worker> logger, IServiceProvider servicerovider, IKubernetes client) : BackgroundService
+public class WatchWorker(ILogger<Worker> logger, IEnumerable<IResourceMonitor> monitors) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -11,16 +11,9 @@ public class WatchWorker(ILogger<Worker> logger, IServiceProvider servicerovider
 
         try
         {
-            var namespaces = await client.CoreV1.ListNamespaceWithHttpMessagesAsync(watch: true, cancellationToken: stoppingToken);
-            namespaces.Watch<V1Namespace, V1NamespaceList>((type, item) =>
+            foreach (var monitor in monitors)
             {
-                Console.WriteLine(type + "   " + item.Name());
-            });
-
-            var podlistResp = client.CoreV1.ListPodForAllNamespacesWithHttpMessagesAsync(watch: true, cancellationToken: stoppingToken);
-            await foreach (var (type, item) in podlistResp.WatchAsync<V1Pod, V1PodList>())
-            {
-                 Console.WriteLine(type + "   " + item.Name());
+                await monitor.MonitorResource(stoppingToken);
             }
         }
         catch (Exception ex)
