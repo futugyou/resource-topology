@@ -26,6 +26,7 @@ public static class Extensions
         });
 
         builder.Services.AddHostedService<Worker>();
+        builder.Services.AddHostedService<WatchWorker>();
 
         return builder;
     }
