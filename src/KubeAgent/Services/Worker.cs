@@ -1,11 +1,8 @@
-using k8s;
 
 namespace KubeAgent.Services;
 
-public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : BackgroundService
+public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider, IKubernetes client) : BackgroundService
 {
-
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -18,8 +15,6 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : B
 
             try
             {
-                var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(serviceOption.KubeconfigPath);
-                var client = new Kubernetes(config);
                 var namespaces = client.CoreV1.ListNamespace();
                 foreach (var ns in namespaces.Items)
                 {
@@ -35,7 +30,6 @@ public class Worker(ILogger<Worker> logger, IServiceProvider servicerovider) : B
             {
                 logger.LogError("Kube agent worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
             }
-
 
             logger.LogInformation("Kube agent woorker end at: {time}", DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);

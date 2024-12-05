@@ -1,3 +1,4 @@
+global using k8s;
 global using KubeAgent;
 global using KubeAgent.Extensions;
 global using KubeAgent.Services;
