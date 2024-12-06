@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class ServiceMonitor(ILogger<ServiceMonitor> logger, IKubernetes client, IResourceProcessor resourceProcessor) : IResourceMonitor
+public class ServiceMonitor(ILogger<ServiceMonitor> logger, IKubernetes client, ProcessorFactory factory) : IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
@@ -13,6 +13,6 @@ public class ServiceMonitor(ILogger<ServiceMonitor> logger, IKubernetes client, 
     {
         logger.LogInformation("service - {type} - {name} - {time}", type, item.Name(), DateTimeOffset.Now);
         var res = new Resource { ResourceType = "Service", Name = item.Name() };
-        await resourceProcessor.CollectingData(res, cancellation);
+        await factory.GetResourceProcessor().CollectingData(res, cancellation);
     }
 }

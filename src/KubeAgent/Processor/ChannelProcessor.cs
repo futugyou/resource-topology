@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace KubeAgent.Processor;
 
-public class ResourceProcessor(ILogger<ResourceProcessor> logger) : IResourceProcessor
+public class ChannelProcessor(ILogger<ChannelProcessor> logger) : IResourceProcessor
 {
     readonly Channel<Resource> channel = Channel.CreateUnbounded<Resource>();
 
@@ -39,7 +39,7 @@ public class ResourceProcessor(ILogger<ResourceProcessor> logger) : IResourcePro
         logger.LogInformation("Processing batch with {count} items.", batch.Count);
         foreach (var res in batch)
         {
-            Console.WriteLine(res.ResourceType + "   " + res.Name);
+            Console.WriteLine("ChannelProcessor" + "   " + res.ResourceType + "   " + res.Name);
         }
         return Task.CompletedTask;
     }

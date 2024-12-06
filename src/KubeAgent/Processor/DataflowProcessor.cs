@@ -7,9 +7,9 @@ public class DataflowProcessor : IResourceProcessor
 {
     private readonly BufferBlock<Resource> bufferBlock;
     private readonly ActionBlock<List<Resource>> actionBlock;
-    private readonly ILogger<ResourceProcessor> logger;
+    private readonly ILogger<DataflowProcessor> logger;
 
-    public DataflowProcessor(ILogger<ResourceProcessor> logger)
+    public DataflowProcessor(ILogger<DataflowProcessor> logger)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {
@@ -59,7 +59,7 @@ public class DataflowProcessor : IResourceProcessor
         logger.LogInformation("Processing batch with {count} items.", batch.Count);
         foreach (var res in batch)
         {
-            Console.WriteLine(res.ResourceType + "   " + res.Name);
+            Console.WriteLine("DataflowProcessor" + "   " + res.ResourceType + "   " + res.Name);
         }
         return Task.CompletedTask;
     }
