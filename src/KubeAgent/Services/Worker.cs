@@ -26,7 +26,8 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        await processor.Complete(cancellationToken); 
+        await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
+        logger.LogInformation("Kube agent worker stop at: {time}", DateTimeOffset.Now);
     }
 }
