@@ -59,7 +59,7 @@ public class DataflowProcessor : IResourceProcessor
         logger.LogInformation("Processing batch with {count} items.", batch.Count);
         foreach (var res in batch)
         {
-            Console.WriteLine("DataflowProcessor" + "   " + res.ResourceType + "   " + res.Name);
+            Console.WriteLine("DataflowProcessor" + "   " + res.Kind + "   " + res.Name + "   " + res.Operate);
         }
         return Task.CompletedTask;
     }

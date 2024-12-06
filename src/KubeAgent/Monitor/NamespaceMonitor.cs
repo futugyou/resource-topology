@@ -6,14 +6,23 @@ public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes clie
     readonly IResourceProcessor processor = factory.GetResourceProcessor();
     public async Task MonitorResource(CancellationToken cancellation)
     {
-        var namespaces = await client.CoreV1.ListNamespaceWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
-        namespaces.Watch<V1Namespace, V1NamespaceList>(onEvent: async (type, item) => await HandlerNamespaceChange(type, item, cancellation));
+        var resources = await client.CoreV1.ListNamespaceWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
+        resources.Watch<V1Namespace, V1NamespaceList>(
+            onEvent: async (type, item) => await HandlerResourceChange(type, item, cancellation),
+            onError: (ex) => logger.LogError("ListNamespaceWithHttpMessagesAsync error: {ex}", ex.Message));
     }
 
-    private async Task HandlerNamespaceChange(WatchEventType type, V1Namespace item, CancellationToken cancellation)
+    private async Task HandlerResourceChange(WatchEventType type, V1Namespace item, CancellationToken cancellation)
     {
-        logger.LogInformation("namespace - {type} - {name} - {time}", type, item.Name(), DateTimeOffset.Now);
-        var res = new Resource { ResourceType = "Namespace", Name = item.Name() };
+        var res = new Resource
+        {
+            ApiVersion = item.ApiVersion,
+            Kind = item.Kind,
+            Name = item.Name(),
+            UID = item.Uid(),
+            Configuration = JsonSerializer.Serialize(item),
+            Operate = type.ToString(),
+        };
         await processor.CollectingData(res, cancellation);
     }
 }

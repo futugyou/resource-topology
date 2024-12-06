@@ -27,11 +27,14 @@ public static class Extensions
 
         builder.Services.AddHostedService<Worker>();
         builder.Services.AddHostedService<WatchWorker>();
-        builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
+
         builder.Services.AddKeyedSingleton<IResourceProcessor, DataflowProcessor>("Dataflow");
         builder.Services.AddKeyedSingleton<IResourceProcessor, ChannelProcessor>("Channel");
         builder.Services.AddSingleton<ProcessorFactory>();
+
+        builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
+        builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
+        builder.Services.AddSingleton<IResourceMonitor, NodeMonitor>();
 
         return builder;
     }

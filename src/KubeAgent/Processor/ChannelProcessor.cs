@@ -39,7 +39,7 @@ public class ChannelProcessor(ILogger<ChannelProcessor> logger) : IResourceProce
         logger.LogInformation("Processing batch with {count} items.", batch.Count);
         foreach (var res in batch)
         {
-            Console.WriteLine("ChannelProcessor" + "   " + res.ResourceType + "   " + res.Name);
+            Console.WriteLine("ChannelProcessor" + "   " + res.Kind + "   " + res.Name + "   " + res.Operate);
         }
         return Task.CompletedTask;
     }
