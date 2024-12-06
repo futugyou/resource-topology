@@ -3,6 +3,7 @@ namespace KubeAgent.Services;
 
 public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, ProcessorFactory factory) : BackgroundService
 {
+    readonly IResourceProcessor processor = factory.GetResourceProcessor();
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -12,7 +13,7 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
 
             try
             {
-                await factory.GetResourceProcessor().ProcessingData(stoppingToken);
+                await processor.ProcessingData(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -26,7 +27,7 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        await factory.GetResourceProcessor().Complete(cancellationToken);
+        await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
         logger.LogInformation("Kube agent worker stop at: {time}", DateTimeOffset.Now);
     }

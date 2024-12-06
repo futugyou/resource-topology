@@ -3,6 +3,7 @@ namespace KubeAgent.Monitor;
 
 public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes client, ProcessorFactory factory) : IResourceMonitor
 {
+    readonly IResourceProcessor processor = factory.GetResourceProcessor();
     public async Task MonitorResource(CancellationToken cancellation)
     {
         var namespaces = await client.CoreV1.ListNamespaceWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
@@ -13,6 +14,6 @@ public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes clie
     {
         logger.LogInformation("namespace - {type} - {name} - {time}", type, item.Name(), DateTimeOffset.Now);
         var res = new Resource { ResourceType = "Namespace", Name = item.Name() };
-        await factory.GetResourceProcessor().CollectingData(res, cancellation);
+        await processor.CollectingData(res, cancellation);
     }
 }
