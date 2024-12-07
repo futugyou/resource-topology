@@ -16,7 +16,7 @@ A project for displaying resource topology
 - kubernetes (k3d)
 
     ```shell
-    k3d cluster create mycluster -p "8887:80@loadbalancer" --agents 1
+    k3d cluster create mycluster -p "8887:80@loadbalancer" --agents 1 --api-port 0.0.0.0:33801
     dapr init -k
 
     # Although the config/secret component of dapr is not used, the component has been loaded in the code, so it must be configured

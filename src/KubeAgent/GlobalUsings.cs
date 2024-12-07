@@ -7,6 +7,8 @@ global using KubeAgent.Monitor;
 global using KubeAgent.Processor;
 global using KubeAgent.Services;
 global using Microsoft.Extensions.Options;
+global using Polly;
+global using Polly.Retry;
 global using System.Collections.Concurrent;
 global using System.Linq;
 global using System.Security.Cryptography;
