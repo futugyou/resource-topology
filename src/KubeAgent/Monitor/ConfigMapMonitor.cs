@@ -8,6 +8,6 @@ public class ConfigMapMonitor(ILogger<NodeMonitor> logger, IKubernetes client, P
         var resources = await client.CoreV1.ListConfigMapForAllNamespacesWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
         resources.Watch<V1ConfigMap, V1ConfigMapList>(
             onEvent: async (type, item) => await HandlerResourceChange(type, item, cancellation),
-            onError: async (ex) => await HandlerError(MonitorResource, "ListStatefulSetForAllNamespacesWithHttpMessagesAsync", ex, cancellation));
+            onError: async (ex) => await HandlerError(MonitorResource, "ListConfigMapForAllNamespacesWithHttpMessagesAsync", ex, cancellation));
     }
 }

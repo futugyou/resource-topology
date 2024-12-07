@@ -35,6 +35,12 @@ public static class Extensions
         builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
         builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
         builder.Services.AddSingleton<IResourceMonitor, NodeMonitor>();
+        builder.Services.AddSingleton<IResourceMonitor, ConfigMapMonitor>();
+        builder.Services.AddSingleton<IResourceMonitor, DaemonSetMonitpr>();
+        builder.Services.AddSingleton<IResourceMonitor, DeploymentMonitor>();
+        builder.Services.AddSingleton<IResourceMonitor, StatefulSetMonitor>();
+
+        // builder.Services.AddSingleton<IResourceMonitor, GeneralMonitor>();
 
         return builder;
     }

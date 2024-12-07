@@ -1,6 +1,4 @@
 
-using k8s.Autorest;
-
 namespace KubeAgent.Monitor;
 
 public interface IResourceMonitor

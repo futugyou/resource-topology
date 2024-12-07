@@ -1,4 +1,5 @@
 global using k8s;
+global using k8s.Autorest;
 global using k8s.Models;
 global using KubeAgent;
 global using KubeAgent.Extensions;
