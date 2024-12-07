@@ -8,7 +8,7 @@ public interface IResourceMonitor
 
 public abstract class BaseMonitor(ILogger<BaseMonitor> logger)
 {
-    protected readonly ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
+    readonly ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
         .AddRetry(new RetryStrategyOptions
         {
             MaxRetryAttempts = int.MaxValue,
@@ -26,4 +26,10 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger)
             }
         })
         .Build();
+
+    protected virtual async Task HandlerError(Func<CancellationToken, Task> fn, string methodName, Exception ex, CancellationToken cancellation)
+    {
+        logger.LogError("{name} error: {ex}", methodName, (ex.InnerException ?? ex).Message);
+        await pipeline.ExecuteAsync(async (cancel) => await fn(cancel), cancellation);
+    }
 }

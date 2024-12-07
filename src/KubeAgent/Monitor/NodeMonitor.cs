@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class NodeMonitor(ILogger<NodeMonitor> logger, IKubernetes client, ProcessorFactory factory) : IResourceMonitor
+public class NodeMonitor(ILogger<NodeMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger), IResourceMonitor
 {
     readonly IResourceProcessor processor = factory.GetResourceProcessor();
     public async Task MonitorResource(CancellationToken cancellation)
@@ -9,7 +9,7 @@ public class NodeMonitor(ILogger<NodeMonitor> logger, IKubernetes client, Proces
         var resources = await client.CoreV1.ListNodeWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
         resources.Watch<V1Node, V1NodeList>(
             onEvent: async (type, item) => await HandlerResourceChange(type, item, cancellation),
-            onError: (ex) => logger.LogError("ListNodeWithHttpMessagesAsync error: {ex}", ex.Message));
+            onError: async (ex) => await HandlerError(MonitorResource, "ListNodeWithHttpMessagesAsync", ex, cancellation));
     }
 
     private async Task HandlerResourceChange(WatchEventType type, V1Node item, CancellationToken cancellation)

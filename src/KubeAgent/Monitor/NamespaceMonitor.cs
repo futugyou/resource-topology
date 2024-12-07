@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes client, ProcessorFactory factory) : IResourceMonitor
+public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger), IResourceMonitor
 {
     readonly IResourceProcessor processor = factory.GetResourceProcessor();
     public async Task MonitorResource(CancellationToken cancellation)
@@ -9,7 +9,7 @@ public class NamespaceMonitor(ILogger<NamespaceMonitor> logger, IKubernetes clie
         var resources = await client.CoreV1.ListNamespaceWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);
         resources.Watch<V1Namespace, V1NamespaceList>(
             onEvent: async (type, item) => await HandlerResourceChange(type, item, cancellation),
-            onError: (ex) => logger.LogError("ListNamespaceWithHttpMessagesAsync error: {ex}", ex.Message));
+            onError: async (ex) => await HandlerError(MonitorResource, "ListNamespaceWithHttpMessagesAsync", ex, cancellation));
     }
 
     private async Task HandlerResourceChange(WatchEventType type, V1Namespace item, CancellationToken cancellation)
