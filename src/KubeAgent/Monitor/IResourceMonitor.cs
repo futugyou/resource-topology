@@ -1,4 +1,6 @@
 
+using k8s.Autorest;
+
 namespace KubeAgent.Monitor;
 
 public interface IResourceMonitor
@@ -6,7 +8,7 @@ public interface IResourceMonitor
     Task MonitorResource(CancellationToken cancellation);
 }
 
-public abstract class BaseMonitor(ILogger<BaseMonitor> logger)
+public abstract class BaseMonitor(ILogger<BaseMonitor> logger, IResourceProcessor processor)
 {
     readonly ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
         .AddRetry(new RetryStrategyOptions
@@ -31,5 +33,19 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger)
     {
         logger.LogError("{name} error: {ex}", methodName, (ex.InnerException ?? ex).Message);
         await pipeline.ExecuteAsync(async (cancel) => await fn(cancel), cancellation);
+    }
+
+    protected virtual async Task HandlerResourceChange(WatchEventType type, IKubernetesObject<V1ObjectMeta> item, CancellationToken cancellation)
+    {
+        var res = new Resource
+        {
+            ApiVersion = item.ApiVersion,
+            Kind = item.Kind,
+            Name = item.Name(),
+            UID = item.Uid(),
+            Configuration = JsonSerializer.Serialize(item),
+            Operate = type.ToString(),
+        };
+        await processor.CollectingData(res, cancellation);
     }
 }
