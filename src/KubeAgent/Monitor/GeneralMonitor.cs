@@ -56,7 +56,7 @@ public class G<T, L>(
     Func<CancellationToken, Task<HttpOperationResponse<L>>> ListResourcesFunc,
     Func<WatchEventType, T, CancellationToken, Task> ResourceChangeFunc,
     Func<Func<CancellationToken, Task>, string, Exception, CancellationToken, Task> ErrorHandlerFunc)
-    where T : IKubernetesObject<V1ObjectMeta>, IValidate where L : IKubernetesObject<V1ListMeta>, IItems<T>, IValidate
+    where T : IKubernetesObject<V1ObjectMeta> where L : IKubernetesObject<V1ListMeta>
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
