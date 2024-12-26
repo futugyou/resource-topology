@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class DaemonSetMonitpr(ILogger<NodeMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
+public class DaemonSetMonitpr(ILogger<DaemonSetMonitpr> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
