@@ -16,34 +16,6 @@ public class GatewayMonitor(ILogger<GatewayMonitor> logger, IKubernetes client, 
     }
 }
 
-public abstract class CustomResource : IKubernetesObject<V1ObjectMeta>, IMetadata<V1ObjectMeta>
-{
-    [JsonPropertyName("metadata")]
-    public required V1ObjectMeta Metadata { get; set; }
-
-    [JsonPropertyName("apiVersion")]
-    public required string ApiVersion { get; set; }
-
-    [JsonPropertyName("kind")]
-    public required string Kind { get; set; }
-}
-
-public abstract class CustomResource<TSpec, TStatus> : CustomResource
-{
-    [JsonPropertyName("spec")]
-    public required TSpec Spec { get; set; }
-
-    [JsonPropertyName("status")]
-    public required TStatus Status { get; set; }
-}
-
-public class CustomResourceList<T> : KubernetesObject where T : CustomResource
-{
-    public required V1ListMeta Metadata { get; set; }
-    public List<T> Items { get; set; } = [];
-}
-
-
 public class GatewayList : CustomResourceList<Gateway>
 {
 }
@@ -60,10 +32,10 @@ public class Gateway : CustomResource<GatewaySpec, GatewayStatus>
 public class GatewaySpec
 {
     [JsonPropertyName("gatewayClassName")]
-    public required string GatewayClassName { get; set; }
+    public string GatewayClassName { get; set; } = "";
 
     [JsonPropertyName("listeners")]
-    public required Listener[] Listeners { get; set; }
+    public Listener[] Listeners { get; set; } = [];
 
     [JsonPropertyName("addresses")]
     public GatewayAddress[] Addresses { get; set; } = [];
