@@ -4,10 +4,10 @@ namespace KubeAgent;
 
 public class MonitorSetting(List<string> AllowedResources, List<string> DeniedResources)
 {
-    private readonly string[] defaultAlloedResources =
+    private readonly string[] defaultAllowedResources =
     [
-        "Pod",
         "Namespace",
+        "Pod",
         "Service",
         "Deployment",
         "ReplicaSet",
@@ -28,13 +28,13 @@ public class MonitorSetting(List<string> AllowedResources, List<string> DeniedRe
         "PersistentVolumeClaim",
         "StorageClass",
         "VolumeAttachment", 
-        // "Event",
         "LimitRange",
         "ResourceQuota",
         "PodSecurityPolicy",
         "PodDisruptionBudget",
         "PriorityClass",
         "Node",
+        // "Event",
     ];
 
     public Dictionary<string, KubeResourceInfo> GetMonitorableResources()
@@ -43,7 +43,7 @@ public class MonitorSetting(List<string> AllowedResources, List<string> DeniedRe
 
         if (AllowedResources.Count == 0)
         {
-            AllowedResources = [.. defaultAlloedResources];
+            AllowedResources = [.. defaultAllowedResources];
         }
 
         var allowedSet = AllowedResources.Count > 0 ? AllowedResources : [.. list.Keys];
@@ -85,7 +85,8 @@ public class MonitorSetting(List<string> AllowedResources, List<string> DeniedRe
                 KubeApiVersion = fieldValues.GetValueOrDefault("KubeApiVersion") ?? "",
                 KubeKind = fieldValues.GetValueOrDefault("KubeKind") ?? "",
                 KubeGroup = fieldValues.GetValueOrDefault("KubeGroup") ?? "",
-                KubePluralName = fieldValues.GetValueOrDefault("KubePluralName") ?? ""
+                KubePluralName = fieldValues.GetValueOrDefault("KubePluralName") ?? "",
+                ReflectionType = type,
             };
 
             result[resourceInfo.KubeKind] = resourceInfo;
@@ -101,4 +102,5 @@ public class KubeResourceInfo
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
     public string KubePluralName { get; set; } = "";
+    public required Type ReflectionType { get; set; }
 }
