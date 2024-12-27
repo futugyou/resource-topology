@@ -6,4 +6,6 @@ public class AgentOptions
     public required int WorkerInterval { get; set; } = 60;
     public required int WorkerTime { get; set; } = 20;
     public required string ProcessorType { get; set; } = "Channel";
+    public List<string> AllowedResources { get; set; } = [];
+    public List<string> DeniedResources { get; set; } = [];
 }
