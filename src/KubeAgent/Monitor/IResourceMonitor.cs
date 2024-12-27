@@ -1,4 +1,3 @@
-
 namespace KubeAgent.Monitor;
 
 public interface IResourceMonitor
@@ -30,11 +29,24 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger, IResourceProcesso
     protected virtual async Task HandlerError(Func<CancellationToken, Task> fn, string methodName, Exception ex, CancellationToken cancellation)
     {
         logger.LogError("{name} error: {ex}", methodName, (ex.InnerException ?? ex).Message);
+
+        switch (ex)
+        {
+            case KubernetesException e when e.Status.Code is (int)HttpStatusCode.Gone:
+                // TODO: add k8s resourceVersion
+                break;
+        }
+
         await pipeline.ExecuteAsync(async (cancel) => await fn(cancel), cancellation);
     }
 
     protected virtual async Task HandlerResourceChange(WatchEventType type, IKubernetesObject<V1ObjectMeta> item, CancellationToken cancellation)
     {
+        if (type == WatchEventType.Bookmark)
+        {
+            return;
+        }
+
         var res = new Resource
         {
             ApiVersion = item.ApiVersion,

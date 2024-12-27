@@ -11,6 +11,7 @@ global using Microsoft.Extensions.Options;
 global using Polly;
 global using Polly.Retry;
 global using System.Collections.Concurrent;
+global using System.Net;
 global using System.Linq;
 global using System.Security.Cryptography;
 global using System.Text;

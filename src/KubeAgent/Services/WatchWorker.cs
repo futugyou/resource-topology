@@ -1,6 +1,4 @@
 
-using k8s.Models;
-
 namespace KubeAgent.Services;
 
 public class WatchWorker(ILogger<Worker> logger, IEnumerable<IResourceMonitor> monitors) : BackgroundService
