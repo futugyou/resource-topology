@@ -4,13 +4,46 @@ namespace KubeAgent;
 
 public class MonitorSetting(List<string> AllowedResources, List<string> DeniedResources)
 {
+    private readonly string[] defaultAlloedResources =
+    [
+        "Pod",
+        "Namespace",
+        "Service",
+        "Deployment",
+        "ReplicaSet",
+        "StatefulSet",
+        "DaemonSet",
+        "Job",
+        "CronJob",
+        "ConfigMap",
+        "Secret",
+        "ServiceAccount",
+        "Role",
+        "RoleBinding",
+        "ClusterRole",
+        "ClusterRoleBinding",
+        "NetworkPolicy",
+        "Ingress",
+        "PersistentVolume",
+        "PersistentVolumeClaim",
+        "StorageClass",
+        "VolumeAttachment", 
+        // "Event",
+        "LimitRange",
+        "ResourceQuota",
+        "PodSecurityPolicy",
+        "PodDisruptionBudget",
+        "PriorityClass",
+        "Node",
+    ];
+
     public Dictionary<string, KubeResourceInfo> GetMonitorableResources()
     {
         var list = ResourceList();
 
-        if (AllowedResources.Count == 0 && DeniedResources.Count == 0)
+        if (AllowedResources.Count == 0)
         {
-            return list;
+            AllowedResources = [.. defaultAlloedResources];
         }
 
         var allowedSet = AllowedResources.Count > 0 ? AllowedResources : [.. list.Keys];
