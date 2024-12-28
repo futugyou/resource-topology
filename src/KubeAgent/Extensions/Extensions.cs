@@ -7,6 +7,7 @@ public static class Extensions
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
+        builder.Services.AddOptions<MonitorSetting>().Bind(builder.Configuration.GetSection(nameof(MonitorSetting)));
 
         builder.Services.AddSingleton<IKubernetes>(sp =>
         {
@@ -32,15 +33,16 @@ public static class Extensions
         builder.Services.AddKeyedSingleton<IResourceProcessor, ChannelProcessor>("Channel");
         builder.Services.AddSingleton<ProcessorFactory>();
 
-        builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, NodeMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, ConfigMapMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, DaemonSetMonitpr>();
-        builder.Services.AddSingleton<IResourceMonitor, DeploymentMonitor>();
-        builder.Services.AddSingleton<IResourceMonitor, StatefulSetMonitor>();
-
+        // builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
+        // builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
+        // builder.Services.AddSingleton<IResourceMonitor, NodeMonitor>();
+        // builder.Services.AddSingleton<IResourceMonitor, ConfigMapMonitor>();
+        // builder.Services.AddSingleton<IResourceMonitor, DaemonSetMonitpr>();
+        // builder.Services.AddSingleton<IResourceMonitor, DeploymentMonitor>();
+        // builder.Services.AddSingleton<IResourceMonitor, StatefulSetMonitor>();
         // builder.Services.AddSingleton<IResourceMonitor, GeneralMonitor>();
+
+        builder.Services.AddSingleton<IResourceMonitor, GeneralMonitorV2>();
 
         return builder;
     }

@@ -32,7 +32,6 @@ public class MonitorSetting()
         "VolumeAttachment",
         "LimitRange",
         "ResourceQuota",
-        "PodSecurityPolicy",
         "PodDisruptionBudget",
         "PriorityClass",
         "Node",
