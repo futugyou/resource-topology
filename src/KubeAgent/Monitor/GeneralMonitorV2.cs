@@ -1,13 +1,11 @@
 
 namespace KubeAgent.Monitor;
 
-public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, ProcessorFactory factory, IOptions<AgentOptions> options) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
+public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, ProcessorFactory factory, IOptions<MonitorSetting> options) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
-        var op = options.Value;
-        var monitorSetting = new MonitorSetting(op.AllowedResources, op.DeniedResources);
-
+        var monitorSetting = options.Value;
         var resources = monitorSetting.GetMonitorableResources();
         var tasks = new List<Task>();
         foreach (var resource in resources)

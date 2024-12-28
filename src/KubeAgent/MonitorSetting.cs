@@ -2,9 +2,11 @@ using System.Reflection;
 
 namespace KubeAgent;
 
-public class MonitorSetting(List<string> AllowedResources, List<string> DeniedResources)
+public class MonitorSetting()
 {
-    private readonly string[] defaultAllowedResources =
+    public List<string> AllowedResources { get; set; } = [];
+    public List<string> DeniedResources { get; set; } = [];
+    public List<string> DefaultAllowedResources { get; set; } =
     [
         "Namespace",
         "Pod",
@@ -27,7 +29,7 @@ public class MonitorSetting(List<string> AllowedResources, List<string> DeniedRe
         "PersistentVolume",
         "PersistentVolumeClaim",
         "StorageClass",
-        "VolumeAttachment", 
+        "VolumeAttachment",
         "LimitRange",
         "ResourceQuota",
         "PodSecurityPolicy",
@@ -43,7 +45,7 @@ public class MonitorSetting(List<string> AllowedResources, List<string> DeniedRe
 
         if (AllowedResources.Count == 0)
         {
-            AllowedResources = [.. defaultAllowedResources];
+            AllowedResources = [.. DefaultAllowedResources];
         }
 
         var allowedSet = AllowedResources.Count > 0 ? AllowedResources : [.. list.Keys];
