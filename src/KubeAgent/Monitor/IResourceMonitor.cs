@@ -47,13 +47,14 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger, IResourceProcesso
             return;
         }
 
+        var jsonItem = item as dynamic;
         var res = new Resource
         {
             ApiVersion = item.ApiVersion,
             Kind = item.Kind,
             Name = item.Name(),
             UID = item.Uid(),
-            Configuration = JsonSerializer.Serialize(item),
+            Configuration = JsonSerializer.Serialize(jsonItem),
             Operate = type.ToString(),
         };
         await processor.CollectingData(res, cancellation);
