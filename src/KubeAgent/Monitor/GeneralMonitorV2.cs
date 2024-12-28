@@ -10,12 +10,12 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
         var tasks = new List<Task>();
         foreach (var resource in resources)
         {
-            tasks.Add(MonitorResource(resource.Value.KubeGroup, resource.Value.KubeApiVersion, resource.Value.KubePluralName, resource.Value.ReflectionType, cancellation));
+            tasks.Add(InnerMonitorResource(resource.Value.KubeGroup, resource.Value.KubeApiVersion, resource.Value.KubePluralName, resource.Value.ReflectionType, cancellation));
         }
         await Task.WhenAll(tasks);
     }
 
-    public async Task MonitorResource(string group, string version, string plural, Type targetType, CancellationToken cancellation)
+    async Task InnerMonitorResource(string group, string version, string plural, Type targetType, CancellationToken cancellation)
     {
         var resources = await client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync(group, version, plural, watch: true, cancellationToken: cancellation);
         resources.Watch<object, object>(
@@ -28,10 +28,6 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
                    await HandlerResourceChange(type, kubernetesObject, cancellation);
                }
            },
-           onError: (ex) =>
-           {
-               // TODO: restart the watch
-               logger.LogError("{plural} error: {ex}", plural, (ex.InnerException ?? ex).Message);
-           });
+          onError: async (ex) => await HandlerError(InnerMonitorResource, ex, group, version, plural, targetType, cancellation));
     }
 }

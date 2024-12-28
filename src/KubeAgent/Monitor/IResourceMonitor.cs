@@ -40,6 +40,19 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger, IResourceProcesso
         await pipeline.ExecuteAsync(async (cancel) => await fn(cancel), cancellation);
     }
 
+    protected virtual async Task HandlerError(Func<string, string, string, Type, CancellationToken, Task> fn, Exception ex, string group, string version, string plural, Type targetType, CancellationToken cancellation)
+    {
+        logger.LogError("{plural} error: {ex}", plural, (ex.InnerException ?? ex).Message);
+        switch (ex)
+        {
+            case KubernetesException e when e.Status.Code is (int)HttpStatusCode.Gone:
+                // TODO: add k8s resourceVersion
+                break;
+        }
+
+        await pipeline.ExecuteAsync(async (cancel) => await fn(group, version, plural, targetType, cancel), cancellation);
+    }
+
     protected virtual async Task HandlerResourceChange(WatchEventType type, IKubernetesObject<V1ObjectMeta> item, CancellationToken cancellation)
     {
         if (type == WatchEventType.Bookmark)
