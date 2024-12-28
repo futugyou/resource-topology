@@ -25,6 +25,18 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
                object? deserializedObject = JsonSerializer.Deserialize(json, targetType);
                if (deserializedObject is IKubernetesObject<V1ObjectMeta> kubernetesObject)
                {
+                   if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
+                   {
+                       foreach (var crdVersion in crd.Spec.Versions)
+                       {
+                           var crdType = crd.Spec.Names.Kind;
+                           var crdGroup = crd.Spec.Group;
+                           var crdPlural = crd.Spec.Names.Plural;
+                           var crdReflectionType = targetType;
+                           await InnerMonitorResource(crdGroup, crdVersion.Name, crdPlural, crdReflectionType, cancellation);
+                       }
+                   }
+
                    await HandlerResourceChange(type, kubernetesObject, cancellation);
                }
            },
