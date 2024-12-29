@@ -61,15 +61,24 @@ public abstract class BaseMonitor(ILogger<BaseMonitor> logger, IResourceProcesso
         }
 
         var jsonItem = item as dynamic;
-        var res = new Resource
+
+        try
         {
-            ApiVersion = item.ApiVersion,
-            Kind = item.Kind,
-            Name = item.Name(),
-            UID = item.Uid(),
-            Configuration = JsonSerializer.Serialize(jsonItem),
-            Operate = type.ToString(),
-        };
-        await processor.CollectingData(res, cancellation);
+            var res = new Resource
+            {
+                ApiVersion = item.ApiVersion,
+                Kind = item.Kind,
+                Name = item.Name(),
+                UID = item.Uid(),
+                Configuration = JsonSerializer.Serialize(jsonItem),
+                Operate = type.ToString(),
+            };
+            await processor.CollectingData(res, cancellation);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("HandlerResourceChange: {error}", (ex.InnerException ?? ex).Message);
+        }
+
     }
 }
