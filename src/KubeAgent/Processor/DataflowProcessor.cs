@@ -56,10 +56,10 @@ public class DataflowProcessor : IResourceProcessor
     private Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
     {
         //TODO
-        logger.LogInformation("Processing batch with {count} items.", batch.Count);
+        logger.LogInformation("processing batch with {count} items.", batch.Count);
         foreach (var res in batch)
         {
-            Console.WriteLine("DataflowProcessor" + "   " + res.Kind + "   " + res.Name + "   " + res.Operate);
+            logger.LogInformation("resource processor handling: {kind} {name} {operate}", res.Kind, res.Name, res.Operate);
         }
         return Task.CompletedTask;
     }

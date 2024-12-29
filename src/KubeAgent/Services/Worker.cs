@@ -8,7 +8,7 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
         while (!stoppingToken.IsCancellationRequested)
         {
             var serviceOption = optionsMonitor.CurrentValue!;
-            logger.LogInformation("Kube agent worker running at: {time}", DateTimeOffset.Now);
+            logger.LogInformation("kube processor worker running at: {time}", DateTimeOffset.Now);
 
             try
             {
@@ -16,10 +16,10 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
             }
             catch (Exception ex)
             {
-                logger.LogError("Kube agent worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
+                logger.LogError("kube processor worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
             }
 
-            logger.LogInformation("Kube agent worker end at: {time}", DateTimeOffset.Now);
+            logger.LogInformation("kube processor worker end at: {time}", DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
@@ -28,6 +28,6 @@ public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> option
     {
         await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
-        logger.LogInformation("Kube agent worker stop at: {time}", DateTimeOffset.Now);
+        logger.LogInformation("kube processor worker stop at: {time}", DateTimeOffset.Now);
     }
 }

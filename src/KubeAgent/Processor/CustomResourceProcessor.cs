@@ -9,7 +9,7 @@ public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IK
 
     public async Task CollectingData(Resource data, CancellationToken cancellation)
     {
-        Console.WriteLine($"Collecting data: {data.Group} {data.ApiVersion} {data.Plural}");
+        logger.LogInformation("collecting crd resource: {group} {apiVersion} {plural}", data.Group, data.ApiVersion, data.Plural);
         await channel.Writer.WriteAsync(data, cancellation);
     }
 
@@ -25,7 +25,7 @@ public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IK
 
         while (channel.Reader.TryRead(out var data))
         {
-            Console.WriteLine($"Processing data: {data.Group} {data.ApiVersion} {data.Plural}");
+            logger.LogInformation("processing crd resource: {group} {apiVersion} {plural}", data.Group, data.ApiVersion, data.Plural);
             var group = data.Group;
             var version = data.ApiVersion;
             var plural = data.Plural;
@@ -55,11 +55,11 @@ public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IK
                    },
                   onError: (ex) =>
                   {
-                      Console.WriteLine($"Error: {group} {version} {plural} {ex.Message}");
+                      logger.LogError("crd processor error: {error}", (ex.InnerException ?? ex).Message);
                   },
                   onClosed: () =>
                   {
-                      Console.WriteLine($"Closed: {group} {version} {plural} {targetType}");
+                      logger.LogInformation("closed processing crd resource: {group} {apiVersion} {plural}", data.Group, data.ApiVersion, data.Plural);
                   });
             }
             catch (Exception ex)

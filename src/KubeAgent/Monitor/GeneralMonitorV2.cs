@@ -47,7 +47,7 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
             },
             onClosed: () =>
             {
-                Console.WriteLine($"Closed: {group} {version} {plural} {targetType}");
+                logger.LogInformation("closed: {group} {version} {plural} {targetType}", group, version, plural, targetType);
             });
 
         return Task.CompletedTask;

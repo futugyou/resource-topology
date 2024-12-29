@@ -8,7 +8,7 @@ public class CRDWatchWorker(ILogger<CRDWatchWorker> logger, IOptionsMonitor<Agen
         while (!stoppingToken.IsCancellationRequested)
         {
             var serviceOption = optionsMonitor.CurrentValue!;
-            logger.LogInformation("Kube agent crd worker running at: {time}", DateTimeOffset.Now);
+            logger.LogInformation("kube crd resource worker running at: {time}", DateTimeOffset.Now);
 
             try
             {
@@ -16,10 +16,10 @@ public class CRDWatchWorker(ILogger<CRDWatchWorker> logger, IOptionsMonitor<Agen
             }
             catch (Exception ex)
             {
-                logger.LogError("Kube agent crd worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
+                logger.LogError("kube crd resource worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
             }
 
-            logger.LogInformation("Kube agent crd worker end at: {time}", DateTimeOffset.Now);
+            logger.LogInformation("kube crd resource worker end at: {time}", DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
@@ -28,6 +28,6 @@ public class CRDWatchWorker(ILogger<CRDWatchWorker> logger, IOptionsMonitor<Agen
     {
         await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
-        logger.LogInformation("Kube agent worker stop at: {time}", DateTimeOffset.Now);
+        logger.LogInformation("kube crd resource worker stop at: {time}", DateTimeOffset.Now);
     }
 }
