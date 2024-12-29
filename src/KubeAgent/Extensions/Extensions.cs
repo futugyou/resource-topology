@@ -30,7 +30,7 @@ public static class Extensions
         builder.Services.AddHostedService<WatchWorker>();
         builder.Services.AddHostedService<CRDWatchWorker>();
 
-        builder.Services.AddKeyedSingleton<IResourceProcessor, DataflowProcessor>("Dataflow");
+        builder.Services.AddKeyedSingleton<IResourceProcessor, GeneralProcessor>("General");
         builder.Services.AddKeyedSingleton<IResourceProcessor, CustomResourceProcessor>("CRD");
 
         // builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();

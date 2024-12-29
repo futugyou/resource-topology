@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class SecretMonitorMonitor(ILogger<SecretMonitorMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
+public class SecretMonitorMonitor(ILogger<SecretMonitorMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {

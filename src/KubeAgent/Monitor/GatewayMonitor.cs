@@ -3,7 +3,7 @@ namespace KubeAgent.Monitor;
 
 // TODO: fill all models
 // TODO: other gateway models (https://github.com/kubernetes-sigs/gateway-api/blob/main/apis/v1/gateway_types.go)
-public class GatewayMonitor(ILogger<GatewayMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
+public class GatewayMonitor(ILogger<GatewayMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public Task MonitorResource(CancellationToken cancellation)
     {

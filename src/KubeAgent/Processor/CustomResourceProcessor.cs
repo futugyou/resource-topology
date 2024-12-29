@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace KubeAgent.Processor;
 
-public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceProcessor
+public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceProcessor
 {
     readonly Channel<Resource> channel = Channel.CreateUnbounded<Resource>();
 

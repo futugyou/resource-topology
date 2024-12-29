@@ -3,13 +3,13 @@ using System.Threading.Tasks.Dataflow;
 
 namespace KubeAgent.Processor;
 
-public class DataflowProcessor : IResourceProcessor
+public class GeneralProcessor : IResourceProcessor
 {
     private readonly BufferBlock<Resource> bufferBlock;
     private readonly ActionBlock<List<Resource>> actionBlock;
-    private readonly ILogger<DataflowProcessor> logger;
+    private readonly ILogger<GeneralProcessor> logger;
 
-    public DataflowProcessor(ILogger<DataflowProcessor> logger)
+    public GeneralProcessor(ILogger<GeneralProcessor> logger)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {

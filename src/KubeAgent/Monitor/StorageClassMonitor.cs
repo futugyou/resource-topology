@@ -1,6 +1,6 @@
 namespace KubeAgent.Monitor;
 
-public class StorageClassMonitor(ILogger<StorageClassMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
+public class StorageClassMonitor(ILogger<StorageClassMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
