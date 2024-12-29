@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Services;
 
-public class WatchWorker(ILogger<Worker> logger, IEnumerable<IResourceMonitor> monitors) : BackgroundService
+public class OfficialResourceWatchWorker(ILogger<OfficialResourceWatchWorker> logger, IEnumerable<IResourceMonitor> monitors) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

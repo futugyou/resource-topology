@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor, IOptions<MonitorSetting> options, [FromKeyedServices("CRD")] IResourceProcessor flow) : BaseMonitor(logger, processor), IResourceMonitor
+public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor, IOptions<MonitorSetting> options, [FromKeyedServices("Custom")] IResourceProcessor flow) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
@@ -61,21 +61,18 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
         {
             if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
             {
-                foreach (var crdVersion in crd.Spec.Versions)
+                foreach (var version in crd.Spec.Versions)
                 {
-                    var crdType = crd.Spec.Names.Kind;
-                    var crdGroup = crd.Spec.Group;
-                    var crdPlural = crd.Spec.Names.Plural;
                     await flow.CollectingData(new Resource
                     {
-                        ApiVersion = crdVersion.Name,
-                        Kind = crdType,
+                        ApiVersion = version.Name,
+                        Kind = crd.Spec.Names.Kind,
                         Name = "",
                         UID = "",
                         Configuration = "",
                         Operate = "",
-                        Group = crdGroup,
-                        Plural = crdPlural,
+                        Group = crd.Spec.Group,
+                        Plural = crd.Spec.Names.Plural,
                     }, cancellation);
                 }
             }

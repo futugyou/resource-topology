@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Services;
 
-public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("General")] IResourceProcessor processor) : BackgroundService
+public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("General")] IResourceProcessor processor) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

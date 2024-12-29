@@ -26,12 +26,12 @@ public static class Extensions
             return new Kubernetes(kubernetesClientConfig);
         });
 
-        builder.Services.AddHostedService<Worker>();
-        builder.Services.AddHostedService<WatchWorker>();
-        builder.Services.AddHostedService<CRDWatchWorker>();
+        builder.Services.AddHostedService<ProcessorWorker>();
+        builder.Services.AddHostedService<OfficialResourceWatchWorker>();
+        builder.Services.AddHostedService<CustomResourceWatchWorker>();
 
         builder.Services.AddKeyedSingleton<IResourceProcessor, GeneralProcessor>("General");
-        builder.Services.AddKeyedSingleton<IResourceProcessor, CustomResourceProcessor>("CRD");
+        builder.Services.AddKeyedSingleton<IResourceProcessor, CustomResourceProcessor>("Custom");
 
         // builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
         // builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();
