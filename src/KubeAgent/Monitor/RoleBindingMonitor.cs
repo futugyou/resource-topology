@@ -1,6 +1,6 @@
 namespace KubeAgent.Monitor;
 
-public class RoleBindingMonitor(ILogger<RoleBindingMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
+public class RoleBindingMonitor(ILogger<RoleBindingMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {

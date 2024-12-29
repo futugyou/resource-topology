@@ -1,9 +1,8 @@
 
 namespace KubeAgent.Services;
 
-public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, ProcessorFactory factory) : BackgroundService
+public class Worker(ILogger<Worker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BackgroundService
 {
-    readonly IResourceProcessor processor = factory.GetResourceProcessor();
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)

@@ -31,9 +31,7 @@ public static class Extensions
         builder.Services.AddHostedService<CRDWatchWorker>();
 
         builder.Services.AddKeyedSingleton<IResourceProcessor, DataflowProcessor>("Dataflow");
-        builder.Services.AddKeyedSingleton<IResourceProcessor, ChannelProcessor>("Channel");
         builder.Services.AddKeyedSingleton<IResourceProcessor, CustomResourceProcessor>("CRD");
-        builder.Services.AddSingleton<ProcessorFactory>();
 
         // builder.Services.AddSingleton<IResourceMonitor, NamespaceMonitor>();
         // builder.Services.AddSingleton<IResourceMonitor, ServiceMonitor>();

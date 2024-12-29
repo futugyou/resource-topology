@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace KubeAgent.Processor;
 
-public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceProcessor
+public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceProcessor
 {
     readonly Channel<Resource> channel = Channel.CreateUnbounded<Resource>();
 
@@ -37,10 +37,9 @@ public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IK
                 resources.Watch<object, object>(
                    onEvent: async (type, item) =>
                    {
-                       var json = JsonSerializer.Serialize(item);
-
                        try
                        {
+                           var json = JsonSerializer.Serialize(item);
                            object? deserializedObject = JsonSerializer.Deserialize(json, targetType);
 
                            if (deserializedObject is IKubernetesObject<V1ObjectMeta> kubernetesObject)
@@ -54,8 +53,14 @@ public class CustomResourceProcessor(ILogger<CustomResourceProcessor> logger, IK
                        }
 
                    },
-                  onError: (ex) => Console.WriteLine($"Error: {group} {version} {plural} {ex.Message}"),
-                  onClosed: () => { Console.WriteLine($"Closed: {group} {version} {plural} {targetType}"); });
+                  onError: (ex) =>
+                  {
+                      Console.WriteLine($"Error: {group} {version} {plural} {ex.Message}");
+                  },
+                  onClosed: () =>
+                  {
+                      Console.WriteLine($"Closed: {group} {version} {plural} {targetType}");
+                  });
             }
             catch (Exception ex)
             {

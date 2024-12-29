@@ -1,9 +1,9 @@
 
 namespace KubeAgent.Monitor;
 
-public class DeploymentMonitor(ILogger<DeploymentMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
+public class DeploymentMonitor(ILogger<DeploymentMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
-    readonly IResourceProcessor processor = factory.GetResourceProcessor();
+    readonly IResourceProcessor processor = processor;
     public async Task MonitorResource(CancellationToken cancellation)
     {
         var resources = await client.AppsV1.ListDeploymentForAllNamespacesWithHttpMessagesAsync(watch: true, cancellationToken: cancellation);

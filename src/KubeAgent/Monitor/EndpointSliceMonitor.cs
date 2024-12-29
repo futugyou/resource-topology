@@ -1,6 +1,6 @@
 namespace KubeAgent.Monitor;
 
-public class EndpointSliceMonitor(ILogger<EndpointSliceMonitor> logger, IKubernetes client, ProcessorFactory factory) : BaseMonitor(logger, factory.GetResourceProcessor()), IResourceMonitor
+public class EndpointSliceMonitor(ILogger<EndpointSliceMonitor> logger, IKubernetes client, [FromKeyedServices("Dataflow")] IResourceProcessor processor) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
