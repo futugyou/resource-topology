@@ -1,12 +1,11 @@
 
 namespace KubeAgent.Monitor;
 
-public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor, IOptions<MonitorSetting> options, [FromKeyedServices("Custom")] IResourceProcessor flow) : BaseMonitor(logger, processor), IResourceMonitor
+public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client, [FromKeyedServices("General")] IResourceProcessor processor, IResourceDiscovery discovery, [FromKeyedServices("Custom")] IResourceProcessor flow) : BaseMonitor(logger, processor), IResourceMonitor
 {
     public async Task MonitorResource(CancellationToken cancellation)
     {
-        var monitorSetting = options.Value;
-        var resources = monitorSetting.GetMonitorableResources();
+        var resources = await discovery.GetMonitoredResourcesAsync(cancellation);
         var tasks = new List<Task>();
         foreach (var resource in resources)
         {
@@ -14,11 +13,11 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
             var childToken = childCts.Token;
             try
             {
-                tasks.Add(InnerMonitorResource(resource.Value.KubeGroup, resource.Value.KubeApiVersion, resource.Value.KubePluralName, resource.Value.ReflectionType, childToken));
+                tasks.Add(InnerMonitorResource(resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName, resource.ReflectionType, childToken));
             }
             catch (Exception ex)
             {
-                logger.LogError("{name} processor error: {error}", resource.Value.KubePluralName, (ex.InnerException ?? ex).Message);
+                logger.LogError("{name} processor error: {error}", resource.KubePluralName, (ex.InnerException ?? ex).Message);
             }
         }
 

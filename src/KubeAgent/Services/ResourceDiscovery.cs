@@ -1,63 +1,20 @@
-using System.Reflection;
-
 namespace KubeAgent.Services;
-
-public class ResourceDiscovery(IOptionsMonitor<MonitorSetting> options) : IResourceDiscovery
+public class ResourceDiscovery(IEnumerable<IDiscoveryProvider> providers) : IResourceDiscovery
 {
-    static Dictionary<string, MonitoredResource> ResourceList()
+    public async Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
     {
-        var assembly = typeof(V1Pod).Assembly;
+        var resourceDictionary = new Dictionary<string, MonitoredResource>();
 
-        var types = assembly.GetTypes()
-            .Where(t => t.IsClass &&
-                        t.GetInterfaces().Any(i =>
-                            i.IsGenericType &&
-                            i.GetGenericTypeDefinition() == typeof(IKubernetesObject<>) &&
-                            i.GetGenericArguments().FirstOrDefault() == typeof(V1ObjectMeta)));
-
-        var result = new Dictionary<string, MonitoredResource>();
-
-        foreach (var type in types)
+        foreach (var provider in providers.OrderBy(p => p.Priority))
         {
-            var fieldNames = new[] { "KubeApiVersion", "KubeKind", "KubeGroup", "KubePluralName" };
+            var resources = await provider.GetMonitoredResourcesAsync(cancellation);
 
-            var fieldValues = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(f => f.IsLiteral && !f.IsInitOnly && fieldNames.Contains(f.Name))
-                .ToDictionary(f => f.Name, f => f.GetValue(null)?.ToString());
-
-            if (!fieldValues.ContainsKey("KubeKind")) continue;
-
-            var resourceInfo = new MonitoredResource
+            foreach (var resource in resources)
             {
-                KubeApiVersion = fieldValues.GetValueOrDefault("KubeApiVersion") ?? "",
-                KubeKind = fieldValues.GetValueOrDefault("KubeKind") ?? "",
-                KubeGroup = fieldValues.GetValueOrDefault("KubeGroup") ?? "",
-                KubePluralName = fieldValues.GetValueOrDefault("KubePluralName") ?? "",
-                ReflectionType = type,
-            };
-
-            result[resourceInfo.KubeKind] = resourceInfo;
+                resourceDictionary[resource.KubePluralName + resource.KubeKind + resource.KubeGroup + resource.KubeApiVersion] = resource;
+            }
         }
 
-        return result;
-    }
-
-    public Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
-    {
-        var setting = options.CurrentValue;
-        var list = ResourceList();
-
-        if (setting.AllowedResources.Count == 0)
-        {
-            setting.AllowedResources = [.. setting.DefaultAllowedResources];
-        }
-
-        var allowedSet = setting.AllowedResources.Count > 0 ? setting.AllowedResources : [.. list.Keys];
-
-        var monitorableResources = allowedSet
-            .Where(resource => !setting.DeniedResources.Contains(resource))
-            .ToHashSet();
-
-        return Task.FromResult(list.Where(p => monitorableResources.Contains(p.Key)).Select(p => p.Value));
+        return resourceDictionary.Values;
     }
 }
