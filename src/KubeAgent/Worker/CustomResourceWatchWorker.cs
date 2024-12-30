@@ -1,5 +1,5 @@
 
-namespace KubeAgent.Services;
+namespace KubeAgent.Worker;
 
 public class CustomResourceWatchWorker(ILogger<CustomResourceWatchWorker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("Custom")] IResourceProcessor processor) : BackgroundService
 {

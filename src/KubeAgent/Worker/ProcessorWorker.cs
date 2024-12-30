@@ -1,5 +1,5 @@
 
-namespace KubeAgent.Services;
+namespace KubeAgent.Worker;
 
 public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("General")] IResourceProcessor processor) : BackgroundService
 {

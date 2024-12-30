@@ -1,5 +1,5 @@
 
-namespace KubeAgent.Services;
+namespace KubeAgent.Worker;
 
 public class OfficialResourceWatchWorker(ILogger<OfficialResourceWatchWorker> logger, IEnumerable<IResourceMonitor> monitors) : BackgroundService
 {
