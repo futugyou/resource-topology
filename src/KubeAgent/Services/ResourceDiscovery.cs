@@ -11,7 +11,7 @@ public class ResourceDiscovery(IEnumerable<IDiscoveryProvider> providers) : IRes
 
             foreach (var resource in resources)
             {
-                resourceDictionary[resource.KubePluralName + resource.KubeKind + resource.KubeGroup + resource.KubeApiVersion] = resource;
+                resourceDictionary[resource.ID()] = resource;
             }
         }
 
