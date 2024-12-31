@@ -4,6 +4,7 @@ namespace KubeAgent.Services;
 
 public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : IDiscoveryProvider
 {
+    Dictionary<string, MonitoredResource> monitoredResourceList = [];
     public int Priority => 1;
 
     static Dictionary<string, MonitoredResource> ResourceList()
@@ -47,7 +48,7 @@ public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : 
     public Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
     {
         var setting = options.CurrentValue;
-        var list = ResourceList();
+        Dictionary<string, MonitoredResource> list = ResourceList();
 
         if (setting.AllowedResources.Count == 0)
         {
@@ -60,6 +61,28 @@ public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : 
             .Where(resource => !setting.DeniedResources.Contains(resource))
             .ToHashSet();
 
-        return Task.FromResult(list.Where(p => monitorableResources.Contains(p.Key)).Select(p => p.Value));
+        var currentWatchList = list
+            .Where(p => monitorableResources.Contains(p.Key))
+            .ToDictionary(p => p.Key, p => p.Value);
+
+        if (monitoredResourceList.Count == 0)
+        {
+            monitoredResourceList = new Dictionary<string, MonitoredResource>(currentWatchList);
+            return Task.FromResult<IEnumerable<MonitoredResource>>(currentWatchList.Values);
+        }
+
+        var deletedResources = monitoredResourceList
+            .Where(kv => !currentWatchList.ContainsKey(kv.Key))
+            .Select(kv =>
+            {
+                kv.Value.Operate = "delete"; 
+                return kv.Value;
+            });
+
+        var combinedWatchList = currentWatchList.Values.Concat(deletedResources).ToList();
+
+        monitoredResourceList = new Dictionary<string, MonitoredResource>(currentWatchList);
+
+        return Task.FromResult<IEnumerable<MonitoredResource>>(combinedWatchList);
     }
 }

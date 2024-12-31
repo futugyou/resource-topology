@@ -35,11 +35,28 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client) 
 
     private Task OnEvent(Type reflectionType, WatchEventType type, object item, CancellationToken cancellation)
     {
+        var json = JsonSerializer.Serialize(item);
+        object? deserializedObject = JsonSerializer.Deserialize(json, reflectionType);
+        if (deserializedObject is IKubernetesObject<V1ObjectMeta> kubernetesObject)
+        {
+            Console.WriteLine($"Event: {kubernetesObject.Kind} {kubernetesObject.ApiGroup()} {kubernetesObject.ApiVersion} {kubernetesObject.Name()}");
+            if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
+            {
+                foreach (var version in crd.Spec.Versions)
+                {
+                    // TODO: Implement crd watch
+                }
+            }
+
+            // TODO: send data to processor
+        }
+
         return Task.CompletedTask;
     }
 
     public Task StopMonitoringAsync(string resourceId)
     {
+        Console.WriteLine($"Event: {resourceId}  ");
         return Task.CompletedTask;
     }
 }

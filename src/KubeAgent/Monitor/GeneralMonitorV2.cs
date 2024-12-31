@@ -6,6 +6,7 @@ public class GeneralMonitorV2(ILogger<GeneralMonitor> logger, IKubernetes client
     public async Task MonitorResource(CancellationToken cancellation)
     {
         var resources = await discovery.GetMonitoredResourcesAsync(cancellation);
+        resources = resources.Where(r => r.Operate == "add").ToList();
         var tasks = new List<Task>();
         foreach (var resource in resources)
         {
