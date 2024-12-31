@@ -35,17 +35,23 @@ public static class Extensions
 
         // builder.Services.AddSingleton<IResourceMonitor, GeneralMonitorV2>();
 
+
         builder.Services.AddSingleton<IResourceDiscovery, ResourceDiscovery>();
+        builder.Services.AddSingleton<RewatchDiscoveryProvider>();
         builder.Services.AddSingleton<IDiscoveryProvider, OptionDiscoveryProvider>();
-        builder.Services.AddSingleton<IDiscoveryProvider, RewatchDiscoveryProvider>();
+        builder.Services.AddSingleton<IDiscoveryProvider>(sp => sp.GetRequiredService<RewatchDiscoveryProvider>());
 
         builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<Resource>, ProcessorV2.GeneralProcessor>("General");
+        builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<MonitoredResource>, RewatchDiscoveryProvider>(
+            "Custom",
+            (sp, _) => sp.GetRequiredService<RewatchDiscoveryProvider>()
+        );
 
         builder.Services.AddSingleton<MonitorV2.IResourceMonitor, MonitorV2.GeneralMonitor>();
         builder.Services.AddSingleton<MonitorV2.IResourceMonitorManager, MonitorV2.ResourceMonitorManager>();
         builder.Services.AddHostedService<WorkerV2.MonitorWorker>();
 
-        
+
 
         return builder;
     }
