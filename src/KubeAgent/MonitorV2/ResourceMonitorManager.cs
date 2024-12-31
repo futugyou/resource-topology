@@ -22,7 +22,7 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
         foreach (var resource in resourcesToRestart)
         {
             await monitor.StopMonitoringAsync(resource.ID());
-            await monitor.StartMonitoringAsync(resource);
+            await monitor.StartMonitoringAsync(resource, cancellation);
             _currentMonitoredResourceIds.Add(resource.ID());
         }
 
@@ -30,7 +30,7 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
         {
             if (!_currentMonitoredResourceIds.Contains(resource.ID()))
             {
-                await monitor.StartMonitoringAsync(resource);
+                await monitor.StartMonitoringAsync(resource, cancellation);
                 _currentMonitoredResourceIds.Add(resource.ID());
             }
         }
