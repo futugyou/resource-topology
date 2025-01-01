@@ -4,7 +4,7 @@ using KubeAgent.ProcessorV2;
 namespace KubeAgent.MonitorV2;
 
 public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
- [FromKeyedServices("Custom")] IDataProcessor<MonitoredResource> crdProcessor, [FromKeyedServices("General")] IDataProcessor<Resource> processor)
+ [FromKeyedServices("Custom")] IDataProcessor<MonitoredResource> rewatchProcessor, [FromKeyedServices("General")] IDataProcessor<Resource> processor)
 : IResourceMonitor
 {
     readonly Dictionary<string, Watcher<object>> watcherList = [];
@@ -20,15 +20,20 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
             {
                 await OnEvent(resource.ReflectionType, type, item, cancellation);
             }),
-            onError: (ex) =>
+            onError: async (ex) =>
             {
                 if (ex is KubernetesException kubernetesError)
                 {
                     if (string.Equals(kubernetesError.Status.Reason, "Expired", StringComparison.Ordinal))
                     {
-                        throw ex;
+                        // TODO: when to set resourceVersion?
+                        resource.ResourceVersion = null;
                     }
                 }
+
+                // TODO: It has not yet been determined which errors require a restart.
+                resource.Operate = "restart";
+                await rewatchProcessor.CollectingData(resource, cancellation);
             },
             onClosed: () =>
             {
@@ -55,7 +60,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
             {
                 foreach (var version in crd.Spec.Versions)
                 {
-                    await crdProcessor.CollectingData(new MonitoredResource
+                    await rewatchProcessor.CollectingData(new MonitoredResource
                     {
                         KubeApiVersion = version.Name,
                         KubeKind = crd.Spec.Names.Kind,
