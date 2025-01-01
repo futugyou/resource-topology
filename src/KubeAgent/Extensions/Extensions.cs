@@ -50,8 +50,7 @@ public static class Extensions
         builder.Services.AddSingleton<MonitorV2.IResourceMonitor, MonitorV2.GeneralMonitor>();
         builder.Services.AddSingleton<MonitorV2.IResourceMonitorManager, MonitorV2.ResourceMonitorManager>();
         builder.Services.AddHostedService<WorkerV2.MonitorWorker>();
-
-
+        builder.Services.AddHostedService<WorkerV2.ProcessorWorker>();
 
         return builder;
     }
