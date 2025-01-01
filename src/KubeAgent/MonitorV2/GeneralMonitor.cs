@@ -7,6 +7,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
  [FromKeyedServices("Custom")] IDataProcessor<MonitoredResource> crdProcessor, [FromKeyedServices("General")] IDataProcessor<Resource> processor)
 : IResourceMonitor
 {
+    readonly Dictionary<string, Watcher<object>> watcherList = [];
     public Task StartMonitoringAsync(MonitoredResource resource, CancellationToken cancellation)
     {
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
@@ -14,7 +15,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
         var resources = client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync(resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName,
         watch: true, allowWatchBookmarks: true, resourceVersion: resource.ResourceVersion, cancellationToken: cancellation);
-        resources.Watch(
+        var watcher = resources.Watch(
             onEvent: (Action<WatchEventType, object>)(async (type, item) =>
             {
                 await OnEvent(resource.ReflectionType, type, item, cancellation);
@@ -34,6 +35,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                 logger.LogInformation("closed: {group} {version} {plural}", resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName);
             });
 
+        watcherList[resource.ID()] = watcher;
         return Task.CompletedTask;
     }
 
@@ -90,7 +92,12 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     public Task StopMonitoringAsync(string resourceId)
     {
-        Console.WriteLine($"Event: {resourceId}  ");
+        if (watcherList.TryGetValue(resourceId, out var watcher))
+        {
+            watcher.Dispose();
+            watcherList.Remove(resourceId);
+        }
+        logger.LogInformation("stop monitoring: {resourceId}", resourceId);
         return Task.CompletedTask;
     }
 }
