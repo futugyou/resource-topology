@@ -49,76 +49,98 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private async Task OnEvent(MonitoredResource resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
     {
-        var json = JsonSerializer.Serialize(item);
-        object? deserializedObject = JsonSerializer.Deserialize(json, resource.ReflectionType);
-        if (deserializedObject is IKubernetesObject<V1ObjectMeta> kubernetesObject)
+        try
         {
-            logger.LogInformation("event: {type} {kind} {name}", watchEventType, kubernetesObject.Kind, kubernetesObject.Name());
+            var deserializedObject = DeserializeItem(item, resource.ReflectionType);
+
+            if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
+            {
+                return;
+            }
+
+            LogEvent(watchEventType, kubernetesObject);
 
             if (watchEventType == WatchEventType.Error)
             {
                 return;
             }
 
-            if (watchEventType == WatchEventType.Added ||
-                        watchEventType == WatchEventType.Modified ||
-                        watchEventType == WatchEventType.Deleted ||
-                        watchEventType == WatchEventType.Bookmark)
-            {
-                if (watcherList.TryGetValue(resource.ID(), out var watcher))
-                {
-                    resource.ResourceVersion = kubernetesObject.ResourceVersion();
-                    watcher.Resource = resource;
-                    if (watchEventType != WatchEventType.Bookmark)
-                    {
-                        watcher.LastActiveTime = DateTime.Now;
-                    }
-                }
-            }
-
-            if (watchEventType == WatchEventType.Bookmark)
-            {
-                return;
-            }
+            HandleWatcherList(resource, kubernetesObject, watchEventType);
 
             if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
             {
-                foreach (var version in crd.Spec.Versions)
-                {
-                    await rewatchProcessor.CollectingData(new MonitoredResource
-                    {
-                        KubeApiVersion = version.Name,
-                        KubeKind = crd.Spec.Names.Kind,
-                        KubeGroup = crd.Spec.Group,
-                        KubePluralName = crd.Spec.Names.Plural,
-                        ResourceVersion = null,
-                        Operate = "add",
-                        ReflectionType = typeof(GeneralCustomResource),
-                    }, cancellation);
-                }
+                await HandleCustomResourceDefinition(crd, cancellation);
             }
 
-            var jsonItem = item as dynamic;
+            await ProcessResourceChange(item, kubernetesObject, watchEventType, cancellation);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("OnEvent error: {error}", (ex.InnerException ?? ex).Message);
+        }
+    }
 
-            try
+    private static object? DeserializeItem(object item, Type targetType)
+    {
+        var json = JsonSerializer.Serialize(item);
+        return JsonSerializer.Deserialize(json, targetType);
+    }
+
+    private void LogEvent(WatchEventType watchEventType, IKubernetesObject<V1ObjectMeta> kubernetesObject)
+    {
+        logger.LogInformation("event: {type} {kind} {name}", watchEventType, kubernetesObject.Kind, kubernetesObject.Name());
+    }
+
+    private void HandleWatcherList(MonitoredResource resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
+    {
+        if (watcherList.TryGetValue(resource.ID(), out var watcher))
+        {
+            resource.ResourceVersion = kubernetesObject.ResourceVersion();
+            watcher.Resource = resource;
+
+            if (watchEventType != WatchEventType.Bookmark)
             {
-                var res = new Resource
-                {
-                    ApiVersion = kubernetesObject.ApiVersion,
-                    Kind = kubernetesObject.Kind,
-                    Name = kubernetesObject.Name(),
-                    UID = kubernetesObject.Uid(),
-                    Configuration = JsonSerializer.Serialize(jsonItem),
-                    Operate = watchEventType.ToString(),
-                };
-                await processor.CollectingData(res, cancellation);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("HandlerResourceChange: {error}", (ex.InnerException ?? ex).Message);
+                watcher.LastActiveTime = DateTime.Now;
             }
         }
     }
+
+    private async Task HandleCustomResourceDefinition(V1CustomResourceDefinition crd, CancellationToken cancellation)
+    {
+        foreach (var version in crd.Spec.Versions)
+        {
+            var monitoredResource = new MonitoredResource
+            {
+                KubeApiVersion = version.Name,
+                KubeKind = crd.Spec.Names.Kind,
+                KubeGroup = crd.Spec.Group,
+                KubePluralName = crd.Spec.Names.Plural,
+                ResourceVersion = null,
+                Operate = "add",
+                ReflectionType = typeof(GeneralCustomResource),
+            };
+
+            await rewatchProcessor.CollectingData(monitoredResource, cancellation);
+        }
+    }
+
+    private async Task ProcessResourceChange(object item, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, CancellationToken cancellation)
+    {
+        var jsonItem = item as dynamic;
+
+        var resource = new Resource
+        {
+            ApiVersion = kubernetesObject.ApiVersion,
+            Kind = kubernetesObject.Kind,
+            Name = kubernetesObject.Name(),
+            UID = kubernetesObject.Uid(),
+            Configuration = JsonSerializer.Serialize(jsonItem),
+            Operate = watchEventType.ToString(),
+        };
+
+        await processor.CollectingData(resource, cancellation);
+    }
+
 
     public Task StopMonitoringAsync(string resourceId)
     {
