@@ -91,6 +91,12 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private async Task OnEvent(MonitoredResource resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
     {
+        if (watchEventType == WatchEventType.Error)
+        {
+            logger.LogError("OnEvent error: {resource} {error}", resource.ID(), item);
+            return;
+        }
+
         try
         {
             var deserializedObject = DeserializeItem(item, resource.ReflectionType);
@@ -101,11 +107,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
             }
 
             LogEvent(watchEventType, kubernetesObject);
-
-            if (watchEventType == WatchEventType.Error)
-            {
-                return;
-            }
 
             HandleWatcherList(resource, kubernetesObject, watchEventType);
 
@@ -118,7 +119,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
         catch (Exception ex)
         {
-            logger.LogError("OnEvent error: {error}", (ex.InnerException ?? ex).Message);
+            logger.LogError("OnEvent error: {resource} {error}", resource.ID(), (ex.InnerException ?? ex).Message);
         }
     }
 

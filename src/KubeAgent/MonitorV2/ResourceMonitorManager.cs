@@ -22,6 +22,7 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
         foreach (var resource in resourcesToRestart)
         {
             await monitor.StopMonitoringAsync(resource.ID());
+            resource.Operate = "add";
             await monitor.StartMonitoringAsync(resource, cancellation);
             _currentMonitoredResourceIds.Add(resource.ID());
         }
