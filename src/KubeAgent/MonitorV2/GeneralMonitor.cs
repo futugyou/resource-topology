@@ -11,23 +11,23 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(9);
     int timerstart = 0;
 
-    private void StartInactiveCheckTask()
+    private void StartInactiveCheckTask(CancellationToken cancellation)
     {
         if (Interlocked.CompareExchange(ref timerstart, 1, 0) == 0)
         {
             Task.Run(async () =>
             {
-                while (true)
+                while (!cancellation.IsCancellationRequested)
                 {
-                    await Task.Delay(_checkInterval);
-                    CheckInactiveResources();
+                    await Task.Delay(_checkInterval, cancellation);
+                    CheckInactiveResources(cancellation);
                 }
-            });
+            }, cancellation);
         }
     }
 
     // async void will not warn the caller if the caller does not await the return value, async Task will.
-    private async void CheckInactiveResources()
+    private async void CheckInactiveResources(CancellationToken cancellation)
     {
         var now = DateTime.Now;
         foreach (var watcher in watcherList.Values)
@@ -39,20 +39,20 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (now - watcher.LastActiveTime > _inactiveThreshold)
             {
-                await RestartResource(watcher.Resource);
+                await RestartResource(watcher.Resource, cancellation);
             }
         }
     }
 
-    private async Task RestartResource(MonitoredResource resource)
+    private async Task RestartResource(MonitoredResource resource, CancellationToken cancellation)
     {
         resource.Operate = "restart";
-        await rewatchProcessor.CollectingData(resource, CancellationToken.None);
+        await rewatchProcessor.CollectingData(resource, cancellation);
     }
 
     public Task StartMonitoringAsync(MonitoredResource resource, CancellationToken cancellation)
     {
-        StartInactiveCheckTask();
+        StartInactiveCheckTask(cancellation);
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var childToken = childCts.Token;
 
@@ -77,9 +77,8 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                     }
                 }
 
-                // TODO: It has not yet been determined which errors require a restart.
-                resource.Operate = "restart";
-                await rewatchProcessor.CollectingData(resource, cancellation);
+                // TODO: It has not yet been determined which errors require a restart. 
+                await RestartResource(resource, cancellation);
             },
             onClosed: () =>
             {
