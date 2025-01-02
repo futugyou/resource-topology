@@ -1,4 +1,3 @@
-
 using KubeAgent.ProcessorV2;
 
 namespace KubeAgent.MonitorV2;
@@ -8,8 +7,46 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 : IResourceMonitor
 {
     readonly Dictionary<string, WatcherInfo> watcherList = [];
+    private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
+    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(9);
+    int timerstart = 0;
+
+    private void StartInactiveCheckTask()
+    {
+        if (Interlocked.CompareExchange(ref timerstart, 1, 0) == 0)
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(_checkInterval);
+                    CheckInactiveResources();
+                }
+            });
+        }
+    }
+
+    private void CheckInactiveResources()
+    {
+        var now = DateTime.Now;
+        foreach (var watcher in watcherList.Values)
+        {
+            if (now - watcher.LastActiveTime > _inactiveThreshold)
+            {
+                RestartResource(watcher.Resource);
+            }
+        }
+    }
+
+    private async void RestartResource(MonitoredResource resource)
+    {
+        resource.Operate = "restart";
+        await rewatchProcessor.CollectingData(resource, CancellationToken.None);
+    }
+
     public Task StartMonitoringAsync(MonitoredResource resource, CancellationToken cancellation)
     {
+        StartInactiveCheckTask();
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var childToken = childCts.Token;
 
