@@ -10,6 +10,10 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
     private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(9);
     int timerstart = 0;
+    static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
     {
@@ -103,6 +107,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
             {
+                logger.LogWarning("OnEvent warning: watching type is not a  IKubernetesObject<V1ObjectMeta> {resource}", resource.ID());
                 return;
             }
 
@@ -110,12 +115,17 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             HandleWatcherList(resource, kubernetesObject, watchEventType);
 
+            if (watchEventType == WatchEventType.Bookmark)
+            {
+                return;
+            }
+
             if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
             {
                 await HandleCustomResourceDefinition(crd, cancellation);
             }
 
-            await ProcessResourceChange(item, kubernetesObject, watchEventType, cancellation);
+            await ProcessResourceChange(kubernetesObject, watchEventType, cancellation);
         }
         catch (Exception ex)
         {
@@ -125,7 +135,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private static object? DeserializeItem(object item, Type targetType)
     {
-        var json = JsonSerializer.Serialize(item);
+        var json = JsonSerializer.Serialize(item, DefaultJsonSerializerOptions);
         return JsonSerializer.Deserialize(json, targetType);
     }
 
@@ -150,6 +160,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private async Task HandleCustomResourceDefinition(V1CustomResourceDefinition crd, CancellationToken cancellation)
     {
+        if (crd?.Spec?.Versions == null || !crd.Spec.Versions.Any())
+        {
+            return;
+        }
+
         foreach (var version in crd.Spec.Versions)
         {
             var monitoredResource = new MonitoredResource
@@ -167,9 +182,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
     }
 
-    private async Task ProcessResourceChange(object item, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, CancellationToken cancellation)
+    private async Task ProcessResourceChange(IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, CancellationToken cancellation)
     {
-        var jsonItem = item as dynamic;
+        var jsonItem = kubernetesObject as dynamic;
 
         var resource = new Resource
         {
@@ -177,7 +192,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
             Kind = kubernetesObject.Kind,
             Name = kubernetesObject.Name(),
             UID = kubernetesObject.Uid(),
-            Configuration = JsonSerializer.Serialize(jsonItem),
+            Configuration = JsonSerializer.Serialize(jsonItem, DefaultJsonSerializerOptions),
             Operate = watchEventType.ToString(),
         };
 
