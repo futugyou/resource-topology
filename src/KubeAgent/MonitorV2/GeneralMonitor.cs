@@ -26,19 +26,25 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
     }
 
-    private void CheckInactiveResources()
+    // async void will not warn the caller if the caller does not await the return value, async Task will.
+    private async void CheckInactiveResources()
     {
         var now = DateTime.Now;
         foreach (var watcher in watcherList.Values)
         {
+            if (watcher == null || watcher.Resource == null)
+            {
+                continue;
+            }
+
             if (now - watcher.LastActiveTime > _inactiveThreshold)
             {
-                RestartResource(watcher.Resource);
+                await RestartResource(watcher.Resource);
             }
         }
     }
 
-    private async void RestartResource(MonitoredResource resource)
+    private async Task RestartResource(MonitoredResource resource)
     {
         resource.Operate = "restart";
         await rewatchProcessor.CollectingData(resource, CancellationToken.None);
