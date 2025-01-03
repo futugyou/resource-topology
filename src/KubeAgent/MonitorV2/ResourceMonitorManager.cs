@@ -1,41 +1,50 @@
 
 namespace KubeAgent.MonitorV2;
 
-public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonitor monitor) : IResourceMonitorManager
+public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonitor monitor, IRestartResourceTracker restartResourceTracker) : IResourceMonitorManager
 {
-    private readonly HashSet<string> _currentMonitoredResourceIds = [];
 
     public async Task MonitorResource(CancellationToken cancellation)
     {
-        var resources = await discovery.GetMonitoredResourcesAsync(cancellation);
+        var currentList = await monitor.GetWatcherListAsync(cancellation);
+        var currentIdList = currentList.Select(x => x.ResourceId).ToList();
 
-        var resourcesToAdd = resources.Where(r => r.Operate == "add").ToList();
-        var resourcesToDelete = resources.Where(r => r.Operate == "delete").ToList();
-        var resourcesToRestart = resources.Where(r => r.Operate == "restart").ToList();
+        var resources = await discovery.GetMonitoredResourcesAsync(cancellation);
+        var resourceIds = resources.Select(x => x.ID()).ToList();
+
+        var resourcesToAdd = resources.Where(x => !currentIdList.Contains(x.ID())).ToList();
+        var resourcesToDelete = currentList.Where(x => !resourceIds.Contains(x.ResourceId)).ToList();
+
+        var resourcesToRestart = await restartResourceTracker.GetRestartResources(cancellation);
 
         foreach (var resource in resourcesToDelete)
         {
-            await monitor.StopMonitoringAsync(resource.ID());
-            _currentMonitoredResourceIds.Remove(resource.ID());
+            await monitor.StopMonitoringAsync(resource.ResourceId);
         }
 
         foreach (var resource in resourcesToRestart)
         {
-            await monitor.StopMonitoringAsync(resource.ID());
-            resource.Operate = "add";
-            var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
-            await monitor.StartMonitoringAsync(monitoringContext, cancellation);
-            _currentMonitoredResourceIds.Add(resource.ID());
+            var res = currentList.FirstOrDefault(x => x.ResourceId == resource.ResourceId);
+            if (res != null)
+            {
+                await monitor.StopMonitoringAsync(res.ResourceId);
+                var monitoringContext = new MonitoringContext
+                {
+                    ResourceId = res.ResourceId,
+                    KubeApiVersion = res.KubeApiVersion,
+                    KubeKind = res.KubeKind,
+                    KubeGroup = res.KubeGroup,
+                    KubePluralName = res.KubePluralName,
+                    ReflectionType = res.ReflectionType
+                };
+                await monitor.StartMonitoringAsync(monitoringContext, cancellation);
+            }
         }
 
         foreach (var resource in resourcesToAdd)
         {
-            if (!_currentMonitoredResourceIds.Contains(resource.ID()))
-            {
-                var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
-                await monitor.StartMonitoringAsync(monitoringContext, cancellation);
-                _currentMonitoredResourceIds.Add(resource.ID());
-            }
+            var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
+            await monitor.StartMonitoringAsync(monitoringContext, cancellation);
         }
     }
 }

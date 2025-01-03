@@ -8,7 +8,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                             IRestartResourceTracker restartResourceTracker)
 : IResourceMonitor
 {
-    readonly Dictionary<string, WatcherInfo> watcherList = [];
+    readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
     private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
     private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(1);
     int timerstart = 0;
@@ -212,7 +212,23 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         return Task.CompletedTask;
     }
 
-    public class WatcherInfo
+    public Task<IEnumerable<WatcherInfo>> GetWatcherListAsync(CancellationToken cancellation)
+    {
+        var list = watcherList.Values.Where(p => p.Resource != null).Select(watcher => new WatcherInfo
+        {
+            ResourceId = watcher.Resource!.ResourceId,
+            KubeApiVersion = watcher.Resource!.KubeApiVersion,
+            KubeKind = watcher.Resource!.KubeKind,
+            KubeGroup = watcher.Resource!.KubeGroup,
+            KubePluralName = watcher.Resource!.KubePluralName,
+            ReflectionType = watcher.Resource!.ReflectionType,
+            LastActiveTime = watcher.LastActiveTime,
+        });
+
+        return Task.FromResult(list);
+    }
+
+    public class InternalWatcherInfo
     {
         public MonitoringContext? Resource { get; set; }
         public Watcher<object>? Watcher { get; set; }

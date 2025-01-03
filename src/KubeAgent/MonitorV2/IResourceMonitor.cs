@@ -3,7 +3,19 @@ namespace KubeAgent.MonitorV2;
 public interface IResourceMonitor
 {
     Task StartMonitoringAsync(MonitoringContext context, CancellationToken cancellation);
+    Task<IEnumerable<WatcherInfo>> GetWatcherListAsync(CancellationToken cancellation);
     Task StopMonitoringAsync(string resourceId);
+}
+
+public class WatcherInfo
+{
+    public string ResourceId { get; set; } = "";
+    public string KubeApiVersion { get; set; } = "";
+    public string KubeKind { get; set; } = "";
+    public string KubeGroup { get; set; } = "";
+    public string KubePluralName { get; set; } = "";
+    public Type ReflectionType { get; set; } = typeof(GeneralCustomResource);
+    public DateTime LastActiveTime { get; set; }
 }
 
 public class MonitoringContext
@@ -26,7 +38,6 @@ public class MonitoringContext
             KubeKind = resource.KubeKind,
             KubeGroup = resource.KubeGroup,
             KubePluralName = resource.KubePluralName,
-            ResourceVersion = resource.ResourceVersion,
             ReflectionType = resource.ReflectionType,
         };
     }

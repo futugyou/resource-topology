@@ -14,6 +14,7 @@ public class RestartResourceTracker : AbstractChannelProcessor<RestartContext>, 
 
     public async Task<IEnumerable<RestartContext>> GetRestartResources(CancellationToken cancellation)
     {
+        restartResourceList = [];
         await ProcessingData(cancellation);
         return restartResourceList.Values;
     }
