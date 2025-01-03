@@ -40,12 +40,9 @@ public static class Extensions
         builder.Services.AddSingleton<AdditionDiscoveryProvider>();
         builder.Services.AddSingleton<IDiscoveryProvider, OptionDiscoveryProvider>();
         builder.Services.AddSingleton<IDiscoveryProvider>(sp => sp.GetRequiredService<AdditionDiscoveryProvider>());
+        builder.Services.AddSingleton<IAdditionResourceProvider>(sp => sp.GetRequiredService<AdditionDiscoveryProvider>());
 
         builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<Resource>, ProcessorV2.GeneralProcessor>("General");
-        builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<MonitoredResource>, AdditionDiscoveryProvider>(
-            "Custom",
-            (sp, _) => sp.GetRequiredService<AdditionDiscoveryProvider>()
-        );
 
         builder.Services.AddSingleton<MonitorV2.IResourceMonitor, MonitorV2.GeneralMonitor>();
         builder.Services.AddSingleton<MonitorV2.IResourceMonitorManager, MonitorV2.ResourceMonitorManager>();

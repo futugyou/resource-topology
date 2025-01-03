@@ -2,8 +2,7 @@ using System.Threading.Channels;
 
 namespace KubeAgent.ProcessorV2;
 
-
-public abstract class AbstractChannelProcessor<T> : IDataProcessor<T>, IDisposable, IAsyncDisposable
+public abstract class AbstractChannelProcessor<T> : IDisposable, IAsyncDisposable
 {
     readonly Channel<T> channel = Channel.CreateUnbounded<T>();
     private bool _isDisposed = false;

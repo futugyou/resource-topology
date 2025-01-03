@@ -2,13 +2,13 @@ using KubeAgent.ProcessorV2;
 
 namespace KubeAgent.MonitorV2;
 
-public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
- [FromKeyedServices("Custom")] IDataProcessor<MonitoredResource> rewatchProcessor, [FromKeyedServices("General")] IDataProcessor<Resource> processor)
+public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client, IAdditionResourceProvider additionProvider,
+[FromKeyedServices("General")] IDataProcessor<Resource> processor)
 : IResourceMonitor
 {
     readonly Dictionary<string, WatcherInfo> watcherList = [];
     private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
-    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(9);
+    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(1);
     int timerstart = 0;
     static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
     {
@@ -51,7 +51,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     private async Task RestartResource(MonitoringContext context, CancellationToken cancellation)
     {
         var resource = context.ToMonitoredResource();
-        await rewatchProcessor.CollectingData(resource, cancellation);
+        await additionProvider.AddAdditionResource(resource, cancellation);
     }
 
     public Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
@@ -178,7 +178,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                 ReflectionType = typeof(GeneralCustomResource),
             };
 
-            await rewatchProcessor.CollectingData(monitoredResource, cancellation);
+            await additionProvider.AddAdditionResource(monitoredResource, cancellation);
         }
     }
 

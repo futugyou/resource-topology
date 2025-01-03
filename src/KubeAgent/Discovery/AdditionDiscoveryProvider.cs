@@ -1,9 +1,14 @@
 namespace KubeAgent.Discovery;
 
-public class AdditionDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<MonitoredResource>, IDiscoveryProvider
+public class AdditionDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<MonitoredResource>, IDiscoveryProvider, IAdditionResourceProvider
 {
     readonly Dictionary<string, MonitoredResource> monitoredResourceList = [];
     public int Priority => int.MaxValue;
+
+    public Task AddAdditionResource(MonitoredResource resource, CancellationToken cancellation)
+    {
+        return CollectingData(resource, cancellation);
+    }
 
     public async Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
     {
