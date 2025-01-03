@@ -9,7 +9,7 @@ public interface IDataProcessor<T>
     Task Complete(CancellationToken cancellation);
 }
 
-public class AbstractChannelProcessor<T> : IDataProcessor<T>
+public abstract class AbstractChannelProcessor<T> : IDataProcessor<T>
 {
     readonly Channel<T> channel = Channel.CreateUnbounded<T>();
 
@@ -39,8 +39,5 @@ public class AbstractChannelProcessor<T> : IDataProcessor<T>
         }
     }
 
-    protected virtual Task ProcessBatch(List<T> batch, CancellationToken cancellation)
-    {
-        return Task.CompletedTask;
-    }
+    protected abstract Task ProcessBatch(List<T> batch, CancellationToken cancellation);
 }
