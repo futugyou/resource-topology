@@ -1,4 +1,4 @@
-namespace KubeAgent.Services;
+namespace KubeAgent.Discovery;
 
 public interface IDiscoveryProvider
 {

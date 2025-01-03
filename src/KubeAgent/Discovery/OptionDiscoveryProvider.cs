@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace KubeAgent.Services;
+namespace KubeAgent.Discovery;
 
 public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : IDiscoveryProvider
 {

@@ -1,4 +1,5 @@
-namespace KubeAgent.Services;
+namespace KubeAgent.Discovery;
+
 public class ResourceDiscovery(IEnumerable<IDiscoveryProvider> providers) : IResourceDiscovery
 {
     public async Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
