@@ -1,9 +1,9 @@
 namespace KubeAgent.Services;
 
-public class RewatchDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<MonitoredResource>, IDiscoveryProvider
+public class AdditionDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<MonitoredResource>, IDiscoveryProvider
 {
     readonly Dictionary<string, MonitoredResource> monitoredResourceList = [];
-    public int Priority => 2;
+    public int Priority => int.MaxValue;
 
     public async Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
     {
