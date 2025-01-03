@@ -78,10 +78,9 @@ public abstract class AbstractChannelProcessor<T> : IDisposable, IAsyncDisposabl
         }
         _isDisposed = true;
 
-        channel.Writer.Complete();
-
         try
         {
+            channel.Writer.Complete();
             await channel.Reader.Completion;
         }
         catch (Exception ex)
@@ -91,4 +90,9 @@ public abstract class AbstractChannelProcessor<T> : IDisposable, IAsyncDisposabl
 
         GC.SuppressFinalize(this);
     }
+
+    // ~AbstractChannelProcessor()
+    // {
+    //     Dispose(false);
+    // }
 }

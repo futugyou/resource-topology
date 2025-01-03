@@ -42,6 +42,8 @@ public static class Extensions
         builder.Services.AddSingleton<IDiscoveryProvider>(sp => sp.GetRequiredService<AdditionDiscoveryProvider>());
         builder.Services.AddSingleton<IAdditionResourceProvider>(sp => sp.GetRequiredService<AdditionDiscoveryProvider>());
 
+        builder.Services.AddSingleton<IRestartResourceTracker, RestartResourceTracker>();
+
         builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<Resource>, ProcessorV2.GeneralProcessor>("General");
 
         builder.Services.AddSingleton<MonitorV2.IResourceMonitor, MonitorV2.GeneralMonitor>();

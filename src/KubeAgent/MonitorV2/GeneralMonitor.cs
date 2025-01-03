@@ -2,8 +2,10 @@ using KubeAgent.ProcessorV2;
 
 namespace KubeAgent.MonitorV2;
 
-public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client, IAdditionResourceProvider additionProvider,
-[FromKeyedServices("General")] IDataProcessor<Resource> processor)
+public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
+                            IAdditionResourceProvider additionProvider,
+                            [FromKeyedServices("General")] IDataProcessor<Resource> processor,
+                            IRestartResourceTracker restartResourceTracker)
 : IResourceMonitor
 {
     readonly Dictionary<string, WatcherInfo> watcherList = [];
@@ -50,8 +52,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client, 
 
     private async Task RestartResource(MonitoringContext context, CancellationToken cancellation)
     {
-        var resource = context.ToMonitoredResource();
-        await additionProvider.AddAdditionResource(resource, cancellation);
+        await restartResourceTracker.AddRestartResource(new RestartContext { ResourceId = context.ResourceId }, cancellation);
     }
 
     public Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
