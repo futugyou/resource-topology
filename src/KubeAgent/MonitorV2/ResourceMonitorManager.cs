@@ -23,7 +23,8 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
         {
             await monitor.StopMonitoringAsync(resource.ID());
             resource.Operate = "add";
-            await monitor.StartMonitoringAsync(resource, cancellation);
+            var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
+            await monitor.StartMonitoringAsync(monitoringContext, cancellation);
             _currentMonitoredResourceIds.Add(resource.ID());
         }
 
@@ -31,7 +32,8 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
         {
             if (!_currentMonitoredResourceIds.Contains(resource.ID()))
             {
-                await monitor.StartMonitoringAsync(resource, cancellation);
+                var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
+                await monitor.StartMonitoringAsync(monitoringContext, cancellation);
                 _currentMonitoredResourceIds.Add(resource.ID());
             }
         }

@@ -48,13 +48,13 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
     }
 
-    private async Task RestartResource(MonitoredResource resource, CancellationToken cancellation)
+    private async Task RestartResource(MonitoringContext context, CancellationToken cancellation)
     {
-        resource.Operate = "restart";
+        var resource = context.ToMonitoredResource();
         await rewatchProcessor.CollectingData(resource, cancellation);
     }
 
-    public Task StartMonitoringAsync(MonitoredResource resource, CancellationToken cancellation)
+    public Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
     {
         StartInactiveCheckTask(cancellation);
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
@@ -89,15 +89,15 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                 logger.LogInformation("closed: {group} {version} {plural}", resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName);
             });
 
-        watcherList[resource.ID()] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now }; ;
+        watcherList[resource.ResourceId] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now }; ;
         return Task.CompletedTask;
     }
 
-    private async Task OnEvent(MonitoredResource resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
+    private async Task OnEvent(MonitoringContext resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
     {
         if (watchEventType == WatchEventType.Error)
         {
-            logger.LogError("OnEvent error: {resource} {error}", resource.ID(), item);
+            logger.LogError("OnEvent error: {resource} {error}", resource.ResourceId, item);
             return;
         }
 
@@ -107,7 +107,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
             {
-                logger.LogWarning("OnEvent warning: watching type is not a  IKubernetesObject<V1ObjectMeta> {resource}", resource.ID());
+                logger.LogWarning("OnEvent warning: watching type is not a  IKubernetesObject<V1ObjectMeta> {resource}", resource.ResourceId);
                 return;
             }
 
@@ -129,7 +129,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
         catch (Exception ex)
         {
-            logger.LogError("OnEvent error: {resource} {error}", resource.ID(), (ex.InnerException ?? ex).Message);
+            logger.LogError("OnEvent error: {resource} {error}", resource.ResourceId, (ex.InnerException ?? ex).Message);
         }
     }
 
@@ -144,9 +144,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         logger.LogInformation("event: {type} {kind} {name}", watchEventType, kubernetesObject.Kind, kubernetesObject.Name());
     }
 
-    private void HandleWatcherList(MonitoredResource resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
+    private void HandleWatcherList(MonitoringContext resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
     {
-        if (watcherList.TryGetValue(resource.ID(), out var watcher))
+        if (watcherList.TryGetValue(resource.ResourceId, out var watcher))
         {
             resource.ResourceVersion = kubernetesObject.ResourceVersion();
             watcher.Resource = resource;
@@ -210,11 +210,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         logger.LogInformation("stop monitoring: {resourceId}", resourceId);
         return Task.CompletedTask;
     }
-}
 
-public class WatcherInfo
-{
-    public MonitoredResource? Resource { get; set; }
-    public Watcher<object>? Watcher { get; set; }
-    public DateTime LastActiveTime { get; set; }
+    public class WatcherInfo
+    {
+        public MonitoringContext? Resource { get; set; }
+        public Watcher<object>? Watcher { get; set; }
+        public DateTime LastActiveTime { get; set; }
+    }
 }
