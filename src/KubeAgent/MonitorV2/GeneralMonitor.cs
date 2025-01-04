@@ -6,7 +6,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                             IAdditionResourceProvider additionProvider,
                             [FromKeyedServices("General")] IDataProcessor<Resource> processor,
                             IRestartResourceTracker restartResourceTracker)
-: IResourceMonitor
+: IResourceMonitor, IDisposable
 {
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
     private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
@@ -226,6 +226,24 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
         return Task.FromResult(list);
     }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            foreach (var watcher in watcherList.Values)
+            {
+                watcher.Watcher?.Dispose();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
 
     public class InternalWatcherInfo
     {
