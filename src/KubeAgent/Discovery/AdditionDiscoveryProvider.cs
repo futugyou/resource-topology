@@ -13,7 +13,15 @@ public class AdditionDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<
     public async Task<IEnumerable<MonitoredResource>> GetMonitoredResourcesAsync(CancellationToken cancellation)
     {
         await ProcessingData(cancellation);
-        return monitoredResourceList.Values;
+        return monitoredResourceList.Values
+        .Select(r =>
+        {
+            if (string.IsNullOrEmpty(r.Source))
+            {
+                r.Source = nameof(AdditionDiscoveryProvider);
+            }
+            return r;
+        });
     }
 
     override protected Task ProcessBatch(List<MonitoredResource> batch, CancellationToken cancellation)

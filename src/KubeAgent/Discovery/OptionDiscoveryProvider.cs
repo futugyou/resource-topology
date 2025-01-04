@@ -35,6 +35,7 @@ public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : 
                 KubeKind = fieldValues.GetValueOrDefault("KubeKind") ?? "",
                 KubeGroup = fieldValues.GetValueOrDefault("KubeGroup") ?? "",
                 KubePluralName = fieldValues.GetValueOrDefault("KubePluralName") ?? "",
+                Source = "Configurations",
                 ReflectionType = type,
             };
 
