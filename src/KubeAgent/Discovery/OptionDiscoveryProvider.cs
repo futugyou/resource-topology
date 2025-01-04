@@ -4,7 +4,6 @@ namespace KubeAgent.Discovery;
 
 public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : IDiscoveryProvider
 {
-    Dictionary<string, MonitoredResource> monitoredResourceList = [];
     public int Priority => 1;
 
     static Dictionary<string, MonitoredResource> ResourceList()
@@ -65,24 +64,6 @@ public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : 
             .Where(p => monitorableResources.Contains(p.Key))
             .ToDictionary(p => p.Key, p => p.Value);
 
-        if (monitoredResourceList.Count == 0)
-        {
-            monitoredResourceList = new Dictionary<string, MonitoredResource>(currentWatchList);
-            return Task.FromResult<IEnumerable<MonitoredResource>>(currentWatchList.Values);
-        }
-
-        var deletedResources = monitoredResourceList
-            .Where(kv => !currentWatchList.ContainsKey(kv.Key))
-            .Select(kv =>
-            {
-                kv.Value.Operate = "delete"; 
-                return kv.Value;
-            });
-
-        var combinedWatchList = currentWatchList.Values.Concat(deletedResources).ToList();
-
-        monitoredResourceList = new Dictionary<string, MonitoredResource>(currentWatchList);
-
-        return Task.FromResult<IEnumerable<MonitoredResource>>(combinedWatchList);
+        return Task.FromResult<IEnumerable<MonitoredResource>>(currentWatchList.Values);
     }
 }
