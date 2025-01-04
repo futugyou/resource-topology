@@ -174,8 +174,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                 KubeKind = crd.Spec.Names.Kind,
                 KubeGroup = crd.Spec.Group,
                 KubePluralName = crd.Spec.Names.Plural,
-                ResourceVersion = null,
-                Operate = "add",
                 ReflectionType = typeof(GeneralCustomResource),
             };
 

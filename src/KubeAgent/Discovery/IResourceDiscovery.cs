@@ -12,9 +12,7 @@ public class MonitoredResource
     public string KubeGroup { get; set; } = "";
     public string KubePluralName { get; set; } = "";
     public required Type ReflectionType { get; set; }
-    public string? ResourceVersion { get; set; }
-    public string Operate { get; set; } = "add";
-    
+
     public string ID()
     {
         return $"{KubePluralName}/{KubeKind}/{KubeGroup}/{KubeApiVersion}";

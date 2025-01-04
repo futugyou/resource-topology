@@ -50,7 +50,6 @@ public class MonitoringContext
             KubeKind = KubeKind,
             KubeGroup = KubeGroup,
             KubePluralName = KubePluralName,
-            ResourceVersion = ResourceVersion,
             ReflectionType = ReflectionType,
         };
     }
