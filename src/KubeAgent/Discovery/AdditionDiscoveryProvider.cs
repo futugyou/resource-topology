@@ -24,6 +24,12 @@ public class AdditionDiscoveryProvider() : ProcessorV2.AbstractChannelProcessor<
         });
     }
 
+    public Task RemoveAdditionResource(string resourceId, CancellationToken cancellation)
+    {
+        monitoredResourceList.Remove(resourceId);
+        return Task.CompletedTask;
+    }
+
     override protected Task ProcessBatch(List<MonitoredResource> batch, CancellationToken cancellation)
     {
         foreach (var resource in batch)
