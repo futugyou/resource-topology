@@ -44,7 +44,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (now - watcher.LastActiveTime > _inactiveThreshold)
             {
-                logger.MonitorTimeout(watcher.Resource.ResourceId);
+                logger.MonitorTimeout(watcher.Resource.ResourceId());
                 await RestartResource(watcher.Resource, cancellation);
             }
         }
@@ -52,7 +52,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private async Task RestartResource(MonitoringContext context, CancellationToken cancellation)
     {
-        await restartResourceTracker.AddRestartResource(new RestartContext { ResourceId = context.ResourceId }, cancellation);
+        await restartResourceTracker.AddRestartResource(new RestartContext { ResourceId = context.ResourceId() }, cancellation);
     }
 
     public Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
@@ -82,17 +82,17 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                     }
                 }
 
-                logger.MonitorReceiveError(resource.ResourceId, ex);
+                logger.MonitorReceiveError(resource.ResourceId(), ex);
                 // TODO: It has not yet been determined which errors require a restart. 
                 await RestartResource(resource, cancellation);
             },
             onClosed: () =>
             {
-                logger.MonitorOnClosed(resource.ResourceId);
+                logger.MonitorOnClosed(resource.ResourceId());
             });
 
-        watcherList[resource.ResourceId] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now };
-        logger.MonitorAdded(resource.ResourceId);
+        watcherList[resource.ResourceId()] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now };
+        logger.MonitorAdded(resource.ResourceId());
         return Task.CompletedTask;
     }
 
@@ -100,7 +100,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     {
         if (watchEventType == WatchEventType.Error)
         {
-            logger.MonitorOnEventError(resource.ResourceId);
+            logger.MonitorOnEventError(resource.ResourceId());
             return;
         }
 
@@ -110,7 +110,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
             {
-                logger.MonitorOnEventTypeError(resource.ResourceId);
+                logger.MonitorOnEventTypeError(resource.ResourceId());
                 return;
             }
 
@@ -132,7 +132,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
         catch (Exception ex)
         {
-            logger.MonitorOnEventHandlingError(resource.ResourceId, ex);
+            logger.MonitorOnEventHandlingError(resource.ResourceId(), ex);
         }
     }
 
@@ -144,12 +144,12 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     private void LogEvent(WatchEventType watchEventType, MonitoringContext resource)
     {
-        logger.MonitorOnEventProcessing(resource.ResourceId, watchEventType);
+        logger.MonitorOnEventProcessing(resource.ResourceId(), watchEventType);
     }
 
     private void HandleWatcherList(MonitoringContext resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
     {
-        if (watcherList.TryGetValue(resource.ResourceId, out var watcher))
+        if (watcherList.TryGetValue(resource.ResourceId(), out var watcher))
         {
             resource.ResourceVersion = kubernetesObject.ResourceVersion();
             watcher.Resource = resource;
@@ -218,7 +218,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     {
         var list = watcherList.Values.Where(p => p.Resource != null).Select(watcher => new WatcherInfo
         {
-            ResourceId = watcher.Resource!.ResourceId,
+            ResourceId = watcher.Resource!.ResourceId(),
             KubeApiVersion = watcher.Resource!.KubeApiVersion,
             KubeKind = watcher.Resource!.KubeKind,
             KubeGroup = watcher.Resource!.KubeGroup,

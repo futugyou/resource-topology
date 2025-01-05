@@ -20,6 +20,17 @@ public class MonitoredResource
 
     public string ID()
     {
-        return $"{KubePluralName}/{KubeKind}/{KubeGroup}/{KubeApiVersion}";
+        var sb = new StringBuilder();
+
+        sb.Append(KubePluralName ?? "");
+        sb.Append('/');
+        sb.Append(KubeKind ?? "");
+        sb.Append('/');
+        sb.Append(KubeGroup ?? "");
+        sb.Append('/');
+        sb.Append(KubeApiVersion ?? "");
+        sb.Append('/');
+
+        return sb.ToString();
     }
 }

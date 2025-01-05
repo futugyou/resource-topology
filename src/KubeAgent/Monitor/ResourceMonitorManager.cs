@@ -30,7 +30,6 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
                 await monitor.StopMonitoringAsync(res.ResourceId);
                 var monitoringContext = new MonitoringContext
                 {
-                    ResourceId = res.ResourceId,
                     KubeApiVersion = res.KubeApiVersion,
                     KubeKind = res.KubeKind,
                     KubeGroup = res.KubeGroup,

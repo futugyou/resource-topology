@@ -20,20 +20,37 @@ public class WatcherInfo
 
 public class MonitoringContext
 {
-    public string ResourceId { get; set; } = "";
     public string KubeApiVersion { get; set; } = "";
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
     public string KubePluralName { get; set; } = "";
+    public string Namespace { get; set; } = "";
     public string? ResourceVersion { get; set; }
     public Type ReflectionType { get; set; } = typeof(GeneralCustomResource);
     public DateTime MonitoringStartTime { get; set; } = DateTime.UtcNow;
+
+
+    public string ResourceId()
+    {
+        var sb = new StringBuilder();
+
+        sb.Append(KubePluralName ?? "");
+        sb.Append('/');
+        sb.Append(KubeKind ?? "");
+        sb.Append('/');
+        sb.Append(KubeGroup ?? "");
+        sb.Append('/');
+        sb.Append(KubeApiVersion ?? "");
+        sb.Append('/');
+        sb.Append(Namespace ?? "");
+
+        return sb.ToString();
+    }
 
     public static MonitoringContext FromMonitoredResource(MonitoredResource resource)
     {
         return new MonitoringContext
         {
-            ResourceId = resource.ID(),
             KubeApiVersion = resource.KubeApiVersion,
             KubeKind = resource.KubeKind,
             KubeGroup = resource.KubeGroup,
