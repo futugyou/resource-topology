@@ -10,7 +10,7 @@ public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<Ag
         while (!stoppingToken.IsCancellationRequested)
         {
             var serviceOption = optionsMonitor.CurrentValue!;
-            logger.LogInformation("kube processor worker running at: {time}", DateTimeOffset.Now);
+            logger.ProcessorWorkerRunning(DateTimeOffset.Now);
 
             try
             {
@@ -18,10 +18,10 @@ public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<Ag
             }
             catch (Exception ex)
             {
-                logger.LogError("kube processor worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
+                logger.ProcessorWorkerError(DateTimeOffset.Now, ex);
             }
 
-            logger.LogInformation("kube processor worker end at: {time}", DateTimeOffset.Now);
+            logger.ProcessorWorkerEnd(DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
@@ -30,6 +30,6 @@ public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<Ag
     {
         await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
-        logger.LogInformation("kube processor worker stop at: {time}", DateTimeOffset.Now);
+        logger.ProcessorWorkerStop(DateTimeOffset.Now);
     }
 }

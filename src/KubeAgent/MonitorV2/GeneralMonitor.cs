@@ -10,7 +10,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 {
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
     private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(45);
-    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(1);
+    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(9);
     int timerstart = 0;
     static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
     {
@@ -45,6 +45,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (now - watcher.LastActiveTime > _inactiveThreshold)
             {
+                logger.MonitorTimeout(watcher.Resource.ResourceId);
                 await RestartResource(watcher.Resource, cancellation);
             }
         }
@@ -82,15 +83,17 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                     }
                 }
 
+                logger.MonitorReceiveError(resource.ResourceId, ex);
                 // TODO: It has not yet been determined which errors require a restart. 
                 await RestartResource(resource, cancellation);
             },
             onClosed: () =>
             {
-                logger.LogInformation("closed: {group} {version} {plural}", resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName);
+                logger.MonitorOnClosed(resource.ResourceId);
             });
 
-        watcherList[resource.ResourceId] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now }; ;
+        watcherList[resource.ResourceId] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now };
+        logger.MonitorAdded(resource.ResourceId);
         return Task.CompletedTask;
     }
 
@@ -98,7 +101,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     {
         if (watchEventType == WatchEventType.Error)
         {
-            logger.LogError("OnEvent error: {resource} {error}", resource.ResourceId, item);
+            logger.MonitorOnEventError(resource.ResourceId);
             return;
         }
 
@@ -108,11 +111,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
             if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
             {
-                logger.LogWarning("OnEvent warning: watching type is not a  IKubernetesObject<V1ObjectMeta> {resource}", resource.ResourceId);
+                logger.MonitorOnEventTypeError(resource.ResourceId);
                 return;
             }
 
-            LogEvent(watchEventType, kubernetesObject);
+            LogEvent(watchEventType, resource);
 
             HandleWatcherList(resource, kubernetesObject, watchEventType);
 
@@ -130,7 +133,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         }
         catch (Exception ex)
         {
-            logger.LogError("OnEvent error: {resource} {error}", resource.ResourceId, (ex.InnerException ?? ex).Message);
+            logger.MonitorOnEventHandlingError(resource.ResourceId, ex);
         }
     }
 
@@ -140,9 +143,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         return JsonSerializer.Deserialize(json, targetType);
     }
 
-    private void LogEvent(WatchEventType watchEventType, IKubernetesObject<V1ObjectMeta> kubernetesObject)
+    private void LogEvent(WatchEventType watchEventType, MonitoringContext resource)
     {
-        logger.LogInformation("event: {type} {kind} {name}", watchEventType, kubernetesObject.Kind, kubernetesObject.Name());
+        logger.MonitorOnEventProcessing(resource.ResourceId, watchEventType);
     }
 
     private void HandleWatcherList(MonitoringContext resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
@@ -206,8 +209,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         {
             watcherInfo.Watcher?.Dispose();
             watcherList.Remove(resourceId);
+            logger.MonitorStoped(resourceId);
         }
-        logger.LogInformation("stop monitoring: {resourceId}", resourceId);
+
         return Task.CompletedTask;
     }
 

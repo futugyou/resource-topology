@@ -68,10 +68,10 @@ public class GeneralProcessor : IDataProcessor<Resource>, IDisposable, IAsyncDis
 
     private Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
     {
-        //TODO
-        logger.LogInformation("processing batch with {count} items.", batch.Count);
+        logger.ProcessBatch(batch.Count);
         foreach (var res in batch)
         {
+            //TODO finish processing
             logger.LogInformation("resource processor handling: {kind} {name} {operate}", res.Kind, res.Name, res.Operate);
         }
         return Task.CompletedTask;
@@ -116,7 +116,7 @@ public class GeneralProcessor : IDataProcessor<Resource>, IDisposable, IAsyncDis
         }
         catch (Exception ex)
         {
-            logger.LogError("Error during async disposal: {message}", ex.Message);
+            logger.ProcessDisposeError(ex);
         }
 
         GC.SuppressFinalize(this);

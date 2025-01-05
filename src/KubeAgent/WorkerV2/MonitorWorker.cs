@@ -10,7 +10,7 @@ public class MonitorWorker(ILogger<MonitorWorker> logger, IOptionsMonitor<AgentO
         while (!stoppingToken.IsCancellationRequested)
         {
             var serviceOption = optionsMonitor.CurrentValue!;
-            logger.LogInformation("resource worker running at: {time}", DateTimeOffset.Now);
+            logger.MonitorWorkerRunning(DateTimeOffset.Now);
 
             try
             {
@@ -18,10 +18,10 @@ public class MonitorWorker(ILogger<MonitorWorker> logger, IOptionsMonitor<AgentO
             }
             catch (Exception ex)
             {
-                logger.LogError("resource worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
+                logger.MonitorWorkerError(DateTimeOffset.Now, ex);
             }
 
-            logger.LogInformation("resource worker end at: {time}", DateTimeOffset.Now);
+            logger.MonitorWorkerEnd(DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
@@ -29,6 +29,6 @@ public class MonitorWorker(ILogger<MonitorWorker> logger, IOptionsMonitor<AgentO
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
-        logger.LogInformation("resource worker stop at: {time}", DateTimeOffset.Now);
+        logger.MonitorWorkerStop(DateTimeOffset.Now);
     }
 }
