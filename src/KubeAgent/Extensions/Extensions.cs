@@ -26,16 +26,6 @@ public static class Extensions
             return new Kubernetes(kubernetesClientConfig);
         });
 
-        // builder.Services.AddHostedService<ProcessorWorker>();
-        // builder.Services.AddHostedService<OfficialResourceWatchWorker>();
-        // builder.Services.AddHostedService<CustomResourceWatchWorker>();
-
-        // builder.Services.AddKeyedSingleton<IResourceProcessor, GeneralProcessor>("General");
-        // builder.Services.AddKeyedSingleton<IResourceProcessor, CustomResourceProcessor>("Custom");
-
-        // builder.Services.AddSingleton<IResourceMonitor, GeneralMonitorV2>();
-
-
         builder.Services.AddSingleton<IResourceDiscovery, ResourceDiscovery>();
         builder.Services.AddSingleton<AdditionDiscoveryProvider>();
         builder.Services.AddSingleton<IDiscoveryProvider, OptionDiscoveryProvider>();
@@ -44,12 +34,12 @@ public static class Extensions
 
         builder.Services.AddSingleton<IRestartResourceTracker, RestartResourceTracker>();
 
-        builder.Services.AddKeyedSingleton<ProcessorV2.IDataProcessor<Resource>, ProcessorV2.GeneralProcessor>("General");
+        builder.Services.AddKeyedSingleton<IDataProcessor<Resource>, GeneralProcessor>("General");
 
-        builder.Services.AddSingleton<MonitorV2.IResourceMonitor, MonitorV2.GeneralMonitor>();
-        builder.Services.AddSingleton<MonitorV2.IResourceMonitorManager, MonitorV2.ResourceMonitorManager>();
-        builder.Services.AddHostedService<WorkerV2.MonitorWorker>();
-        builder.Services.AddHostedService<WorkerV2.ProcessorWorker>();
+        builder.Services.AddSingleton<IResourceMonitor, GeneralMonitor>();
+        builder.Services.AddSingleton<IResourceMonitorManager, ResourceMonitorManager>();
+        builder.Services.AddHostedService<MonitorWorker>();
+        builder.Services.AddHostedService<ProcessorWorker>();
 
         return builder;
     }

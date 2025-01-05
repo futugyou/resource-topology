@@ -1,14 +1,16 @@
 
-namespace KubeAgent.Worker;
+using KubeAgent.V1.Processor;
 
-public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("General")] IDataProcessor<Resource> processor) : BackgroundService
+namespace KubeAgent.V1.Worker;
+
+public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<AgentOptions> optionsMonitor, [FromKeyedServices("General")] IResourceProcessor processor) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             var serviceOption = optionsMonitor.CurrentValue!;
-            logger.ProcessorWorkerRunning(DateTimeOffset.Now);
+            logger.LogInformation("kube processor worker running at: {time}", DateTimeOffset.Now);
 
             try
             {
@@ -16,10 +18,10 @@ public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<Ag
             }
             catch (Exception ex)
             {
-                logger.ProcessorWorkerError(DateTimeOffset.Now, ex);
+                logger.LogError("kube processor worker running at: {time}, and get an error: {error}", DateTimeOffset.Now, (ex.InnerException ?? ex).Message);
             }
 
-            logger.ProcessorWorkerEnd(DateTimeOffset.Now);
+            logger.LogInformation("kube processor worker end at: {time}", DateTimeOffset.Now);
             await Task.Delay(1000 * serviceOption.WorkerInterval, stoppingToken);
         }
     }
@@ -28,6 +30,6 @@ public class ProcessorWorker(ILogger<ProcessorWorker> logger, IOptionsMonitor<Ag
     {
         await processor.Complete(cancellationToken);
         await base.StopAsync(cancellationToken);
-        logger.ProcessorWorkerStop(DateTimeOffset.Now);
+        logger.LogInformation("kube processor worker stop at: {time}", DateTimeOffset.Now);
     }
 }

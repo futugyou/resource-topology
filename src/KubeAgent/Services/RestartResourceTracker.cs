@@ -1,6 +1,4 @@
 
-using KubeAgent.ProcessorV2;
-
 namespace KubeAgent.Services;
 
 public class RestartResourceTracker : AbstractChannelProcessor<RestartContext>, IRestartResourceTracker
