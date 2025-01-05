@@ -4,7 +4,8 @@ namespace KubeAgent.Monitor;
 public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
                             IAdditionResourceProvider additionProvider,
                             [FromKeyedServices("General")] IDataProcessor<Resource> processor,
-                            IRestartResourceTracker restartResourceTracker)
+                            IRestartResourceTracker restartResourceTracker,
+                            IMapper mapper)
 : IResourceMonitor, IDisposable
 {
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
@@ -241,7 +242,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
     {
         var list = watcherList.Values.Where(p => p.Resource != null).Select(watcher =>
         {
-            var info = watcher.Resource!.ToWatcherInfo();
+            var info = mapper.Map<WatcherInfo>(watcher.Resource!);
             info.LastActiveTime = watcher.LastActiveTime;
             return info;
         });

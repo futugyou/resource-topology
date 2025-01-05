@@ -48,53 +48,57 @@ public class MonitoringContext
         return sb.ToString();
     }
 
-    public static MonitoringContext FromMonitoredResource(MonitoredResource resource)
-    {
-        return new MonitoringContext
-        {
-            KubeApiVersion = resource.KubeApiVersion,
-            KubeKind = resource.KubeKind,
-            KubeGroup = resource.KubeGroup,
-            KubePluralName = resource.KubePluralName,
-            ReflectionType = resource.ReflectionType,
-        };
-    }
-    public static MonitoringContext FromWatcherInfo(WatcherInfo resource)
-    {
-        return new MonitoringContext
-        {
-            KubeApiVersion = resource.KubeApiVersion,
-            KubeKind = resource.KubeKind,
-            KubeGroup = resource.KubeGroup,
-            KubePluralName = resource.KubePluralName,
-            ReflectionType = resource.ReflectionType,
-        };
-    }
+    // public static MonitoringContext FromMonitoredResource(MonitoredResource resource)
+    // {
+    //     return new MonitoringContext
+    //     {
+    //         KubeApiVersion = resource.KubeApiVersion,
+    //         KubeKind = resource.KubeKind,
+    //         KubeGroup = resource.KubeGroup,
+    //         KubePluralName = resource.KubePluralName,
+    //         Namespace = resource.Namespace,
+    //         ReflectionType = resource.ReflectionType,
+    //     };
+    // }
+    // public static MonitoringContext FromWatcherInfo(WatcherInfo resource)
+    // {
+    //     return new MonitoringContext
+    //     {
+    //         KubeApiVersion = resource.KubeApiVersion,
+    //         KubeKind = resource.KubeKind,
+    //         KubeGroup = resource.KubeGroup,
+    //         KubePluralName = resource.KubePluralName,
+    //         ReflectionType = resource.ReflectionType,
+    //         Namespace = resource.Namespace
+    //     };
+    // }
 
-    public WatcherInfo ToWatcherInfo()
-    {
-        return new WatcherInfo
-        {
-            ResourceId = ResourceId(),
-            KubeApiVersion = KubeApiVersion,
-            KubeKind = KubeKind,
-            KubeGroup = KubeGroup,
-            KubePluralName = KubePluralName,
-            ReflectionType = ReflectionType,
-        };
-    }
+    // public WatcherInfo ToWatcherInfo()
+    // {
+    //     return new WatcherInfo
+    //     {
+    //         ResourceId = ResourceId(),
+    //         KubeApiVersion = KubeApiVersion,
+    //         KubeKind = KubeKind,
+    //         KubeGroup = KubeGroup,
+    //         KubePluralName = KubePluralName,
+    //         ReflectionType = ReflectionType,
+    //         Namespace = Namespace,
+    //     };
+    // }
 
-    public MonitoredResource ToMonitoredResource()
-    {
-        return new MonitoredResource
-        {
-            KubeApiVersion = KubeApiVersion,
-            KubeKind = KubeKind,
-            KubeGroup = KubeGroup,
-            KubePluralName = KubePluralName,
-            ReflectionType = ReflectionType,
-        };
-    }
+    // public MonitoredResource ToMonitoredResource()
+    // {
+    //     return new MonitoredResource
+    //     {
+    //         KubeApiVersion = KubeApiVersion,
+    //         KubeKind = KubeKind,
+    //         KubeGroup = KubeGroup,
+    //         KubePluralName = KubePluralName,
+    //         ReflectionType = ReflectionType,
+    //         Namespace = Namespace,
+    //     };
+    // }
 }
 
 public class GeneralCustomResource : IKubernetesObject<V1ObjectMeta>

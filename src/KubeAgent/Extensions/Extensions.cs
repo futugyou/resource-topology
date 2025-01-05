@@ -1,3 +1,4 @@
+
 namespace KubeAgent.Extensions;
 
 public static class Extensions
@@ -5,6 +6,9 @@ public static class Extensions
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        
+        builder.Services.AddAutoMapper(typeof(Program));
+        AutoMapperConfig.RegisterMapper();
 
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddOptions<MonitorSetting>().Bind(builder.Configuration.GetSection(nameof(MonitorSetting)));

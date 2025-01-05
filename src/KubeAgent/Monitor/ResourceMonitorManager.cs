@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Monitor;
 
-public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonitor monitor, IRestartResourceTracker restartResourceTracker) : IResourceMonitorManager
+public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonitor monitor, IRestartResourceTracker restartResourceTracker, IMapper mapper) : IResourceMonitorManager
 {
 
     public async Task MonitorResource(CancellationToken cancellation)
@@ -28,14 +28,14 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
             if (res != null)
             {
                 await monitor.StopMonitoringAsync(res.ResourceId);
-                var monitoringContext = MonitoringContext.FromWatcherInfo(res);
+                var monitoringContext = mapper.Map<MonitoringContext>(res);
                 await monitor.StartMonitoringAsync(monitoringContext, cancellation);
             }
         }
 
         foreach (var resource in resourcesToAdd)
         {
-            var monitoringContext = MonitoringContext.FromMonitoredResource(resource);
+            var monitoringContext = mapper.Map<MonitoringContext>(resource);
             await monitor.StartMonitoringAsync(monitoringContext, cancellation);
         }
     }

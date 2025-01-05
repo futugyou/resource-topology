@@ -15,6 +15,7 @@ public class MonitoredResource
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
     public string KubePluralName { get; set; } = "";
+    public string Namespace { get; set; } = "";
     public required Type ReflectionType { get; set; }
     public string Source { get; set; } = "Configurations";
 
@@ -30,6 +31,7 @@ public class MonitoredResource
         sb.Append('/');
         sb.Append(KubeApiVersion ?? "");
         sb.Append('/');
+        sb.Append(Namespace ?? "");
 
         return sb.ToString();
     }
