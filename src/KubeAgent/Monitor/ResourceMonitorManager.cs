@@ -28,14 +28,7 @@ public class ResourceMonitorManager(IResourceDiscovery discovery, IResourceMonit
             if (res != null)
             {
                 await monitor.StopMonitoringAsync(res.ResourceId);
-                var monitoringContext = new MonitoringContext
-                {
-                    KubeApiVersion = res.KubeApiVersion,
-                    KubeKind = res.KubeKind,
-                    KubeGroup = res.KubeGroup,
-                    KubePluralName = res.KubePluralName,
-                    ReflectionType = res.ReflectionType
-                };
+                var monitoringContext = MonitoringContext.FromWatcherInfo(res);
                 await monitor.StartMonitoringAsync(monitoringContext, cancellation);
             }
         }

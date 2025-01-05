@@ -61,8 +61,31 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var childToken = childCts.Token;
 
-        var resources = client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync(resource.KubeGroup, resource.KubeApiVersion, resource.KubePluralName,
-        watch: true, allowWatchBookmarks: true, resourceVersion: resource.ResourceVersion, cancellationToken: cancellation);
+        Task<HttpOperationResponse<object>>? resources = null;
+        if (string.IsNullOrWhiteSpace(resource.Namespace))
+        {
+            resources = client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync(
+                group: resource.KubeGroup,
+                version: resource.KubeApiVersion,
+                plural: resource.KubePluralName,
+                watch: true,
+                allowWatchBookmarks: true,
+                resourceVersion: resource.ResourceVersion,
+                cancellationToken: cancellation);
+        }
+        else
+        {
+            resources = client.CustomObjects.ListNamespacedCustomObjectWithHttpMessagesAsync(
+                group: resource.KubeGroup,
+                version: resource.KubeApiVersion,
+                namespaceParameter: resource.Namespace,
+                plural: resource.KubePluralName,
+                watch: true,
+                allowWatchBookmarks: true,
+                resourceVersion: resource.ResourceVersion,
+                cancellationToken: cancellation);
+        }
+
         var watcher = resources.Watch(
             onEvent: (Action<WatchEventType, object>)(async (type, item) =>
             {
@@ -216,15 +239,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client,
 
     public Task<IEnumerable<WatcherInfo>> GetWatcherListAsync(CancellationToken cancellation)
     {
-        var list = watcherList.Values.Where(p => p.Resource != null).Select(watcher => new WatcherInfo
+        var list = watcherList.Values.Where(p => p.Resource != null).Select(watcher =>
         {
-            ResourceId = watcher.Resource!.ResourceId(),
-            KubeApiVersion = watcher.Resource!.KubeApiVersion,
-            KubeKind = watcher.Resource!.KubeKind,
-            KubeGroup = watcher.Resource!.KubeGroup,
-            KubePluralName = watcher.Resource!.KubePluralName,
-            ReflectionType = watcher.Resource!.ReflectionType,
-            LastActiveTime = watcher.LastActiveTime,
+            var info = watcher.Resource!.ToWatcherInfo();
+            info.LastActiveTime = watcher.LastActiveTime;
+            return info;
         });
 
         return Task.FromResult(list);

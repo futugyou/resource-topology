@@ -14,6 +14,7 @@ public class WatcherInfo
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
     public string KubePluralName { get; set; } = "";
+    public string Namespace { get; set; } = "";
     public Type ReflectionType { get; set; } = typeof(GeneralCustomResource);
     public DateTime LastActiveTime { get; set; }
 }
@@ -56,6 +57,30 @@ public class MonitoringContext
             KubeGroup = resource.KubeGroup,
             KubePluralName = resource.KubePluralName,
             ReflectionType = resource.ReflectionType,
+        };
+    }
+    public static MonitoringContext FromWatcherInfo(WatcherInfo resource)
+    {
+        return new MonitoringContext
+        {
+            KubeApiVersion = resource.KubeApiVersion,
+            KubeKind = resource.KubeKind,
+            KubeGroup = resource.KubeGroup,
+            KubePluralName = resource.KubePluralName,
+            ReflectionType = resource.ReflectionType,
+        };
+    }
+
+    public WatcherInfo ToWatcherInfo()
+    {
+        return new WatcherInfo
+        {
+            ResourceId = ResourceId(),
+            KubeApiVersion = KubeApiVersion,
+            KubeKind = KubeKind,
+            KubeGroup = KubeGroup,
+            KubePluralName = KubePluralName,
+            ReflectionType = ReflectionType,
         };
     }
 
