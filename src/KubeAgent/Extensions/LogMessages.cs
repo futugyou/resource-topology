@@ -34,10 +34,10 @@ public static partial class LogMessages
     public static partial void AdditionResourceAdded(this ILogger logger, string id);
 
 
-    [LoggerMessage(EventId = 4001, Message = "addition monitor resource {id} have been added", Level = LogLevel.Information)]
+    [LoggerMessage(EventId = 4001, Message = "monitor resource {id} have been added", Level = LogLevel.Information)]
     public static partial void MonitorAdded(this ILogger logger, string id);
 
-    [LoggerMessage(EventId = 4002, Message = "k8s watcher onError {id}, trigger reatart", Level = LogLevel.Error)]
+    [LoggerMessage(EventId = 4002, Message = "k8s watcher onError {id}, trigger restart", Level = LogLevel.Error)]
     public static partial void MonitorReceiveError(this ILogger logger, string id, Exception ex);
 
     [LoggerMessage(EventId = 4003, Message = "k8s watcher onEvent error {id}, WatchEventType Error", Level = LogLevel.Error)]
@@ -52,7 +52,7 @@ public static partial class LogMessages
     [LoggerMessage(EventId = 4006, Message = "k8s watcher processing {id} {type}", Level = LogLevel.Information)]
     public static partial void MonitorOnEventProcessing(this ILogger logger, string id, WatchEventType type);
 
-    [LoggerMessage(EventId = 4007, Message = "k8s watcher timeout trigger reatart {id}", Level = LogLevel.Warning)]
+    [LoggerMessage(EventId = 4007, Message = "k8s watcher timeout trigger restart {id}", Level = LogLevel.Warning)]
     public static partial void MonitorTimeout(this ILogger logger, string id);
 
     [LoggerMessage(EventId = 4008, Message = "k8s watcher onClosed {id}", Level = LogLevel.Warning)]
