@@ -65,6 +65,29 @@ public class OptionDiscoveryProvider(IOptionsMonitor<ResourcesSetting> options) 
             .Where(p => monitorableResources.Contains(p.Key))
             .ToDictionary(p => p.Key, p => p.Value);
 
+        foreach (var detail in setting.Details)
+        {
+            if (detail.Namespaced && detail.Namespaces.Length > 0 && currentWatchList.TryGetValue(detail.Resource, out var resource))
+            {
+                currentWatchList.Remove(detail.Resource);
+
+                foreach (var ns in detail.Namespaces)
+                {
+                    var namespacedResource = new MonitoredResource
+                    {
+                        KubeApiVersion = resource.KubeApiVersion,
+                        KubeKind = resource.KubeKind,
+                        KubeGroup = resource.KubeGroup,
+                        KubePluralName = resource.KubePluralName,
+                        Source = resource.Source,
+                        ReflectionType = resource.ReflectionType,
+                        Namespace = ns
+                    };
+                    currentWatchList[$"{resource.KubeKind}-{ns}"] = namespacedResource;
+                }
+            }
+        }
+
         return Task.FromResult<IEnumerable<MonitoredResource>>(currentWatchList.Values);
     }
 }
