@@ -6,7 +6,7 @@ public class GeneralMonitor : IResourceMonitor, IDisposable
     public GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client, IAdditionResourceProvider additionProvider,
                           [FromKeyedServices("General")] IDataProcessor<Resource> processor,
                           IRestartResourceTracker restartResourceTracker, IMapper mapper,
-                          IOptions<MonitorOptions> options)
+                          IOptionsMonitor<MonitorOptions> options)
     {
         this.logger = logger;
         this.client = client;
@@ -14,12 +14,12 @@ public class GeneralMonitor : IResourceMonitor, IDisposable
         this.processor = processor;
         this.restartResourceTracker = restartResourceTracker;
         this.mapper = mapper;
-        monitorOptions = options.Value;
-        _checkInterval = TimeSpan.FromSeconds(monitorOptions.CheckIntervalSeconds);
-        _inactiveThreshold = TimeSpan.FromMinutes(monitorOptions.InactiveThresholdMinutes);
+        monitorOptions = options;
+        _checkInterval = TimeSpan.FromSeconds(options.CurrentValue.CheckIntervalSeconds);
+        _inactiveThreshold = TimeSpan.FromMinutes(options.CurrentValue.InactiveThresholdMinutes);
     }
 
-    readonly MonitorOptions monitorOptions;
+    readonly IOptionsMonitor<MonitorOptions> monitorOptions;
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
     private readonly TimeSpan _checkInterval;
     private readonly TimeSpan _inactiveThreshold;
@@ -165,7 +165,8 @@ public class GeneralMonitor : IResourceMonitor, IDisposable
                 return;
             }
 
-            if (kubernetesObject.Kind == "CustomResourceDefinition" && kubernetesObject is V1CustomResourceDefinition crd)
+            if (monitorOptions.CurrentValue.CustomResourced && kubernetesObject.Kind == "CustomResourceDefinition"
+            && kubernetesObject is V1CustomResourceDefinition crd)
             {
                 await HandleCustomResourceDefinition(crd, cancellation);
             }
