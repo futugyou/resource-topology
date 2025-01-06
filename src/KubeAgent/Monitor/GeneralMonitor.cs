@@ -1,39 +1,29 @@
 
 namespace KubeAgent.Monitor;
 
-public class GeneralMonitor : IResourceMonitor, IDisposable
+public class GeneralMonitor(ILogger<GeneralMonitor> logger,
+                            IKubernetes client,
+                            IAdditionResourceProvider additionProvider,
+                            [FromKeyedServices("General")] IDataProcessor<Resource> processor,
+                            IRestartResourceTracker restartResourceTracker,
+                            IMapper mapper,
+                            IOptionsMonitor<MonitorOptions> options) : IResourceMonitor, IDisposable
 {
-    public GeneralMonitor(ILogger<GeneralMonitor> logger, IKubernetes client, IAdditionResourceProvider additionProvider,
-                          [FromKeyedServices("General")] IDataProcessor<Resource> processor,
-                          IRestartResourceTracker restartResourceTracker, IMapper mapper,
-                          IOptionsMonitor<MonitorOptions> options)
-    {
-        this.logger = logger;
-        this.client = client;
-        this.additionProvider = additionProvider;
-        this.processor = processor;
-        this.restartResourceTracker = restartResourceTracker;
-        this.mapper = mapper;
-        monitorOptions = options;
-        _checkInterval = TimeSpan.FromSeconds(options.CurrentValue.CheckIntervalSeconds);
-        _inactiveThreshold = TimeSpan.FromMinutes(options.CurrentValue.InactiveThresholdMinutes);
-    }
-
-    readonly IOptionsMonitor<MonitorOptions> monitorOptions;
+    readonly IOptionsMonitor<MonitorOptions> monitorOptions = options;
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
-    private readonly TimeSpan _checkInterval;
-    private readonly TimeSpan _inactiveThreshold;
+    private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(options.CurrentValue.CheckIntervalSeconds);
+    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(options.CurrentValue.InactiveThresholdMinutes);
     int timerstart = 0;
     static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
-    private readonly ILogger<GeneralMonitor> logger;
-    private readonly IKubernetes client;
-    private readonly IAdditionResourceProvider additionProvider;
-    private readonly IDataProcessor<Resource> processor;
-    private readonly IRestartResourceTracker restartResourceTracker;
-    private readonly IMapper mapper;
+    private readonly ILogger<GeneralMonitor> logger = logger;
+    private readonly IKubernetes client = client;
+    private readonly IAdditionResourceProvider additionProvider = additionProvider;
+    private readonly IDataProcessor<Resource> processor = processor;
+    private readonly IRestartResourceTracker restartResourceTracker = restartResourceTracker;
+    private readonly IMapper mapper = mapper;
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
     {
