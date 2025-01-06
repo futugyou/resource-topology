@@ -1,10 +1,11 @@
 
 namespace KubeAgent;
 
-public class MonitorSetting()
+public class ResourcesSetting()
 {
     public List<string> AllowedResources { get; set; } = [];
     public List<string> DeniedResources { get; set; } = [];
+    public ResourceConfig[] Details { get; set; } = [];
     public List<string> DefaultAllowedResources { get; set; } =
     [
         "Namespace",
@@ -34,6 +35,13 @@ public class MonitorSetting()
         "PodDisruptionBudget",
         "PriorityClass",
         "Node",
-        // "Event",
+          "Event",
     ];
+}
+
+public class ResourceConfig
+{
+    public string Resource { get; set; } = "";
+    public bool Namespaced { get; set; }
+    public string[] Namespaces { get; set; } = [];
 }

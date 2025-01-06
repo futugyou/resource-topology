@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace KubeAgent.Discovery;
 
-public class OptionDiscoveryProvider(IOptionsMonitor<MonitorSetting> options) : IDiscoveryProvider
+public class OptionDiscoveryProvider(IOptionsMonitor<ResourcesSetting> options) : IDiscoveryProvider
 {
     public int Priority => 1;
 
