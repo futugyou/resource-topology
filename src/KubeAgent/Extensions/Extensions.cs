@@ -12,6 +12,7 @@ public static class Extensions
 
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddOptions<ResourcesSetting>().Bind(builder.Configuration.GetSection(nameof(ResourcesSetting)));
+        builder.Services.AddOptions<MonitorOptions>().Bind(builder.Configuration.GetSection(nameof(MonitorOptions)));
 
         builder.Services.AddSingleton<IKubernetes>(sp =>
         {

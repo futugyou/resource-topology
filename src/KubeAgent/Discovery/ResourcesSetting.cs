@@ -1,5 +1,5 @@
 
-namespace KubeAgent;
+namespace KubeAgent.Discovery;
 
 public class ResourcesSetting()
 {
