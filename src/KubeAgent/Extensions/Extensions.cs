@@ -31,6 +31,8 @@ public static class Extensions
             return new Kubernetes(kubernetesClientConfig);
         });
 
+        builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
+
         builder.Services.AddSingleton<IResourceDiscovery, ResourceDiscovery>();
         builder.Services.AddSingleton<AdditionDiscoveryProvider>();
         builder.Services.AddSingleton<IDiscoveryProvider, OptionDiscoveryProvider>();

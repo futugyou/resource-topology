@@ -7,23 +7,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                             [FromKeyedServices("General")] IDataProcessor<Resource> processor,
                             IRestartResourceTracker restartResourceTracker,
                             IMapper mapper,
-                            IOptionsMonitor<MonitorOptions> options) : IResourceMonitor, IDisposable
+                            IOptionsMonitor<MonitorOptions> monitorOptions,
+                            ISerializer serializer) : IResourceMonitor, IDisposable
 {
-    readonly IOptionsMonitor<MonitorOptions> monitorOptions = options;
     readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
-    private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(options.CurrentValue.CheckIntervalSeconds);
-    private readonly TimeSpan _inactiveThreshold = TimeSpan.FromMinutes(options.CurrentValue.InactiveThresholdMinutes);
     int timerstart = 0;
-    static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-    private readonly ILogger<GeneralMonitor> logger = logger;
-    private readonly IKubernetes client = client;
-    private readonly IAdditionResourceProvider additionProvider = additionProvider;
-    private readonly IDataProcessor<Resource> processor = processor;
-    private readonly IRestartResourceTracker restartResourceTracker = restartResourceTracker;
-    private readonly IMapper mapper = mapper;
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
     {
@@ -33,7 +21,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             {
                 while (!cancellation.IsCancellationRequested)
                 {
-                    await Task.Delay(_checkInterval, cancellation);
+                    await Task.Delay(TimeSpan.FromSeconds(monitorOptions.CurrentValue.CheckIntervalSeconds), cancellation);
                     CheckInactiveResources(cancellation);
                 }
             }, cancellation);
@@ -51,7 +39,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 continue;
             }
 
-            if (now - watcher.LastActiveTime > _inactiveThreshold)
+            if (now - watcher.LastActiveTime > TimeSpan.FromMinutes(monitorOptions.CurrentValue.InactiveThresholdMinutes))
             {
                 logger.MonitorTimeout(watcher.Resource.ResourceId());
                 await RestartResource(watcher.Resource, cancellation);
@@ -146,7 +134,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 return;
             }
 
-            LogEvent(watchEventType, resource);
+            logger.MonitorOnEventProcessing(resource.ResourceId(), watchEventType);
 
             HandleWatcherList(resource, kubernetesObject, watchEventType);
 
@@ -169,15 +157,10 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
     }
 
-    private static object? DeserializeItem(object item, Type targetType)
+    private object? DeserializeItem(object item, Type targetType)
     {
-        var json = JsonSerializer.Serialize(item, DefaultJsonSerializerOptions);
-        return JsonSerializer.Deserialize(json, targetType);
-    }
-
-    private void LogEvent(WatchEventType watchEventType, MonitoringContext resource)
-    {
-        logger.MonitorOnEventProcessing(resource.ResourceId(), watchEventType);
+        var json = serializer.Serialize(item);
+        return serializer.Deserialize(json, targetType);
     }
 
     private void HandleWatcherList(MonitoringContext resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
@@ -227,7 +210,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             Kind = kubernetesObject.Kind,
             Name = kubernetesObject.Name(),
             UID = kubernetesObject.Uid(),
-            Configuration = JsonSerializer.Serialize(jsonItem, DefaultJsonSerializerOptions),
+            Configuration = serializer.Serialize(jsonItem),
             Operate = watchEventType.ToString(),
         };
 
