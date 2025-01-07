@@ -161,12 +161,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
     }
 
-    private object? DeserializeItem(object item, Type targetType)
-    {
-        var json = serializer.Serialize(item);
-        return serializer.Deserialize(json, targetType);
-    }
-
     private void HandleWatcherList(MonitoringContext resource, IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType)
     {
         if (watcherList.TryGetValue(resource.ResourceId(), out var watcher))
