@@ -1,4 +1,3 @@
-
 namespace KubeAgent.Monitor;
 
 public class GeneralMonitor(ILogger<GeneralMonitor> logger,
@@ -10,7 +9,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                             IOptionsMonitor<MonitorOptions> monitorOptions,
                             ISerializer serializer) : IResourceMonitor, IDisposable
 {
-    readonly Dictionary<string, InternalWatcherInfo> watcherList = [];
+    readonly ConcurrentDictionary<string, InternalWatcherInfo> watcherList = [];
     int timerstart = 0;
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
@@ -126,10 +125,15 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
         try
         {
-            var deserializedObject = DeserializeItem(item, resource.ReflectionType);
+            // item.GetType() shows System.Text.Json.JsonElement
+            // so we need serializer.Deserialize
+            var json = serializer.Serialize(item);
+            var deserializedObject = serializer.Deserialize(json, resource.ReflectionType);
 
             if (deserializedObject is not IKubernetesObject<V1ObjectMeta> kubernetesObject)
             {
+                // Normally, it will not run to this point. If the type is incorrect, an error will be reported during serialization.
+                // If it really runs to this point, I would be very curious about what kind of data this is.
                 logger.MonitorOnEventTypeError(resource.ResourceId());
                 return;
             }
@@ -149,7 +153,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 await HandleCustomResourceDefinition(crd, cancellation);
             }
 
-            await ProcessResourceChange(kubernetesObject, watchEventType, cancellation);
+            await ProcessResourceChange(kubernetesObject, watchEventType, json, cancellation);
         }
         catch (Exception ex)
         {
@@ -200,17 +204,15 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
     }
 
-    private async Task ProcessResourceChange(IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, CancellationToken cancellation)
+    private async Task ProcessResourceChange(IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, string config, CancellationToken cancellation)
     {
-        var jsonItem = kubernetesObject as dynamic;
-
         var resource = new Resource
         {
             ApiVersion = kubernetesObject.ApiVersion,
             Kind = kubernetesObject.Kind,
             Name = kubernetesObject.Name(),
             UID = kubernetesObject.Uid(),
-            Configuration = serializer.Serialize(jsonItem),
+            Configuration = config,
             Operate = watchEventType.ToString(),
         };
 
@@ -220,10 +222,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
     public Task StopMonitoringAsync(string resourceId)
     {
-        if (watcherList.TryGetValue(resourceId, out var watcherInfo))
+        if (watcherList.Remove(resourceId, out var watcherInfo))
         {
             watcherInfo.Watcher?.Dispose();
-            watcherList.Remove(resourceId);
             logger.MonitorStoped(resourceId);
         }
 
@@ -246,9 +247,12 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
     {
         if (disposing)
         {
-            foreach (var watcher in watcherList.Values)
+            foreach (var key in watcherList.Keys.ToList())
             {
-                watcher.Watcher?.Dispose();
+                if (watcherList.Remove(key, out var watcher))
+                {
+                    watcher.Watcher?.Dispose();
+                }
             }
         }
     }
