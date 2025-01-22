@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="KubernetesClient" Version="16.0.1" />
+    <PackageReference Include="KubernetesClient" Version="16.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
     <PackageReference Include="Polly.Core" Version="8.5.1" />
   </ItemGroup>
