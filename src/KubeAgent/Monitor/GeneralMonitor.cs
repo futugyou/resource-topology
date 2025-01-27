@@ -208,8 +208,9 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             UID = kubernetesObject.Uid(),
             Configuration = config,
             Operate = watchEventType.ToString(),
+            ResourceCreationTime = kubernetesObject.CreationTimestamp().GetValueOrDefault(),
         };
-        
+
         if (kubernetesObject.OwnerReferences() != null && kubernetesObject.OwnerReferences().Any())
         {
             resource.OwnerReferences = [.. kubernetesObject.OwnerReferences().Select(owner =>
@@ -223,7 +224,23 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 };
             })];
         }
-        
+
+        if (kubernetesObject.Labels() != null && kubernetesObject.Labels().Any())
+        {
+            foreach (var label in kubernetesObject.Labels())
+            {
+                resource.Tags.Add(label.Key, label.Value);
+            }
+        }
+
+        if (kubernetesObject.Annotations() != null && kubernetesObject.Annotations().Any())
+        {
+            foreach (var annotation in kubernetesObject.Annotations())
+            {
+                resource.Tags.Add(annotation.Key, annotation.Value);
+            }
+        }
+
         await processor.CollectingData(resource, cancellation);
     }
 
