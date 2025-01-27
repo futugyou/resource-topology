@@ -96,7 +96,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 {
                     if (string.Equals(kubernetesError.Status.Reason, "Expired", StringComparison.Ordinal))
                     {
-                        // TODO: when to set resourceVersion?
                         resource.ResourceVersion = null;
                     }
                 }
