@@ -209,7 +209,21 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             Configuration = config,
             Operate = watchEventType.ToString(),
         };
-
+        
+        if (kubernetesObject.OwnerReferences() != null && kubernetesObject.OwnerReferences().Any())
+        {
+            resource.OwnerReferences = [.. kubernetesObject.OwnerReferences().Select(owner =>
+            {
+                return new OwnerReference
+                {
+                    ApiVersion = owner.ApiVersion,
+                    Kind = owner.Kind,
+                    Name = owner.Name,
+                    UID = owner.Uid,
+                };
+            })];
+        }
+        
         await processor.CollectingData(resource, cancellation);
     }
 

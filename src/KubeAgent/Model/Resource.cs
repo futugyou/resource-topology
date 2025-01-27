@@ -1,4 +1,5 @@
 namespace KubeAgent.Model;
+
 public class Resource
 {
     //TODO
@@ -13,4 +14,13 @@ public class Resource
     public required string Configuration { get; set; }// json
     public Dictionary<string, string> Tags { get; set; } = [];
     public required string Operate { get; set; }
+    public List<OwnerReference> OwnerReferences { get; set; } = [];
+}
+
+public class OwnerReference
+{
+    public required string ApiVersion { get; set; }
+    public required string Kind { get; set; }
+    public required string Name { get; set; }
+    public required string UID { get; set; }
 }
