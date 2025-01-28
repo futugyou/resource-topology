@@ -24,6 +24,16 @@ public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> o
 
         return Task.FromResult(k8sClients);
     }
+
+    public Task ReleaseClientAsync(string alias, CancellationToken cancellation)
+    {
+        if (k8sClients.Remove(alias, out IKubernetes? client))
+        {
+            client.Dispose();
+        }
+
+        return Task.CompletedTask;
+    }
 }
 
 public class KubernetesClientOptions
