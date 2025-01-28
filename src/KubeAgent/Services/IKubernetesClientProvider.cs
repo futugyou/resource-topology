@@ -3,5 +3,5 @@ namespace KubeAgent.Services;
 
 public interface IKubernetesClientProvider
 {
-    Task<List<IKubernetes>> GetKubernetesClientsAsync(CancellationToken cancellation);
+    Task<Dictionary<string, IKubernetes>> GetKubernetesClientsAsync(CancellationToken cancellation);
 }
