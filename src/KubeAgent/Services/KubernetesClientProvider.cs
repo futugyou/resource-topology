@@ -3,22 +3,24 @@ namespace KubeAgent.Services;
 
 public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> optionsMonitor) : IKubernetesClientProvider
 {
+    readonly Dictionary<string, IKubernetes> k8sClients = [];
 
     public Task<Dictionary<string, IKubernetes>> GetKubernetesClientsAsync(CancellationToken cancellation)
     {
-        var k8sClients = optionsMonitor.CurrentValue.Clients.ToDictionary(
-            client => client.Alias,
-            client =>
+        foreach (var clientConfig in optionsMonitor.CurrentValue.Clients)
+        {
+            if (!k8sClients.ContainsKey(clientConfig.Alias))
             {
                 var kubernetesClientConfig = new KubernetesClientConfiguration
                 {
-                    Host = client.Host,
-                    AccessToken = client.AccessToken,
-                    ClientCertificateData = client.ClientCertificateData,
-                    ClientCertificateKeyData = client.ClientCertificateKeyData
+                    Host = clientConfig.Host,
+                    AccessToken = clientConfig.AccessToken,
+                    ClientCertificateData = clientConfig.ClientCertificateData,
+                    ClientCertificateKeyData = clientConfig.ClientCertificateKeyData
                 };
-                return (IKubernetes)new Kubernetes(kubernetesClientConfig);
-            });
+                k8sClients[clientConfig.Alias] = new Kubernetes(kubernetesClientConfig);
+            }
+        }
 
         return Task.FromResult(k8sClients);
     }
