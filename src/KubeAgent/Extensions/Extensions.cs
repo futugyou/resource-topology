@@ -13,6 +13,7 @@ public static class Extensions
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddOptions<ResourcesSetting>().Bind(builder.Configuration.GetSection(nameof(ResourcesSetting)));
         builder.Services.AddOptions<MonitorOptions>().Bind(builder.Configuration.GetSection(nameof(MonitorOptions)));
+        builder.Services.AddOptions<KubernetesClientOptions>().BindConfiguration(nameof(KubernetesClientOptions));
 
         builder.Services.AddSingleton<IKubernetes>(sp =>
         {
@@ -47,6 +48,8 @@ public static class Extensions
         builder.Services.AddSingleton<IResourceMonitorManager, ResourceMonitorManager>();
         builder.Services.AddHostedService<MonitorWorker>();
         builder.Services.AddHostedService<ProcessorWorker>();
+
+        builder.Services.AddSingleton<IKubernetesClientProvider, KubernetesClientProvider>();
 
         return builder;
     }
