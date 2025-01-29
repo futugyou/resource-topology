@@ -149,10 +149,10 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             if (monitorOptions.CurrentValue.CustomResourced && kubernetesObject.Kind == "CustomResourceDefinition"
             && kubernetesObject is V1CustomResourceDefinition crd)
             {
-                await HandleCustomResourceDefinition(crd, cancellation);
+                await HandleCustomResourceDefinition(crd, resource, cancellation);
             }
 
-            await ProcessResourceChange(kubernetesObject, watchEventType, json, cancellation);
+            await ProcessResourceChange(kubernetesObject, watchEventType, json, resource, cancellation);
         }
         catch (Exception ex)
         {
@@ -174,7 +174,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
     }
 
-    private async Task HandleCustomResourceDefinition(V1CustomResourceDefinition crd, CancellationToken cancellation)
+    private async Task HandleCustomResourceDefinition(V1CustomResourceDefinition crd, MonitoringContext resource, CancellationToken cancellation)
     {
         if (crd?.Spec?.Versions == null || !crd.Spec.Versions.Any())
         {
@@ -185,6 +185,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         {
             var monitoredResource = new MonitoredResource
             {
+                ClusterName = resource.ClusterName,
                 KubeApiVersion = version.Name,
                 KubeKind = crd.Spec.Names.Kind,
                 KubeGroup = crd.Spec.Group,
@@ -197,10 +198,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
     }
 
-    private async Task ProcessResourceChange(IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, string config, CancellationToken cancellation)
+    private async Task ProcessResourceChange(IKubernetesObject<V1ObjectMeta> kubernetesObject, WatchEventType watchEventType, string config, MonitoringContext context, CancellationToken cancellation)
     {
         var resource = new Resource
         {
+            Cluster = context.ClusterName,
             ApiVersion = kubernetesObject.ApiVersion,
             Kind = kubernetesObject.Kind,
             Name = kubernetesObject.Name(),
