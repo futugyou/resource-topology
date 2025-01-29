@@ -16,7 +16,8 @@ public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> o
                     Host = clientConfig.Host,
                     AccessToken = clientConfig.AccessToken,
                     ClientCertificateData = clientConfig.ClientCertificateData,
-                    ClientCertificateKeyData = clientConfig.ClientCertificateKeyData
+                    ClientCertificateKeyData = clientConfig.ClientCertificateKeyData,
+                    SkipTlsVerify = clientConfig.SkipTlsVerify,
                 };
                 k8sClients[clientConfig.Alias] = new Kubernetes(kubernetesClientConfig);
             }
@@ -48,4 +49,5 @@ public class K8sClientConfig
     public string AccessToken { get; set; } = null!;
     public string ClientCertificateData { get; set; } = null!;
     public string ClientCertificateKeyData { get; set; } = null!;
+    public bool SkipTlsVerify { get; set; } = false;
 }
