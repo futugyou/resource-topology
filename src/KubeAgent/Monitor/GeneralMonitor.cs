@@ -60,6 +60,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         var clientList = await clientProvider.GetKubernetesClientsAsync(cancellation);
         if (!clientList.TryGetValue(resource.ClusterName, out var client))
         {
+            logger.ClientNotFound(resource.ClusterName);
             return;
         }
 

@@ -59,7 +59,10 @@ public static partial class LogMessages
     public static partial void MonitorOnClosed(this ILogger logger, string id);
 
     [LoggerMessage(EventId = 4009, Message = "k8s watcher stoped {id}", Level = LogLevel.Warning)]
+
     public static partial void MonitorStoped(this ILogger logger, string id);
+    [LoggerMessage(EventId = 4010, Message = "can not found '{name}' cluster in k8s client provider", Level = LogLevel.Warning)]
+    public static partial void ClientNotFound(this ILogger logger, string name);
 
 
     [LoggerMessage(EventId = 5001, Message = "processing batch with {count} items", Level = LogLevel.Information)]
