@@ -11,6 +11,7 @@ public interface IResourceDiscovery
 
 public class MonitoredResource
 {
+    public string ClusterName { get; set; } = "";
     public string KubeApiVersion { get; set; } = "";
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
@@ -23,6 +24,8 @@ public class MonitoredResource
     {
         var sb = new StringBuilder();
 
+        sb.Append(ClusterName ?? "");
+        sb.Append('/');
         sb.Append(KubePluralName ?? "");
         sb.Append('/');
         sb.Append(KubeKind ?? "");

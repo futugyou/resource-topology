@@ -2,6 +2,7 @@ using System.Reflection;
 
 namespace KubeAgent.Discovery;
 
+// OptionDiscoveryProvider can only support InCluster, so we will set 'default' as cluster name.
 public class OptionDiscoveryProvider(IOptionsMonitor<ResourcesSetting> options) : IDiscoveryProvider
 {
     public int Priority => 1;
@@ -31,6 +32,7 @@ public class OptionDiscoveryProvider(IOptionsMonitor<ResourcesSetting> options) 
 
             var resourceInfo = new MonitoredResource
             {
+                ClusterName = "default",
                 KubeApiVersion = fieldValues.GetValueOrDefault("KubeApiVersion") ?? "",
                 KubeKind = fieldValues.GetValueOrDefault("KubeKind") ?? "",
                 KubeGroup = fieldValues.GetValueOrDefault("KubeGroup") ?? "",
