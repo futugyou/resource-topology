@@ -1,7 +1,7 @@
 namespace KubeAgent.Monitor;
 
 public class GeneralMonitor(ILogger<GeneralMonitor> logger,
-                            IKubernetes client,
+                            IKubernetesClientProvider clientProvider,
                             IAdditionResourceProvider additionProvider,
                             [FromKeyedServices("General")] IDataProcessor<Resource> processor,
                             IRestartResourceTracker restartResourceTracker,
@@ -51,11 +51,17 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         await restartResourceTracker.AddRestartResource(new RestartContext { ResourceId = context.ResourceId() }, cancellation);
     }
 
-    public Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
+    public async Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
     {
         StartInactiveCheckTask(cancellation);
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var childToken = childCts.Token;
+
+        var clientList = await clientProvider.GetKubernetesClientsAsync(cancellation);
+        if (!clientList.TryGetValue(resource.ClusterName, out var client))
+        {
+            return;
+        }
 
         Task<HttpOperationResponse<object>>? resources = null;
         if (string.IsNullOrWhiteSpace(resource.Namespace))
@@ -111,7 +117,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
         watcherList[resource.ResourceId()] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now };
         logger.MonitorAdded(resource.ResourceId());
-        return Task.CompletedTask;
     }
 
     private async Task OnEvent(MonitoringContext resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
