@@ -77,6 +77,7 @@ public class OptionDiscoveryProvider(IOptionsMonitor<ResourcesSetting> options) 
                 {
                     var namespacedResource = new MonitoredResource
                     {
+                        ClusterName = "default",
                         KubeApiVersion = resource.KubeApiVersion,
                         KubeKind = resource.KubeKind,
                         KubeGroup = resource.KubeGroup,
