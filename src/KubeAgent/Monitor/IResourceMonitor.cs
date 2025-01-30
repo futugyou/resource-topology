@@ -10,7 +10,7 @@ public interface IResourceMonitor
 public class WatcherInfo
 {
     public string ResourceId { get; set; } = "";
-    public string ClusterName { get; set; } = "";
+    public string ClusterName { get; set; } = "default";
     public string KubeApiVersion { get; set; } = "";
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
@@ -22,7 +22,7 @@ public class WatcherInfo
 
 public class MonitoringContext
 {
-    public string ClusterName { get; set; } = "";
+    public string ClusterName { get; set; } = "default";
     public string KubeApiVersion { get; set; } = "";
     public string KubeKind { get; set; } = "";
     public string KubeGroup { get; set; } = "";
@@ -37,7 +37,7 @@ public class MonitoringContext
     {
         var sb = new StringBuilder();
 
-        sb.Append(ClusterName ?? "");
+        sb.Append(string.IsNullOrEmpty(ClusterName) ? "default" : ClusterName);
         sb.Append('/');
         sb.Append(KubePluralName ?? "");
         sb.Append('/');
