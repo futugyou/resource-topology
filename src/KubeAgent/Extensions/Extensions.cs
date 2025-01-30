@@ -13,24 +13,7 @@ public static class Extensions
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddOptions<ResourcesSetting>().Bind(builder.Configuration.GetSection(nameof(ResourcesSetting)));
         builder.Services.AddOptions<MonitorOptions>().Bind(builder.Configuration.GetSection(nameof(MonitorOptions)));
-        builder.Services.AddOptions<KubernetesClientOptions>().BindConfiguration(nameof(KubernetesClientOptions));
-
-        builder.Services.AddSingleton<IKubernetes>(sp =>
-        {
-            var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<AgentOptions>>();
-            var serviceOption = optionsMonitor.CurrentValue!;
-            KubernetesClientConfiguration kubernetesClientConfig;
-            if (File.Exists(serviceOption.KubeconfigPath))
-            {
-                kubernetesClientConfig = KubernetesClientConfiguration.BuildConfigFromConfigFile(serviceOption.KubeconfigPath);
-            }
-            else
-            {
-                kubernetesClientConfig = KubernetesClientConfiguration.BuildDefaultConfig();
-            }
-
-            return new Kubernetes(kubernetesClientConfig);
-        });
+        builder.Services.AddOptions<KubernetesClientOptions>().BindConfiguration(nameof(KubernetesClientOptions)); 
 
         builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
 
