@@ -10,6 +10,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                             ISerializer serializer) : IResourceMonitor, IDisposable
 {
     readonly ConcurrentDictionary<string, InternalWatcherInfo> watcherList = [];
+    readonly ConcurrentDictionary<string, int> clientCounter = [];
     int timerstart = 0;
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
@@ -69,6 +70,8 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             logger.ClientNotFound(resource.ClusterName);
             return;
         }
+
+        clientCounter.AddOrUpdate(resource.ResourceId(), 1, (k, v) => v + 1);
 
         Task<HttpOperationResponse<object>>? resources = null;
         if (string.IsNullOrWhiteSpace(resource.Namespace))
@@ -257,16 +260,28 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         await processor.CollectingData(resource, cancellation);
     }
 
-
-    public Task StopMonitoringAsync(string resourceId)
+    public async Task StopMonitoringAsync(string resourceId)
     {
         if (watcherList.Remove(resourceId, out var watcherInfo))
         {
             watcherInfo.Watcher?.Dispose();
             logger.MonitorStoped(resourceId);
+
+            if (watcherInfo.Resource == null)
+            {
+                return;
+            }
+
+            var clusterName = watcherInfo.Resource.ClusterName;
+            clientCounter.AddOrUpdate(clusterName, 0, (k, v) => v > 1 ? v - 1 : 0);
+            if (clientCounter[clusterName] == 0)
+            {
+                clientCounter.TryRemove(clusterName, out _);
+                await clientProvider.ReleaseClientAsync(clusterName, CancellationToken.None);
+            }
         }
 
-        return Task.CompletedTask;
+        return;
     }
 
     public Task<IEnumerable<WatcherInfo>> GetWatcherListAsync(CancellationToken cancellation)
