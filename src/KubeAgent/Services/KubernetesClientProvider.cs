@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Services;
 
-public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> optionsMonitor) : IKubernetesClientProvider
+public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> optionsMonitor) : IKubernetesClientProvider, IDisposable
 {
     readonly Dictionary<string, IKubernetes> k8sClients = [];
 
@@ -34,6 +34,26 @@ public class KubernetesClientProvider(IOptionsMonitor<KubernetesClientOptions> o
         }
 
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            foreach (var key in k8sClients.Keys.ToList())
+            {
+                if (k8sClients.Remove(key, out var client))
+                {
+                    client?.Dispose();
+                }
+            }
+        }
     }
 }
 
