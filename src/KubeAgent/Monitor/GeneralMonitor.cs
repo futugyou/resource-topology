@@ -53,6 +53,12 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
     public async Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
     {
+        if (watcherList.ContainsKey(resource.ResourceId()))
+        {
+            logger.MonitorAlreadyExist(resource.ResourceId());
+            return;
+        }
+
         StartInactiveCheckTask(cancellation);
         using var childCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var childToken = childCts.Token;

@@ -3,7 +3,7 @@ namespace Microsoft.Extensions.Logging;
 
 public static partial class LogMessages
 {
-
+    #region ProcessorWorker
     [LoggerMessage(EventId = 1001, Message = "processor worker running at: {time}", Level = LogLevel.Information)]
     public static partial void ProcessorWorkerRunning(this ILogger logger, DateTimeOffset time);
 
@@ -15,8 +15,9 @@ public static partial class LogMessages
 
     [LoggerMessage(EventId = 1004, Message = "processor worker stop at: {time} ", Level = LogLevel.Warning)]
     public static partial void ProcessorWorkerStop(this ILogger logger, DateTimeOffset time);
+    #endregion
 
-
+    #region MonitorWorker
     [LoggerMessage(EventId = 2001, Message = "monitor worker running at: {time}", Level = LogLevel.Information)]
     public static partial void MonitorWorkerRunning(this ILogger logger, DateTimeOffset time);
 
@@ -28,12 +29,14 @@ public static partial class LogMessages
 
     [LoggerMessage(EventId = 2004, Message = "monitor worker stop at: {time} ", Level = LogLevel.Warning)]
     public static partial void MonitorWorkerStop(this ILogger logger, DateTimeOffset time);
+    #endregion
 
-
+    #region Addition Monitor Resource
     [LoggerMessage(EventId = 3001, Message = "addition monitor resource {id} have been added", Level = LogLevel.Information)]
     public static partial void AdditionResourceAdded(this ILogger logger, string id);
+    #endregion
 
-
+    #region Monitor
     [LoggerMessage(EventId = 4001, Message = "monitor resource {id} have been added", Level = LogLevel.Information)]
     public static partial void MonitorAdded(this ILogger logger, string id);
 
@@ -59,15 +62,20 @@ public static partial class LogMessages
     public static partial void MonitorOnClosed(this ILogger logger, string id);
 
     [LoggerMessage(EventId = 4009, Message = "k8s watcher stoped {id}", Level = LogLevel.Warning)]
-
     public static partial void MonitorStoped(this ILogger logger, string id);
+
     [LoggerMessage(EventId = 4010, Message = "can not found '{name}' cluster in k8s client provider", Level = LogLevel.Warning)]
     public static partial void ClientNotFound(this ILogger logger, string name);
 
+    [LoggerMessage(EventId = 4011, Message = "k8s watcher {id} already exist", Level = LogLevel.Warning)]
+    public static partial void MonitorAlreadyExist(this ILogger logger, string id);
+    #endregion
 
+    #region Resource Processor
     [LoggerMessage(EventId = 5001, Message = "processing batch with {count} items", Level = LogLevel.Information)]
     public static partial void ProcessBatch(this ILogger logger, int count);
 
     [LoggerMessage(EventId = 5002, Message = "error during async disposal", Level = LogLevel.Error)]
     public static partial void ProcessDisposeError(this ILogger logger, Exception ex);
+    #endregion
 }
