@@ -16,5 +16,38 @@ public class MappingProfile : AutoMapper.Profile
 
         // MonitoringContext -> MonitoredResource
         CreateMap<MonitoringContext, MonitoredResource>();
+
+        // TODO: may be need mapping OwnerReference to Relationship
+        CreateMap<List<Resource>, ResourceContracts.ResourceProcessorEvent>()
+            .ForMember(dest => dest.Provider, opt => opt.MapFrom(_ => "Kubernetes"))
+            .ForMember(dest => dest.InsertResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Added").Select(p => new ResourceContracts.Resource
+            {
+                Id = p.UID,
+                ResourceID = p.Name,
+                ResourceName = p.Name,
+                ResourceType = p.Kind,
+                AccountID = p.Cluster,
+                Region = p.Group,
+                AvailabilityZone = p.Plural,
+                Configuration = p.Configuration,
+                ResourceCreationTime = p.ResourceCreationTime,
+                ResourceHash = p.UID,
+                Tags = p.Tags
+            }).ToList()))
+            .ForMember(dest => dest.DeleteResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Deleted").Select(p => p.UID).ToList()))
+            .ForMember(dest => dest.UpdateResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Modified").Select(p => new ResourceContracts.Resource
+            {
+                Id = p.UID,
+                ResourceID = p.Name,
+                ResourceName = p.Name,
+                ResourceType = p.Kind,
+                AccountID = p.Cluster,
+                Region = p.Group,
+                AvailabilityZone = p.Plural,
+                Configuration = p.Configuration,
+                ResourceCreationTime = p.ResourceCreationTime,
+                ResourceHash = p.UID,
+                Tags = p.Tags
+            }).ToList()));
     }
 }
