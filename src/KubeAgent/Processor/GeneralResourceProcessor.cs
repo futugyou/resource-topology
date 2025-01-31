@@ -2,14 +2,14 @@ using System.Threading.Tasks.Dataflow;
 
 namespace KubeAgent.Processor;
 
-public class GeneralProcessor : IDataProcessor<Resource>, IDisposable, IAsyncDisposable
+public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, IAsyncDisposable
 {
     private readonly BufferBlock<Resource> bufferBlock;
     private readonly ActionBlock<List<Resource>> actionBlock;
-    private readonly ILogger<GeneralProcessor> logger;
+    private readonly ILogger<GeneralResourceProcessor> logger;
     private bool _isDisposed = false;
 
-    public GeneralProcessor(ILogger<GeneralProcessor> logger)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {

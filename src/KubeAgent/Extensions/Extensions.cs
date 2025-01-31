@@ -25,7 +25,7 @@ public static class Extensions
 
         builder.Services.AddSingleton<IRestartResourceTracker, RestartResourceTracker>();
 
-        builder.Services.AddKeyedSingleton<IDataProcessor<Resource>, GeneralProcessor>("General");
+        builder.Services.AddKeyedSingleton<IDataProcessor<Resource>, GeneralResourceProcessor>("General");
 
         builder.Services.AddSingleton<IResourceMonitor, GeneralMonitor>();
         builder.Services.AddSingleton<IResourceMonitorManager, ResourceMonitorManager>();
