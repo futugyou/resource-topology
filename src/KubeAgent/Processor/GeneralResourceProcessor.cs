@@ -7,9 +7,10 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private readonly BufferBlock<Resource> bufferBlock;
     private readonly ActionBlock<List<Resource>> actionBlock;
     private readonly ILogger<GeneralResourceProcessor> logger;
+    private readonly IMapper mapper;
     private bool _isDisposed = false;
 
-    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {
@@ -23,6 +24,7 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
             MaxDegreeOfParallelism = 1,
         });
         this.logger = logger;
+        this.mapper = mapper;
     }
 
     public async Task CollectingData(Resource data, CancellationToken cancellation)
@@ -69,6 +71,9 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
     {
         logger.ProcessBatch(batch.Count);
+        // TODO: send events to mq or save to db
+        var events = mapper.Map<ResourceContracts.ResourceProcessorEvent>(batch);
+        
         foreach (var res in batch)
         {
             //TODO finish processing
