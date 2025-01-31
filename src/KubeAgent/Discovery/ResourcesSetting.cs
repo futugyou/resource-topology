@@ -35,7 +35,6 @@ public class ResourcesSetting()
         "PodDisruptionBudget",
         "PriorityClass",
         "Node",
-          "Event",
     ];
 }
 
