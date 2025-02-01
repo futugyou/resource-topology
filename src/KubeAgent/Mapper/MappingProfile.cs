@@ -23,12 +23,12 @@ public class MappingProfile : AutoMapper.Profile
             .ForMember(dest => dest.InsertResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Added").Select(p => new ResourceContracts.Resource
             {
                 Id = p.UID,
-                ResourceID = p.Name,
+                ResourceID = p.UID,
                 ResourceName = p.Name,
                 ResourceType = p.Kind,
                 AccountID = p.Cluster,
-                Region = p.Group,
-                AvailabilityZone = p.Plural,
+                Region = p.Region,
+                AvailabilityZone = p.Zone,
                 Configuration = p.Configuration,
                 ResourceCreationTime = p.ResourceCreationTime,
                 ResourceHash = p.UID,
@@ -38,12 +38,12 @@ public class MappingProfile : AutoMapper.Profile
             .ForMember(dest => dest.UpdateResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Modified").Select(p => new ResourceContracts.Resource
             {
                 Id = p.UID,
-                ResourceID = p.Name,
+                ResourceID = p.UID,
                 ResourceName = p.Name,
                 ResourceType = p.Kind,
                 AccountID = p.Cluster,
-                Region = p.Group,
-                AvailabilityZone = p.Plural,
+                Region = p.Region,
+                AvailabilityZone = p.Zone,
                 Configuration = p.Configuration,
                 ResourceCreationTime = p.ResourceCreationTime,
                 ResourceHash = p.UID,
