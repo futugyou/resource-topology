@@ -7,13 +7,14 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        builder.AddServiceDefaults();
         builder.Services.AddAutoMapper(typeof(Program));
         AutoMapperConfig.RegisterMapper();
 
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));
         builder.Services.AddOptions<ResourcesSetting>().Bind(builder.Configuration.GetSection(nameof(ResourcesSetting)));
         builder.Services.AddOptions<MonitorOptions>().Bind(builder.Configuration.GetSection(nameof(MonitorOptions)));
-        builder.Services.AddOptions<KubernetesClientOptions>().BindConfiguration(nameof(KubernetesClientOptions)); 
+        builder.Services.AddOptions<KubernetesClientOptions>().BindConfiguration(nameof(KubernetesClientOptions));
 
         builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
 

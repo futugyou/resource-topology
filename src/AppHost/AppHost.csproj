@@ -15,4 +15,10 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AwsAgent\AwsAgent.csproj" />
+    <ProjectReference Include="..\KubeAgent\KubeAgent.csproj" />
+    <ProjectReference Include="..\ResourceManager\ResourceManager.csproj" />
+  </ItemGroup>
+
 </Project>

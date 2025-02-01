@@ -16,5 +16,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\ResourceContracts\ResourceContracts.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

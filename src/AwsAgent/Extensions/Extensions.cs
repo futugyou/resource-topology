@@ -5,6 +5,8 @@ public static class Extensions
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+
+        builder.AddServiceDefaults();
         builder.Services.AddAutoMapper(typeof(Program));
         AutoMapperConfig.RegisterMapper();
 
