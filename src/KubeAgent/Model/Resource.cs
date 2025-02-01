@@ -15,6 +15,8 @@ public class Resource
     public Dictionary<string, string> Tags { get; set; } = [];
     public required string Operate { get; set; }
     public List<OwnerReference> OwnerReferences { get; set; } = [];
+    public string Region { get; set; } = "";
+    public string Zone { get; set; } = ""; 
 }
 
 public class OwnerReference
