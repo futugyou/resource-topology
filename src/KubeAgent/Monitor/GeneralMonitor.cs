@@ -257,6 +257,16 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             }
         }
 
+        if (resource.Tags.TryGetValue("topology.kubernetes.io/region", out string? region))
+        {
+            resource.Region = region;
+        }
+
+        if (resource.Tags.TryGetValue("topology.kubernetes.io/zone", out string? zone))
+        {
+            resource.Zone = zone;
+        }
+
         await processor.CollectingData(resource, cancellation);
     }
 
