@@ -2,7 +2,7 @@
 
 set -e
 
-dotnet workload update
+dotnet workload update --include-previews
 
 # k3s kubectl get nodes
 
