@@ -10,7 +10,18 @@ DaprSidecarOptions awsSidecarOptions = new()
     LogLevel = "warn",
     EnableApiLogging = true,
 };
-builder.AddProject<Projects.AwsAgent>("aws-agent").WithDaprSidecar(awsSidecarOptions);
+
+var mongo = builder.AddMongoDB("mongo")
+                   .WithLifetime(ContainerLifetime.Persistent);
+
+var awsDB = builder.ExecutionContext.IsRunMode
+    ? mongo.AddDatabase("Mongodb")
+    : builder.AddConnectionString("Mongodb");
+
+builder.AddProject<Projects.AwsAgent>("aws-agent")
+.WithDaprSidecar(awsSidecarOptions)
+.WithReference(awsDB)
+.WaitFor(awsDB);
 
 builder.AddProject<Projects.KubeAgent>("k8s");
 
