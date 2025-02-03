@@ -2,6 +2,8 @@ using Aspire.Hosting.Dapr;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+var rabbitmq = builder.AddRabbitMQ("rabbitmq");
+
 DaprSidecarOptions awsSidecarOptions = new()
 {
     AppId = "aws-agent",
@@ -23,7 +25,9 @@ builder.AddProject<Projects.AwsAgent>("aws-agent")
 .WithReference(awsDB)
 .WaitFor(awsDB);
 
-builder.AddProject<Projects.KubeAgent>("k8s");
+builder.AddProject<Projects.KubeAgent>("k8s")
+.WithReference(rabbitmq)
+.WaitFor(rabbitmq);
 
 DaprSidecarOptions managerSidecarOptions = new()
 {
@@ -34,6 +38,9 @@ DaprSidecarOptions managerSidecarOptions = new()
     LogLevel = "warn",
     EnableApiLogging = true,
 };
-builder.AddProject<Projects.ResourceManager>("resource-manager").WithDaprSidecar(managerSidecarOptions);
+builder.AddProject<Projects.ResourceManager>("resource-manager")
+.WithDaprSidecar(managerSidecarOptions)
+.WithReference(rabbitmq)
+.WaitFor(rabbitmq);
 
 builder.Build().Run();

@@ -33,8 +33,10 @@ A project for displaying resource topology
         --from-literal=SecretAccessKey=******
 
     docker build -f ./src/AwsAgent/Dockerfile -t aws-agent .
+    docker build -f ./src/KubeAgent/Dockerfile -t kube-agent .
     docker build -f ./src/ResourceManager/Dockerfile -t resource-manager .
     k3d image import aws-agent -c mycluster
+    k3d image import kube-agent -c mycluster
     k3d image import resource-manager -c mycluster
     kubectl apply -f ./deploy/k8s/ -R
 
