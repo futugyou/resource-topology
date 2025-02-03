@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: kube-agent
+  name: kube-agent
+spec:
+  selector:
+    service: kube-agent
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: kube-agent
+  name: kube-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kube-agent
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "kube-agent" 
+        dapr.io/grpc-port: "50001" # default
+        dapr.io/log-level: "warn"
+        dapr.io/enable-api-logging: "true"
+      labels:
+        service: kube-agent
+    spec:
+      containers:
+      - name: kube-agent
+        image: kube-agent
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 5000
+        env:
+        - name: ConnectionStrings__Mongodb
+          valueFrom:
+            secretKeyRef:
+              name: kube-agent-secret
+              key: Mongodb
+        - name: ConnectionStrings__rabbitmq
+          valueFrom:
+            secretKeyRef:
+              name: kube-agent-secret
+              key: rabbitmq
+        - name: KubernetesClientOptions__Clients__0__ClientCertificateData
+          valueFrom:
+            secretKeyRef:
+              name: kube-agent-secret
+              key: ClientCertificateData
+        - name: KubernetesClientOptions__Clients__0__ClientCertificateKeyData
+          valueFrom:
+            secretKeyRef:
+              name: kube-agent-secret
+              key: ClientCertificateKeyData
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: kube-agent-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  name: kube-agent-config
+  labels:
+    service: kube-agent
+data:
+  appsettings.json: |+
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      }
+    }
+
+---

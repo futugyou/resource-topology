@@ -31,6 +31,13 @@ A project for displaying resource topology
         --from-literal=Mongodb=****** \
         --from-literal=AccessKeyId=****** \
         --from-literal=SecretAccessKey=******
+        
+    # kube-agent secret, TODO: kube agent does not currently support dapr
+    kubectl create secret generic kube-agent-secret \
+        --from-literal=Mongodb=****** \
+        --from-literal=rabbitmq=****** \
+        --from-literal=ClientCertificateData=****** \
+        --from-literal=ClientCertificateKeyData=******
 
     docker build -f ./src/AwsAgent/Dockerfile -t aws-agent .
     docker build -f ./src/KubeAgent/Dockerfile -t kube-agent .
