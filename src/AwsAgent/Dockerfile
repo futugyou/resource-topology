@@ -10,9 +10,11 @@ ARG configuration=Release
 WORKDIR /src
 COPY ["src/AwsAgent/AwsAgent.csproj", "AwsAgent/"]
 COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "ServiceDefaults/"]
 RUN dotnet restore "AwsAgent/AwsAgent.csproj"
 COPY ["src/AwsAgent", "AwsAgent/"]
 COPY ["src/ResourceContracts", "ResourceContracts/"]
+COPY ["src/ServiceDefaults", "ServiceDefaults/"]
 WORKDIR "/src/AwsAgent/"
 RUN dotnet build "AwsAgent.csproj" -c $configuration -o /app/build
 

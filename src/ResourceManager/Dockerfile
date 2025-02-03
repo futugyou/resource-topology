@@ -9,9 +9,11 @@ ARG configuration=Release
 WORKDIR /src
 COPY ["src/ResourceManager/ResourceManager.csproj", "ResourceManager/"]
 COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "ServiceDefaults/"]
 RUN dotnet restore "ResourceManager/ResourceManager.csproj"
 COPY ["src/ResourceManager", "ResourceManager/"]
 COPY ["src/ResourceContracts", "ResourceContracts/"]
+COPY ["src/ServiceDefaults", "ServiceDefaults/"]
 WORKDIR "/src/ResourceManager/"
 RUN dotnet build "ResourceManager.csproj" -c $configuration -o /app/build
 

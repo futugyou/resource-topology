@@ -10,9 +10,11 @@ ARG configuration=Release
 WORKDIR /src
 COPY ["src/KubeAgent/KubeAgent.csproj", "KubeAgent/"]
 COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
+COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "ServiceDefaults/"]
 RUN dotnet restore "KubeAgent/KubeAgent.csproj"
 COPY ["src/KubeAgent", "KubeAgent/"]
 COPY ["src/ResourceContracts", "ResourceContracts/"]
+COPY ["src/ServiceDefaults", "ServiceDefaults/"]
 WORKDIR "/src/KubeAgent/"
 RUN dotnet build "KubeAgent.csproj" -c $configuration -o /app/build
 
