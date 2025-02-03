@@ -11,6 +11,9 @@
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="KubernetesClient" Version="16.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="9.2.0" />
+    <PackageReference Include="NServiceBus.Storage.MongoDB" Version="4.1.1" />
     <PackageReference Include="Polly.Core" Version="8.5.1" />
   </ItemGroup>
   

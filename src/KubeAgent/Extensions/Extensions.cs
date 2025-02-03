@@ -7,7 +7,29 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        #region NServiceBus
+        var endpointConfiguration = new EndpointConfiguration("kube-agent");
+        endpointConfiguration.EnableOpenTelemetry();
+        #endregion
+
         builder.AddServiceDefaults();
+
+        #region NServiceBus
+        var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+        var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString);
+
+        var routing = endpointConfiguration.UseTransport(transport);
+
+        var persistenceConnection = builder.Configuration.GetConnectionString("Mongodb");
+        var persistence = endpointConfiguration.UsePersistence<MongoPersistence>();
+        persistence.DatabaseName("kube-agent");
+        persistence.MongoClient(new MongoClient(persistenceConnection));
+
+        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+        endpointConfiguration.EnableInstallers();
+        builder.UseNServiceBus(endpointConfiguration);
+        #endregion
+
         builder.Services.AddAutoMapper(typeof(Program));
         AutoMapperConfig.RegisterMapper();
 

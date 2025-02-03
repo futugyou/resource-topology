@@ -12,6 +12,7 @@ global using KubeAgent.Processor;
 global using KubeAgent.Services;
 global using KubeAgent.Worker;
 global using Microsoft.Extensions.Options;
+global using MongoDB.Driver;
 global using Polly;
 global using Polly.Retry;
 global using System.Collections.Concurrent;
