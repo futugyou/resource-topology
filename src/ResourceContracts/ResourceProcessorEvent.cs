@@ -1,6 +1,6 @@
 ﻿namespace ResourceContracts;
 
-public record ResourceProcessorEvent
+public record ResourceProcessorEvent : IEvent
 {
     [JsonPropertyName("event_id")]
     public required string EventID { get; set; }
