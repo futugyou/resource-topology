@@ -19,6 +19,7 @@ public class MappingProfile : AutoMapper.Profile
 
         // TODO: may be need mapping OwnerReference to Relationship
         CreateMap<List<Resource>, ResourceContracts.ResourceProcessorEvent>()
+            .ForMember(dest => dest.EventID, opt => opt.MapFrom(_ => Guid.NewGuid().ToString()))
             .ForMember(dest => dest.Provider, opt => opt.MapFrom(_ => "Kubernetes"))
             .ForMember(dest => dest.InsertResources, opt => opt.MapFrom(src => src.Where(p => p.Operate == "Added").Select(p => new ResourceContracts.Resource
             {
