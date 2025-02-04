@@ -8,9 +8,10 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private readonly ActionBlock<List<Resource>> actionBlock;
     private readonly ILogger<GeneralResourceProcessor> logger;
     private readonly IMapper mapper;
+    private readonly IMessageSession messageSession;
     private bool _isDisposed = false;
 
-    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, IMessageSession messageSession)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {
@@ -25,6 +26,7 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
         });
         this.logger = logger;
         this.mapper = mapper;
+        this.messageSession = messageSession;
     }
 
     public async Task CollectingData(Resource data, CancellationToken cancellation)
@@ -68,18 +70,13 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
         }
     }
 
-    private Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
+    private async Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
     {
         logger.ProcessBatch(batch.Count);
         // TODO: send events to mq or save to db
         var events = mapper.Map<ResourceContracts.ResourceProcessorEvent>(batch);
-        
-        foreach (var res in batch)
-        {
-            //TODO finish processing
-            logger.LogInformation("resource processor handling: {kind} {name} {operate}", res.Kind, res.Name, res.Operate);
-        }
-        return Task.CompletedTask;
+        PublishOptions publishOptions = new();
+        await messageSession.Publish(events, publishOptions, cancellation); 
     }
 
     public void Dispose()
