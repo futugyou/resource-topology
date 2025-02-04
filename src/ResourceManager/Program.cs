@@ -3,7 +3,24 @@ using ResourceContracts;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+#region NServiceBus
+var endpointConfiguration = new EndpointConfiguration("resource-manager");
+endpointConfiguration.EnableOpenTelemetry();
+#endregion
+
 builder.AddServiceDefaults();
+
+#region NServiceBus
+var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString);
+
+var routing = endpointConfiguration.UseTransport(transport);
+
+endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+endpointConfiguration.EnableInstallers();
+builder.UseNServiceBus(endpointConfiguration);
+#endregion
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
