@@ -10,13 +10,17 @@ public static class Extensions
         #region NServiceBus
         var endpointConfiguration = new EndpointConfiguration("kube-agent");
         endpointConfiguration.EnableOpenTelemetry();
+        endpointConfiguration.EnableOutbox();
         #endregion
 
         builder.AddServiceDefaults();
 
         #region NServiceBus
         var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
-        var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString);
+        var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString)
+        {
+            TransportTransactionMode = TransportTransactionMode.ReceiveOnly
+        };
 
         var routing = endpointConfiguration.UseTransport(transport);
 
