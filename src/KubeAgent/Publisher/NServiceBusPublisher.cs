@@ -1,7 +1,7 @@
 using ResourceContracts;
-namespace KubeAgent.Services;
+namespace KubeAgent.Publisher;
 
-public class NServiceBusPublisher(IMessageSession messageSession, ILogger<NServiceBusPublisher> logger) : IEventPublisher
+public class NServiceBusPublisher(IMessageSession messageSession, ILogger<NServiceBusPublisher> logger) : IPublisher
 {
     public async Task PublishAsync(ResourceProcessorEvent events, CancellationToken cancellation)
     {

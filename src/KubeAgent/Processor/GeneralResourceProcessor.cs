@@ -8,10 +8,10 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private readonly ActionBlock<List<Resource>> actionBlock;
     private readonly ILogger<GeneralResourceProcessor> logger;
     private readonly IMapper mapper;
-    private readonly IEventPublisher eventPublisher;
+    private readonly IPublisher eventPublisher;
     private bool _isDisposed = false;
 
-    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, [FromKeyedServices("NServiceBus")] IEventPublisher eventPublisher)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, [FromKeyedServices("NServiceBus")] IPublisher eventPublisher)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {

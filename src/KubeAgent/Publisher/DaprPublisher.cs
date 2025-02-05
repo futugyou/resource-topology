@@ -1,7 +1,7 @@
 using ResourceContracts;
-namespace KubeAgent.Services;
+namespace KubeAgent.Publisher;
 
-public class DaprPublisher(ILogger<DaprPublisher> logger) : IEventPublisher
+public class DaprPublisher(ILogger<DaprPublisher> logger) : IPublisher
 {
     public Task PublishAsync(ResourceProcessorEvent events, CancellationToken cancellation)
     {

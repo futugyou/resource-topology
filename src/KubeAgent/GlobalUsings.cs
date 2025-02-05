@@ -9,6 +9,7 @@ global using KubeAgent.Mapper;
 global using KubeAgent.Model;
 global using KubeAgent.Monitor;
 global using KubeAgent.Processor;
+global using KubeAgent.Publisher;
 global using KubeAgent.Services;
 global using KubeAgent.Worker;
 global using Microsoft.Extensions.Options;

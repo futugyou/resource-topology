@@ -1,7 +1,7 @@
 using ResourceContracts;
-namespace KubeAgent.Services;
+namespace KubeAgent.Publisher;
 
-public interface IEventPublisher
+public interface IPublisher
 {
     Task PublishAsync(ResourceProcessorEvent events, CancellationToken cancellation);
 }
