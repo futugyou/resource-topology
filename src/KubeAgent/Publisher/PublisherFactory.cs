@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Publisher;
 
-public class PublisherFactory([FromKeyedServices("NServiceBus")] IPublisher eventPublisher, [FromKeyedServices("Dapr")] IPublisher daprPublisher, IOptionsMonitor<PublisherOption> options)
+public class PublisherFactory([FromKeyedServices("NServiceBus")] IPublisher eventPublisher, [FromKeyedServices("Dapr")] IPublisher daprPublisher, IOptionsMonitor<PublisherOptions> options)
 {
     public IPublisher GetPublisher()
     {

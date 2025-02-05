@@ -1,7 +1,7 @@
 
 namespace KubeAgent.Publisher;
 
-public class PublisherOption
+public class PublisherOptions
 {
     public string PublisherType { get; set; } = "NServiceBus";
 }

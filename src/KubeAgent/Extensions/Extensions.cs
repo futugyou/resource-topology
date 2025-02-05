@@ -71,7 +71,7 @@ public static class Extensions
         #region event publisher
         builder.Services.AddKeyedSingleton<IPublisher, NServiceBusPublisher>("NServiceBus");
         builder.Services.AddKeyedSingleton<IPublisher, DaprPublisher>("Dapr");
-        builder.Services.AddOptions<PublisherOption>().BindConfiguration(nameof(PublisherOption));
+        builder.Services.AddOptions<PublisherOptions>().BindConfiguration(nameof(PublisherOptions));
         builder.Services.AddSingleton<PublisherFactory>();
         #endregion
 
