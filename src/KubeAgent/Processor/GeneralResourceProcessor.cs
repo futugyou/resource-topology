@@ -8,10 +8,10 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private readonly ActionBlock<List<Resource>> actionBlock;
     private readonly ILogger<GeneralResourceProcessor> logger;
     private readonly IMapper mapper;
-    private readonly IMessageSession messageSession;
+    private readonly IEventPublisher eventPublisher;
     private bool _isDisposed = false;
 
-    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, IMessageSession messageSession)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, [FromKeyedServices("NServiceBus")] IEventPublisher eventPublisher)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {
@@ -26,7 +26,7 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
         });
         this.logger = logger;
         this.mapper = mapper;
-        this.messageSession = messageSession;
+        this.eventPublisher = eventPublisher;
     }
 
     public async Task CollectingData(Resource data, CancellationToken cancellation)
@@ -73,10 +73,8 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private async Task ProcessBatch(List<Resource> batch, CancellationToken cancellation)
     {
         logger.ProcessBatch(batch.Count);
-        // TODO: send events to mq or save to db
         var events = mapper.Map<ResourceContracts.ResourceProcessorEvent>(batch);
-        PublishOptions publishOptions = new();
-        await messageSession.Publish(events, publishOptions, cancellation); 
+        await eventPublisher.PublishAsync(events, cancellation);
     }
 
     public void Dispose()
