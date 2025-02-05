@@ -61,6 +61,9 @@ public static class Extensions
 
         builder.Services.AddSingleton<IKubernetesClientProvider, KubernetesClientProvider>();
 
+        builder.Services.AddKeyedSingleton<IEventPublisher, NServiceBusPublisher>("NServiceBus");
+        builder.Services.AddKeyedSingleton<IEventPublisher, DaprPublisher>("dapr");
+
         return builder;
     }
 }
