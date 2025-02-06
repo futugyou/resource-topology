@@ -3,7 +3,7 @@ namespace KubeAgent.Publisher;
 
 public class DaprPublisher(ILogger<DaprPublisher> logger, DaprClient dapr) : IPublisher
 {
-    public Task PublishAsync(ResourceProcessorEvent events, CancellationToken cancellation)
+    public async Task PublishAsync(ResourceProcessorEvent events, CancellationToken cancellation)
     {
         var bytes = JsonSerializer.SerializeToUtf8Bytes(events);
         var metadata = new Dictionary<string, string> {
@@ -18,6 +18,14 @@ public class DaprPublisher(ILogger<DaprPublisher> logger, DaprClient dapr) : IPu
             new(events.EventID, bytes, StateOperationType.Upsert, metadata:metadata)
         };
 
-        return dapr.ExecuteStateTransactionAsync("kube-agent-state", upsert, cancellationToken: cancellation);
+        try
+        {
+            await dapr.ExecuteStateTransactionAsync("kube-agent-state", upsert, cancellationToken: cancellation);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while publishing event to Dapr");
+        }
+
     }
 }
