@@ -1,25 +1,29 @@
 using ResourceContracts;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-#region NServiceBus
-var endpointConfiguration = new EndpointConfiguration("resource-manager");
-endpointConfiguration.EnableOpenTelemetry();
-#endregion
+// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-9.0&tabs=net-cli#customizing-run-time-behavior-during-build-time-document-generation
+if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
+{
+    #region NServiceBus
+    var endpointConfiguration = new EndpointConfiguration("resource-manager");
+    endpointConfiguration.EnableOpenTelemetry();
+    #endregion
 
-builder.AddServiceDefaults();
+    builder.AddServiceDefaults();
 
-#region NServiceBus
-var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
-var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString);
+    #region NServiceBus
+    var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+    var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString);
+    var routing = endpointConfiguration.UseTransport(transport);
 
-var routing = endpointConfiguration.UseTransport(transport);
+    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+    endpointConfiguration.EnableInstallers();
+    builder.UseNServiceBus(endpointConfiguration);
+    #endregion
+}
 
-endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-endpointConfiguration.EnableInstallers();
-builder.UseNServiceBus(endpointConfiguration);
-#endregion
 
 builder.Services.AddOpenApi();
 
