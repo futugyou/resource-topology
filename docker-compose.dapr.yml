@@ -103,6 +103,44 @@ services:
       - "./deploy/docker/components/:/components"
       - "./deploy/docker/secrets/:/secrets"
 
+  kube-agent:
+    image: kube-agent
+    container_name: kube-agent
+    build:
+      context: .
+      dockerfile: src/KubeAgent/Dockerfile
+    depends_on:
+      - placement
+    ports:
+      - "50003:50001"
+      - "3502:3500"
+    environment:
+      - SERVICEOPTION__WORKERINTERVAL=5
+      - DAPR_GRPC_PORT=50001
+      - DAPR_HTTP_PORT=3500
+
+  kube-agent-dapr:
+    image: "daprio/daprd"
+    container_name: kube-agent-dapr
+    network_mode: "service:kube-agent"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: ["./daprd",
+      "-app-id", "kube-agent",
+      "-log-level", "warn",
+      "-dapr-grpc-port", "50001",
+      "-dapr-http-port", "3500",
+      "-placement-host-address", "placement:50006",
+      "-scheduler-host-address", "scheduler-0:50007",
+      "-resources-path", "/components"
+      ]
+    volumes:
+      - "./deploy/docker/components/:/components"
+      - "./deploy/docker/secrets/:/secrets"
+
   scheduler-0:
     image: "daprio/dapr:1.14.4"
     container_name: ascheduler-0
