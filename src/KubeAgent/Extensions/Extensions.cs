@@ -75,6 +75,8 @@ public static class Extensions
         builder.Services.AddSingleton<PublisherFactory>();
         #endregion
 
+        builder.Services.AddDaprClient();
+
         return builder;
     }
 }

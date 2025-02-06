@@ -1,4 +1,5 @@
 global using AutoMapper;
+global using Dapr.Client;
 global using k8s;
 global using k8s.Autorest;
 global using k8s.Models;
