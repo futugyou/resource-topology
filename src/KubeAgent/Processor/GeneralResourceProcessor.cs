@@ -8,10 +8,10 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     private readonly ActionBlock<List<Resource>> actionBlock;
     private readonly ILogger<GeneralResourceProcessor> logger;
     private readonly IMapper mapper;
-    private readonly PublisherFactory publisherFactory;
+    private readonly IPublisher publisher;
     private bool _isDisposed = false;
 
-    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, PublisherFactory publisherFactory)
+    public GeneralResourceProcessor(ILogger<GeneralResourceProcessor> logger, IMapper mapper, IPublisher publisher)
     {
         bufferBlock = new BufferBlock<Resource>(new DataflowBlockOptions
         {
@@ -26,7 +26,7 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
         });
         this.logger = logger;
         this.mapper = mapper;
-        this.publisherFactory = publisherFactory;
+        this.publisher = publisher;
     }
 
     public async Task CollectingData(Resource data, CancellationToken cancellation)
@@ -74,8 +74,7 @@ public class GeneralResourceProcessor : IDataProcessor<Resource>, IDisposable, I
     {
         logger.ProcessBatch(batch.Count);
         var events = mapper.Map<ResourceContracts.ResourceProcessorEvent>(batch);
-        var eventPublisher = publisherFactory.GetPublisher();
-        await eventPublisher.PublishAsync(events, cancellation);
+        await publisher.PublishAsync(events, cancellation);
     }
 
     public void Dispose()

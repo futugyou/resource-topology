@@ -7,30 +7,38 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        #region NServiceBus
-        var endpointConfiguration = new EndpointConfiguration("kube-agent");
-        endpointConfiguration.EnableOpenTelemetry();
-        endpointConfiguration.EnableOutbox();
-        #endregion
+        var daprSupported = builder.Configuration["DaprSupported"];
 
         builder.AddServiceDefaults();
 
         #region NServiceBus
-        var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
-        var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString)
-        {
-            TransportTransactionMode = TransportTransactionMode.ReceiveOnly
-        };
-
-        var routing = endpointConfiguration.UseTransport(transport);
-
-        var persistenceConnection = builder.Configuration.GetConnectionString("Mongodb");
-        var persistence = endpointConfiguration.UsePersistence<MongoPersistence>();
-        persistence.DatabaseName("kube-agent");
-        persistence.MongoClient(new MongoClient(persistenceConnection));
-
+        // if dapr is supported, use dapr pub/sub, we also add NServiceBus to DI, but only memory, and we will not use it.        
+        var endpointConfiguration = new EndpointConfiguration("kube-agent");
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-        endpointConfiguration.EnableInstallers();
+        if (daprSupported == "true")
+        {
+            endpointConfiguration.UseTransport(new LearningTransport());
+        }
+        else
+        {
+            endpointConfiguration.EnableOpenTelemetry();
+            endpointConfiguration.EnableOutbox();
+            var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+            var transport = new RabbitMQTransport(RoutingTopology.Conventional(QueueType.Quorum), connectionString)
+            {
+                TransportTransactionMode = TransportTransactionMode.ReceiveOnly
+            };
+
+            var routing = endpointConfiguration.UseTransport(transport);
+
+            var persistenceConnection = builder.Configuration.GetConnectionString("Mongodb");
+            var persistence = endpointConfiguration.UsePersistence<MongoPersistence>();
+            persistence.DatabaseName("kube-agent");
+            persistence.MongoClient(new MongoClient(persistenceConnection));
+
+            endpointConfiguration.EnableInstallers();
+        }
+
         builder.UseNServiceBus(endpointConfiguration);
         #endregion
 
@@ -69,10 +77,14 @@ public static class Extensions
         #endregion
 
         #region event publisher
-        builder.Services.AddKeyedSingleton<IPublisher, NServiceBusPublisher>("NServiceBus");
-        builder.Services.AddKeyedSingleton<IPublisher, DaprPublisher>("Dapr");
-        builder.Services.AddOptions<PublisherOptions>().BindConfiguration(nameof(PublisherOptions));
-        builder.Services.AddSingleton<PublisherFactory>();
+        if (daprSupported == "true")
+        {
+            builder.Services.AddSingleton<IPublisher, DaprPublisher>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IPublisher, NServiceBusPublisher>();
+        }
         #endregion
 
         builder.Services.AddDaprClient();
