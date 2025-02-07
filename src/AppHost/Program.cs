@@ -1,6 +1,7 @@
 using Aspire.Hosting.Dapr;
 
 var builder = DistributedApplication.CreateBuilder(args);
+var daprSupported = builder.AddParameter("DaprSupported");
 
 var rabbitmq = builder.AddRabbitMQ("rabbitmq");
 
@@ -23,11 +24,13 @@ var awsDB = builder.ExecutionContext.IsRunMode
 builder.AddProject<Projects.AwsAgent>("aws-agent")
 .WithDaprSidecar(awsSidecarOptions)
 .WithReference(awsDB)
-.WaitFor(awsDB);
+.WaitFor(awsDB)
+.WithEnvironment("DaprSupported", daprSupported);
 
 builder.AddProject<Projects.KubeAgent>("k8s")
 .WithReference(rabbitmq)
-.WaitFor(rabbitmq);
+.WaitFor(rabbitmq)
+.WithEnvironment("DaprSupported", daprSupported);
 
 DaprSidecarOptions managerSidecarOptions = new()
 {
@@ -41,6 +44,7 @@ DaprSidecarOptions managerSidecarOptions = new()
 builder.AddProject<Projects.ResourceManager>("resource-manager")
 .WithDaprSidecar(managerSidecarOptions)
 .WithReference(rabbitmq)
-.WaitFor(rabbitmq);
+.WaitFor(rabbitmq)
+.WithEnvironment("DaprSupported", daprSupported);
 
 builder.Build().Run();
