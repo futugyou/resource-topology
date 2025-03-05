@@ -18,6 +18,19 @@ updates:
       aws:
         patterns:
           - "AWSSDK*"
+      dapr:
+        patterns:
+          - "Dapr*"
+      nservice:
+        patterns:
+          - "NServiceBus*"
+      otel:
+        patterns:
+          - "OpenTelemetry*"
+      aspire:
+        patterns:
+          - "Aspire*"
+          - "CommunityToolkit.Aspire*"
       openapi:
         patterns:
           - "Microsoft.AspNetCore.OpenApi"
