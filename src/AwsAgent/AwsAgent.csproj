@@ -15,7 +15,7 @@
     <PackageReference Include="Dapr.AspNetCore" Version="1.15.2" />
     <PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
     <PackageReference Include="Dapr.Workflow" Version="1.15.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageReference Include="MongoDB.Driver" Version="3.3.0" /> 
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.2.2" />
   </ItemGroup>
