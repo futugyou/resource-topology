@@ -15,7 +15,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="8.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="8.1.1" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="10.0.1" />
     <PackageReference Include="NServiceBus.Storage.MongoDB" Version="4.1.1" />
