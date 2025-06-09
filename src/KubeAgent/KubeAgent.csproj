@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="10.1.2" />
-    <PackageReference Include="NServiceBus.Storage.MongoDB" Version="4.2.0" />
+    <PackageReference Include="NServiceBus.Storage.MongoDB" Version="5.0.0" />
     <PackageReference Include="Polly.Core" Version="8.5.2" />
     <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
   </ItemGroup>
