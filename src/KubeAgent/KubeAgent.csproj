@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="KubernetesClient" Version="17.0.14" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="10.1.4" />
     <PackageReference Include="NServiceBus.Storage.MongoDB" Version="6.0.0" />
