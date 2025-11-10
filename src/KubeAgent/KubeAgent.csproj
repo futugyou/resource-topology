@@ -15,7 +15,7 @@
     <PackageReference Include="NServiceBus.RabbitMQ" Version="10.1.4" />
     <PackageReference Include="NServiceBus.Storage.MongoDB" Version="6.0.0" />
     <PackageReference Include="Polly.Core" Version="8.6.4" />
-    <PackageReference Include="Dapr.AspNetCore" Version="1.16.0" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.16.1" />
   </ItemGroup>
   
   <ItemGroup>
