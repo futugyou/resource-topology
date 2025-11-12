@@ -9,7 +9,7 @@ set -e
 # wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash -s 1.14.1
 
 # dotnet workload update
-dotnet dev-certs https
+# dotnet dev-certs https
 
 npm install -g @angular/cli@latest
 npm install -g markdownlint-cli

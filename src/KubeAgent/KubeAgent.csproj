@@ -1,21 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-KubeAgent-a2afb1dc-70f2-4766-b80a-f775ad5195d2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="15.1.0" />
-    <PackageReference Include="KubernetesClient" Version="18.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
-    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
-    <PackageReference Include="NServiceBus.RabbitMQ" Version="10.1.4" />
-    <PackageReference Include="NServiceBus.Storage.MongoDB" Version="6.0.0" />
-    <PackageReference Include="Polly.Core" Version="8.6.4" />
-    <PackageReference Include="Dapr.AspNetCore" Version="1.16.1" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="KubernetesClient" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="NServiceBus.Extensions.Hosting" />
+    <PackageReference Include="NServiceBus.RabbitMQ" />
+    <PackageReference Include="NServiceBus.Storage.MongoDB" />
+    <PackageReference Include="Polly.Core" />
+    <PackageReference Include="Dapr.AspNetCore" />
   </ItemGroup>
   
   <ItemGroup>

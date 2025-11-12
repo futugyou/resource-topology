@@ -1,3 +1,4 @@
+
 namespace AwsAgent.Domain;
 
 [BsonIgnoreExtraElements]
@@ -22,7 +23,7 @@ public class Resource : IEntity
     public required string Configuration { get; set; }
 
     [BsonElement("configurationItemCaptureTime")]
-    public required DateTime ConfigurationItemCaptureTime { get; set; }
+    public required DateTime? ConfigurationItemCaptureTime { get; set; }
 
     [BsonElement("configurationItemStatus")]
     public required string ConfigurationItemStatus { get; set; }
@@ -31,7 +32,7 @@ public class Resource : IEntity
     public required string ConfigurationStateID { get; set; }
 
     [BsonElement("resourceCreationTime")]
-    public required DateTime ResourceCreationTime { get; set; }
+    public required DateTime? ResourceCreationTime { get; set; }
 
     [BsonElement("resourceId")]
     public required string ResourceID { get; set; }

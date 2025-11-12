@@ -27,6 +27,9 @@ updates:
       otel:
         patterns:
           - "OpenTelemetry*"
+      extensions:
+        patterns:
+          - "Microsoft.Extensions*"
       aspire:
         patterns:
           - "Aspire*"

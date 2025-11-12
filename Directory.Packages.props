@@ -1,0 +1,64 @@
+<Project>
+  <ItemGroup>
+    <!-- Aspire Framework -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Hosting.MySql" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.0.0" />
+    <PackageVersion Include="Aspire.Pomelo.EntityFrameworkCore.MySql" Version="13.0.0" />
+    <PackageVersion Include="Aspire.RabbitMQ.Client" Version="13.0.0" />
+    <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.0.0" />
+
+    <!-- EF Core -->
+    <PackageVersion Include="MongoDB.Driver" Version="3.3.0" /> 
+    <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="9.0.0" />
+
+    <!-- NServiceBus -->
+    <PackageVersion Include="NServiceBus" Version="9.2.7" />
+    <PackageVersion Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
+    <PackageVersion Include="NServiceBus.RabbitMQ" Version="10.1.4" />
+    <PackageVersion Include="NServiceBus.Storage.MongoDB" Version="6.0.0" />
+
+    <!-- Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Polly" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+
+    <!-- OpenApi -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUi" Version="10.0.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.0" />
+
+    <!-- OpenTelemetry-->    
+    <PackageVersion Include="OpenTelemetry" Version="1.13.1" />     
+    <PackageVersion Include="OpenTelemetry.Extensions" Version="1.13.0-beta.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.13.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.13.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.13.0" />
+
+    <!-- Dapr -->    
+    <PackageVersion Include="Dapr.AspNetCore" Version="1.16.1" />
+    <PackageVersion Include="Dapr.Extensions.Configuration" Version="1.16.1" />
+    <PackageVersion Include="Dapr.Workflow" Version="1.16.1" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0-beta.436" />
+
+    <!-- AWS -->    
+    <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.4.3" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.11" />
+    <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.6" />
+
+    
+    <PackageVersion Include="Polly.Core" Version="8.6.4" />
+    <PackageVersion Include="AutoMapper" Version="14.0.0" />
+    <PackageVersion Include="KubernetesClient" Version="18.0.5" />
+  </ItemGroup>
+</Project>

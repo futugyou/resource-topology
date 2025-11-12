@@ -1,23 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-AwsAgent-689bd745-736a-44a0-89a4-1777c8c9a50a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="AWSSDK.ConfigService" Version="3.7.402.82" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.0" />
-    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.405.18" />
-    <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
-    <PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.4" />
-    <PackageReference Include="Dapr.Workflow" Version="1.15.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
-    <PackageReference Include="MongoDB.Driver" Version="3.3.0" /> 
-    <PackageReference Include="MongoDB.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="AWSSDK.ConfigService" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
+    <PackageReference Include="AWSSDK.IdentityManagement" />
+    <PackageReference Include="Dapr.AspNetCore" />
+    <PackageReference Include="Dapr.Extensions.Configuration" />
+    <PackageReference Include="Dapr.Workflow" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="MongoDB.Driver" /> 
+    <PackageReference Include="MongoDB.EntityFrameworkCore" />
   </ItemGroup>
   
   <ItemGroup>

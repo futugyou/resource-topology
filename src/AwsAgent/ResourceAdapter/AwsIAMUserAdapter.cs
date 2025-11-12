@@ -112,7 +112,7 @@ public record AwsIamConfig
     public string UserId { get; set; } = "";
 
     [JsonPropertyName("createDate")]
-    public DateTime CreateDate { get; set; }
+    public DateTime? CreateDate { get; set; }
 
     [JsonPropertyName("tags")]
     public List<ConfigTag> Tags { get; set; } = [];

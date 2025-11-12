@@ -34,11 +34,14 @@ if (daprSupported == "true")
     var awsAgentState = builder.AddDaprStateStore("aws-agent-state");
     var resourceAgent = builder.AddDaprPubSub("resource-agent");
 
-    awsProject.WithDaprSidecar(awsSidecarOptions)
-       .WithReference(awsAgentConfig)
-       .WithReference(awsAgentSecret)
-       .WithReference(awsAgentState)
-       .WithReference(resourceAgent);
+    var sidecar = awsProject.WithDaprSidecar(
+        sidecar => sidecar
+            .WithOptions(awsSidecarOptions)
+            .WithReference(awsAgentConfig)
+            .WithReference(awsAgentSecret)
+            .WithReference(awsAgentState)
+            .WithReference(resourceAgent)
+    );
 }
 
 var kubeProject = builder.AddProject<Projects.KubeAgent>("k8s")

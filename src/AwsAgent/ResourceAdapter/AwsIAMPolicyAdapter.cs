@@ -79,22 +79,22 @@ public class PolicyConfig
     public string Arn { get; set; } = "";
 
     [JsonPropertyName("attachmentCount")]
-    public double AttachmentCount { get; set; }
+    public int? AttachmentCount { get; set; }
 
     [JsonPropertyName("createDate")]
-    public DateTime CreateDate { get; set; }
+    public DateTime? CreateDate { get; set; }
 
     [JsonPropertyName("defaultVersionId")]
     public string DefaultVersionId { get; set; } = "";
 
     [JsonPropertyName("isAttachable")]
-    public bool IsAttachable { get; set; }
+    public bool? IsAttachable { get; set; }
 
     [JsonPropertyName("path")]
     public string Path { get; set; } = "";
 
     [JsonPropertyName("permissionsBoundaryUsageCount")]
-    public double PermissionsBoundaryUsageCount { get; set; }
+    public double? PermissionsBoundaryUsageCount { get; set; }
 
     [JsonPropertyName("policyId")]
     public string PolicyId { get; set; } = "";
@@ -106,6 +106,6 @@ public class PolicyConfig
     // public List<PolicyVersionList> PolicyVersionList { get; set; } = [];
 
     [JsonPropertyName("updateDate")]
-    public DateTime UpdateDate { get; set; }
+    public DateTime? UpdateDate { get; set; }
 }
 

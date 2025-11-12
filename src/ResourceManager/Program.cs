@@ -1,6 +1,3 @@
-using ResourceContracts;
-using System.Reflection;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-9.0&tabs=net-cli#customizing-run-time-behavior-during-build-time-document-generation
@@ -63,8 +60,7 @@ app.MapGet("/weatherforecast", () =>
     Console.WriteLine("forecast count : " + forecast.Length);
     return forecast;
 })
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+.WithName("GetWeatherForecast");
 
 // TODO: some error here https://github.com/dapr/dotnet-sdk/issues/1332#issuecomment-2380321656
 app.MapPost("/resource-event-outbox",
@@ -83,7 +79,7 @@ app.MapPost("/resource-event",
     var data = JsonSerializer.Serialize(resource);
     Console.WriteLine("resource received : " + data);
     return TypedResults.Ok(data);
-}).WithName("resource-event").WithOpenApi();
+}).WithName("resource-event");
 
 app.Run();
 

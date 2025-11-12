@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "ResourceManager | v1",
     "version": "1.0.0"
@@ -154,7 +154,7 @@
           "update_resources": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/insert_resources/items"
+              "$ref": "#/components/schemas/Resource"
             }
           },
           "insert_ships": {
@@ -201,15 +201,25 @@
             "format": "date"
           },
           "temperatureC": {
-            "type": "integer",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
             "format": "int32"
           },
           "summary": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "temperatureF": {
-            "type": "integer",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
             "format": "int32"
           }
         }
