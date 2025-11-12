@@ -1,16 +1,18 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 EXPOSE 5000 50001
 USER app
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:5000
 ENV SERVICEOPTION__WORKERINTERVAL=5
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG configuration=Release
 WORKDIR /src
 COPY ["src/KubeAgent/KubeAgent.csproj", "KubeAgent/"]
 COPY ["src/ResourceContracts/ResourceContracts.csproj", "ResourceContracts/"]
 COPY ["src/ServiceDefaults/ServiceDefaults.csproj", "ServiceDefaults/"]
+COPY ["Directory.Build.props", "./"]
+COPY ["Directory.Packages.props", "./"]
 RUN dotnet restore "KubeAgent/KubeAgent.csproj"
 COPY ["src/KubeAgent", "KubeAgent/"]
 COPY ["src/ResourceContracts", "ResourceContracts/"]
