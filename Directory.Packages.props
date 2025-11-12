@@ -11,8 +11,8 @@
     <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.0.0" />
 
     <!-- EF Core -->
-    <PackageVersion Include="MongoDB.Driver" Version="3.3.0" /> 
-    <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="9.0.0" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.5.0" /> 
+    <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="9.0.3" />
 
     <!-- NServiceBus -->
     <PackageVersion Include="NServiceBus" Version="9.2.7" />
