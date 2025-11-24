@@ -57,7 +57,7 @@
     <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.8.1" />
 
     
-    <PackageVersion Include="Polly.Core" Version="8.6.4" />
+    <PackageVersion Include="Polly.Core" Version="8.6.5" />
     <PackageVersion Include="AutoMapper" Version="15.1.0" />
     <PackageVersion Include="KubernetesClient" Version="18.0.5" />
   </ItemGroup>
