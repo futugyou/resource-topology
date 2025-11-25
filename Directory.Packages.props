@@ -49,7 +49,7 @@
     <PackageVersion Include="Dapr.AspNetCore" Version="1.16.1" />
     <PackageVersion Include="Dapr.Extensions.Configuration" Version="1.16.1" />
     <PackageVersion Include="Dapr.Workflow" Version="1.16.1" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0-beta.456" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0-beta.462" />
 
     <!-- AWS -->    
     <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.4.6" />
