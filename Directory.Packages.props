@@ -15,9 +15,9 @@
     <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="9.0.3" />
 
     <!-- NServiceBus -->
-    <PackageVersion Include="NServiceBus" Version="9.2.7" />
+    <PackageVersion Include="NServiceBus" Version="9.2.8" />
     <PackageVersion Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
-    <PackageVersion Include="NServiceBus.RabbitMQ" Version="10.1.4" />
+    <PackageVersion Include="NServiceBus.RabbitMQ" Version="10.1.5" />
     <PackageVersion Include="NServiceBus.Storage.MongoDB" Version="6.0.0" />
 
     <!-- Extensions -->
