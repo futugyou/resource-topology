@@ -58,7 +58,7 @@
 
     
     <PackageVersion Include="Polly.Core" Version="8.6.5" />
-    <PackageVersion Include="AutoMapper" Version="15.1.0" />
+    <PackageVersion Include="AutoMapper" Version="16.0.0" />
     <PackageVersion Include="KubernetesClient" Version="18.0.13" />
   </ItemGroup>
 </Project>
