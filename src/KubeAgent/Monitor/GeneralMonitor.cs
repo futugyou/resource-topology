@@ -11,7 +11,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 {
     readonly ConcurrentDictionary<string, InternalWatcherInfo> watcherList = [];
     readonly ConcurrentDictionary<string, int> clientCounter = [];
-    private ConcurrentDictionary<string, MonitoringContext> monitoringContexts = [];
 
     int timerstart = 0;
 
@@ -43,7 +42,8 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
             if (now - watcher.LastActiveTime > TimeSpan.FromMinutes(monitorOptions.CurrentValue.InactiveThresholdMinutes))
             {
-                logger.MonitorTimeout(watcher.Resource.ResourceId());
+                var resourceId = watcher.Resource.ResourceId();
+                logger.MonitorTimeout(resourceId);
                 await RestartResource(watcher.Resource, cancellation);
             }
         }
@@ -56,9 +56,10 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
     public async Task StartMonitoringAsync(MonitoringContext resource, CancellationToken cancellation)
     {
-        if (watcherList.ContainsKey(resource.ResourceId()))
+        var resourceId = resource.ResourceId();
+        if (watcherList.ContainsKey(resourceId))
         {
-            logger.MonitorAlreadyExist(resource.ResourceId());
+            logger.MonitorAlreadyExist(resourceId);
             return;
         }
 
@@ -73,20 +74,21 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             return;
         }
 
-        clientCounter.AddOrUpdate(resource.ResourceId(), 1, (k, v) => v + 1);
+        clientCounter.AddOrUpdate(resourceId, 1, (k, v) => v + 1);
 
         // Extracted the common resource creation logic into a helper method
         Watcher<object>? resources = await CreateWatcher(client, resource, cancellation);
 
         if (resources != null)
         {
-            watcherList[resource.ResourceId()] = new() { Watcher = resources, Resource = resource, LastActiveTime = DateTime.Now };
-            logger.MonitorAdded(resource.ResourceId());
+            watcherList[resourceId] = new() { Watcher = resources, Resource = resource, LastActiveTime = DateTime.Now };
+            logger.MonitorAdded(resourceId);
         }
     }
 
     private async Task<Watcher<object>?> CreateWatcher(IKubernetes client, MonitoringContext resource, CancellationToken cancellation)
     {
+        var resourceId = resource.ResourceId();
         async void onEventHandler(WatchEventType type, object item)
         {
             await OnEvent(resource, type, item, cancellation);
@@ -102,13 +104,13 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
                 }
             }
 
-            logger.MonitorReceiveError(resource.ResourceId(), ex);
+            logger.MonitorReceiveError(resourceId, ex);
             await RestartResource(resource, cancellation);
         }
 
         void onClosedHandler()
         {
-            logger.MonitorOnClosed(resource.ResourceId());
+            logger.MonitorOnClosed(resourceId);
         }
 
         if (string.IsNullOrWhiteSpace(resource.Namespace))
@@ -140,9 +142,10 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
     private async Task OnEvent(MonitoringContext resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
     {
+        var resourceId = resource.ResourceId();
         if (watchEventType == WatchEventType.Error)
         {
-            logger.MonitorOnEventError(resource.ResourceId());
+            logger.MonitorOnEventError(resourceId);
             return;
         }
 
@@ -157,11 +160,11 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
             {
                 // Normally, it will not run to this point. If the type is incorrect, an error will be reported during serialization.
                 // If it really runs to this point, I would be very curious about what kind of data this is.
-                logger.MonitorOnEventTypeError(resource.ResourceId());
+                logger.MonitorOnEventTypeError(resourceId);
                 return;
             }
 
-            logger.MonitorOnEventProcessing(resource.ResourceId(), watchEventType);
+            logger.MonitorOnEventProcessing(resourceId, watchEventType);
 
             HandleWatcherList(resource, kubernetesObject, watchEventType);
 
@@ -180,7 +183,7 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         }
         catch (Exception ex)
         {
-            logger.MonitorOnEventHandlingError(resource.ResourceId(), ex);
+            logger.MonitorOnEventHandlingError(resourceId, ex);
         }
     }
 
@@ -334,7 +337,6 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-
 
     public class InternalWatcherInfo
     {
