@@ -7,7 +7,7 @@ public static class Extensions
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.AddServiceDefaults();
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
         AutoMapperConfig.RegisterMapper();
 
         var daprClientBuilder = new DaprClientBuilder();

@@ -42,7 +42,7 @@ public static class Extensions
         builder.UseNServiceBus(endpointConfiguration);
         #endregion
 
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
         AutoMapperConfig.RegisterMapper();
 
         builder.Services.AddOptions<AgentOptions>().BindConfiguration(nameof(AgentOptions));

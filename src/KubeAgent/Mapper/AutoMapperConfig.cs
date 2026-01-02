@@ -1,3 +1,6 @@
+
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace KubeAgent.Mapper;
 
 public class AutoMapperConfig
@@ -7,6 +10,6 @@ public class AutoMapperConfig
         return new MapperConfiguration(conf =>
         {
             conf.AddProfile(new MappingProfile());
-        });
+        }, new NullLoggerFactory());
     }
 }
