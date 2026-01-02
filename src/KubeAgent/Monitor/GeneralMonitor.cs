@@ -11,6 +11,8 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 {
     readonly ConcurrentDictionary<string, InternalWatcherInfo> watcherList = [];
     readonly ConcurrentDictionary<string, int> clientCounter = [];
+    private ConcurrentDictionary<string, MonitoringContext> monitoringContexts = [];
+
     int timerstart = 0;
 
     private void StartInactiveCheckTask(CancellationToken cancellation)
@@ -73,60 +75,67 @@ public class GeneralMonitor(ILogger<GeneralMonitor> logger,
 
         clientCounter.AddOrUpdate(resource.ResourceId(), 1, (k, v) => v + 1);
 
-        Task<HttpOperationResponse<object>>? resources = null;
+        // Extracted the common resource creation logic into a helper method
+        Watcher<object>? resources = await CreateWatcher(client, resource, cancellation);
+
+        if (resources != null)
+        {
+            watcherList[resource.ResourceId()] = new() { Watcher = resources, Resource = resource, LastActiveTime = DateTime.Now };
+            logger.MonitorAdded(resource.ResourceId());
+        }
+    }
+
+    private async Task<Watcher<object>?> CreateWatcher(IKubernetes client, MonitoringContext resource, CancellationToken cancellation)
+    {
+        async void onEventHandler(WatchEventType type, object item)
+        {
+            await OnEvent(resource, type, item, cancellation);
+        }
+
+        async void onErrorHandler(Exception ex)
+        {
+            if (ex is KubernetesException kubernetesError)
+            {
+                if (string.Equals(kubernetesError.Status.Reason, "Expired", StringComparison.Ordinal))
+                {
+                    resource.ResourceVersion = null;
+                }
+            }
+
+            logger.MonitorReceiveError(resource.ResourceId(), ex);
+            await RestartResource(resource, cancellation);
+        }
+
+        void onClosedHandler()
+        {
+            logger.MonitorOnClosed(resource.ResourceId());
+        }
+
         if (string.IsNullOrWhiteSpace(resource.Namespace))
         {
-            resources = client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync(
+            return client.CustomObjects.WatchListClusterCustomObject(
                 group: resource.KubeGroup,
                 version: resource.KubeApiVersion,
                 plural: resource.KubePluralName,
-                watch: true,
+                onEvent: onEventHandler,
+                onError: onErrorHandler,
+                onClosed: onClosedHandler,
                 allowWatchBookmarks: true,
-                resourceVersion: resource.ResourceVersion,
-                cancellationToken: cancellation);
+                resourceVersion: resource.ResourceVersion);
         }
         else
         {
-            resources = client.CustomObjects.ListNamespacedCustomObjectWithHttpMessagesAsync(
+            return client.CustomObjects.WatchListNamespacedCustomObject(
                 group: resource.KubeGroup,
                 version: resource.KubeApiVersion,
                 namespaceParameter: resource.Namespace,
                 plural: resource.KubePluralName,
-                watch: true,
+                onEvent: onEventHandler,
+                onError: onErrorHandler,
+                onClosed: onClosedHandler,
                 allowWatchBookmarks: true,
-                resourceVersion: resource.ResourceVersion,
-                cancellationToken: cancellation);
+                resourceVersion: resource.ResourceVersion);
         }
-
-        var watcher = resources.Watch(
-            onEvent: (Action<WatchEventType, object>)(async (type, item) =>
-            {
-                await OnEvent(resource, type, item, cancellation);
-            }),
-            onError: async (ex) =>
-            {
-                // From the code of KubernetesClient, 
-                // The loop will stop watching when the stream reading fails. 
-                // The stream reading is successful, but the watching will not be stopped when the processing fails.
-                if (ex is KubernetesException kubernetesError)
-                {
-                    if (string.Equals(kubernetesError.Status.Reason, "Expired", StringComparison.Ordinal))
-                    {
-                        resource.ResourceVersion = null;
-                    }
-                }
-
-                logger.MonitorReceiveError(resource.ResourceId(), ex);
-                // TODO: It has not yet been determined which errors require a restart. 
-                await RestartResource(resource, cancellation);
-            },
-            onClosed: () =>
-            {
-                logger.MonitorOnClosed(resource.ResourceId());
-            });
-
-        watcherList[resource.ResourceId()] = new() { Watcher = watcher, Resource = resource, LastActiveTime = DateTime.Now };
-        logger.MonitorAdded(resource.ResourceId());
     }
 
     private async Task OnEvent(MonitoringContext resource, WatchEventType watchEventType, object item, CancellationToken cancellation)
