@@ -52,9 +52,9 @@
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
 
     <!-- AWS -->    
-    <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.5.1" />
-    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.18" />
-    <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.3" />
+    <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.5.2" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.19" />
+    <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.4" />
 
     
     <PackageVersion Include="Polly.Core" Version="8.6.5" />
