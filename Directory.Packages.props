@@ -46,9 +46,9 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
 
     <!-- Dapr -->    
-    <PackageVersion Include="Dapr.AspNetCore" Version="1.17.1" />
-    <PackageVersion Include="Dapr.Extensions.Configuration" Version="1.17.1" />
-    <PackageVersion Include="Dapr.Workflow" Version="1.17.1" />
+    <PackageVersion Include="Dapr.AspNetCore" Version="1.17.2" />
+    <PackageVersion Include="Dapr.Extensions.Configuration" Version="1.17.2" />
+    <PackageVersion Include="Dapr.Workflow" Version="1.17.2" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
 
     <!-- AWS -->    
