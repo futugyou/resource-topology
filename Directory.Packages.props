@@ -54,7 +54,7 @@
     <!-- AWS -->    
     <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.7.3" />
     <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.27" />
-    <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.12" />
+    <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.13" />
 
     
     <PackageVersion Include="Polly.Core" Version="8.6.5" />
