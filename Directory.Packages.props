@@ -52,7 +52,7 @@
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.0.0" />
 
     <!-- AWS -->    
-    <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.7.3" />
+    <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.7.4" />
     <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.28" />
     <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.13" />
 
