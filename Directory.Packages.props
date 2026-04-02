@@ -53,7 +53,7 @@
 
     <!-- AWS -->    
     <PackageVersion Include="AWSSDK.ConfigService" Version="4.0.7.5" />
-    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.29" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.30" />
     <PackageVersion Include="AWSSDK.IdentityManagement" Version="4.0.9.15" />
 
     
