@@ -12,7 +12,7 @@
 
     <!-- EF Core -->
     <PackageVersion Include="MongoDB.Driver" Version="3.9.0" /> 
-    <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.1" />
+    <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.2" />
 
     <!-- NServiceBus -->
     <PackageVersion Include="NServiceBus" Version="10.2.4" />
