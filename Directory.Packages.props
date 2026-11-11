@@ -16,9 +16,9 @@
 
     <!-- NServiceBus -->
     <PackageVersion Include="NServiceBus" Version="10.2.9" />
-    <PackageVersion Include="NServiceBus.Extensions.Hosting" Version="3.0.1" />
-    <PackageVersion Include="NServiceBus.RabbitMQ" Version="10.1.7" />
-    <PackageVersion Include="NServiceBus.Storage.MongoDB" Version="6.0.1" />
+    <PackageVersion Include="NServiceBus.Extensions.Hosting" Version="4.1.0" />
+    <PackageVersion Include="NServiceBus.RabbitMQ" Version="11.2.1" />
+    <PackageVersion Include="NServiceBus.Storage.MongoDB" Version="7.0.3" />
 
     <!-- Extensions -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
